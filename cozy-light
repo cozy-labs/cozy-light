@@ -1,0 +1,431 @@
+#!/usr/bin/env node
+
+var fs = require('fs');
+var mkdirp = require('mkdirp');
+var pathExtra = require('path-extra');
+var program = require('commander');
+var npm = require('npm');
+var request = require('request-json-light');
+var express = require('express');
+var morgan = require('morgan');
+var async = require('async');
+var printit = require('printit');
+var Pouchdb = require('pouchdb');
+var httpProxy = require('http-proxy');
+var fsExtra = require('fs-extra');
+var pkg = require('./package.json');
+
+
+// Helpers
+
+
+/**
+* Exit with the given `str`.
+*
+* @param {String} str
+*/
+function abort(str) {
+  console.error(str);
+  process.exit(1);
+}
+
+
+/**
+* Add a new application to the configuration file. The configuration file is
+* written in JSON. It adds an entry to the apps field. Name, display name,
+* version and description are required.
+*
+* @param {String} app The app name as it's typed by the user (user/repo).
+* @param {String} manifest Manifest containing application fields.
+*/
+function addAppToConfig(app, manifest) {
+  config.apps[app] = {
+    name: manifest.name,
+    displayName: manifest.displayName,
+    version: manifest.version,
+    description: manifest.description
+  };
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+};
+
+
+/**
+* Add a new application to the configuration file. The configuration file is
+* written in JSON. It adds an entry to the apps field. Name, display name,
+* version and description are required.
+*
+* Config file is ~/.cozy-light/.config
+*
+* @param {String} app The app name as it's typed by the user (user/repo).
+* @param {String} manifest Manifest containing application fields.
+*/
+function removeAppFromConfig(app, manifest) {
+    delete config.apps[app];
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+};
+
+
+/**
+* Fetch given app source and dependencies from NPM registry.
+*
+* Config file is ~/.cozy-light/.config
+*
+* @param {String} app App to fetch from NPM.
+* @param {Function} manifest Callback to run once work is done.
+*/
+function npmInstall(app, callback) {
+  npm.load({}, function() {
+    npm.commands.install(home, [app], callback);
+  });
+};
+
+
+/**
+* Remove application source and dependencies using NPM lib.
+*
+* @param {String} app App to fetch from NPM.
+* @param {Function} manifest Callback to run once work is done.
+ */
+function npmUninstall(app, callback) {
+  module = config.apps[app].name;
+  npm.load({}, function() {
+    npm.commands.uninstall([module], callback);
+  });
+};
+
+
+// Application server
+
+
+/*
+ * Configure properly proxy: handle errors and websockets.
+ */
+function initializeProxy(server) {
+
+  proxy.on('error', function(err, req, res) {
+    res.send(err, 500);
+  });
+
+  server.on('upgrade', function(req, socket, head) {
+
+    function proxyWS(port) {
+      proxy.ws(req, socket, head, {
+        target: "ws://localhost:" + port,
+        ws: true
+      });
+    };
+
+    function fail(err) {
+      if (err != null) {
+        logger.error(err);
+      }
+      logger.error("Socket unauthorized");
+      socket.end("HTTP/1.1 400 Connection Refused \r\n" + 
+                 "Connection: close\r\n\r\n", 'ascii');
+    };
+
+    req.originalUrl = req.url;
+
+    var publicOrPrivate = '';
+    var slug = '';
+
+    var urlParts = req.url.split('/');
+    if(urlParts.length === 3) {
+      publicOrPrivate = urlParts[1];
+      slug = urlParts[2];
+    }
+
+    if (publicOrPrivate === 'public') {
+      req.url = req.url.replace("/public/" + slug, '/public');
+      proxyWS(routes[slug]);
+
+    } else if (publicOrPrivate === 'apps') {
+      req.url = req.url.replace("/apps/" + slug, '');
+      proxyWS(routes[slug]);
+
+    } else {
+      proxyWS(process.env.DEFAULT_REDIRECT_PORT);
+    }
+  });
+
+  return proxy;
+};
+
+var controllers = {
+  
+  /*
+   * Render front page and list available applications.
+   */
+  index: function(req, res, next) {
+    var template = ' \
+    <html> \
+    <head> \
+        <meta http-equiv="content-type" content="text/html; charset=utf-8"> \
+        <title>Cozy Light: lightweight personal cloud</title> \
+        <style type="text/css" media="screen"> \
+        </style> \
+    </head> \
+    <body>';
+
+    Object.keys(config.apps).forEach(function(key) {
+      var app = config.apps[key];
+      var name = app.name;
+      template += '<p><a href="apps/' + name + '/" target="_blank">' 
+      template += app.displayName + '</a>&nbsp;(' + app.version + ')</p>'
+    });
+
+    template += ' \
+    </body> \
+    </html> \
+      ';
+    res.send(template);
+  },
+
+  /*
+   * Proxy requests targeting apps.
+   */
+  proxyPrivate: function(req, res, next) {
+    var appName = req.params.name
+    var port = routes[appName];
+    req.url = req.url.substring(("/apps/" + appName).length);
+    if (port !== null) {
+      proxy.web(req, res, { target: "http://localhost:" + port });
+    } else {
+      res.send(404);
+    }
+  },
+  
+
+  /*
+   * Proxy requests targeting apps public path.
+   */
+  proxyPublic: function(req, res, next) {
+    var appName = req.params.name
+    var port = routes[appName];
+    req.url = "/public" + req.url.substring(("/public/" + appName).length);
+    if (port !== null) {
+      proxy.web(req, res, { target: "http://localhost:" + port });
+    } else {
+      res.send(404);
+    }
+  }
+
+}
+
+
+/*
+ * Create dashboard application server. 
+ */
+function createApplicationServer() {
+  app = express()
+
+  app.use(morgan('combined'));
+  app.get('/', controllers.index);
+
+  app.all('/apps/:name/*', controllers.proxyPrivate);
+  app.all('/apps/:name*', controllers.proxyPrivate);
+
+  app.all('/public/:name/*', controllers.proxyPublic);
+  app.all('/public/:name*', controllers.proxyPublic);
+
+  return app;
+};
+
+
+// CLI
+
+var cli = {
+
+  
+  /*
+   * Get all installed app modules. Expect that a start function is available,
+   * then run the app server on given port. Ports are expected to be available.
+   */
+  start: function() {
+    app = createApplicationServer(); 
+
+    var db = new Pouchdb('cozy');
+
+    async.eachSeries(Object.keys(config.apps), function(key, callback) {
+      var application = config.apps[key];
+      var name = application.name;
+      var script = pathExtra.join(home, 'node_modules', name);
+      var module = null;
+
+      try {
+        module = require(script);
+      } catch(err) {
+        console.log(err);
+      }
+
+      if (module === null) {
+        log.error("Can't load application " + name + ".");
+        callback();
+      } if (module.start === undefined) {
+        log.error("Can't start application " + name + ".");
+        callback();
+      } else {
+        module.start({db: db, port: port}, function(app, server) {
+          var subpath = 'apps/' + name;
+          routes[name] = port;
+          log.info('Application ' + name + ' is now running on port ' + 
+                   port + '...');
+          port = port + 1;
+          callback();
+        });
+      }
+    }, function(err) {
+      if(err) { log.error(err); }
+      server = app.listen(defaultPort, function() {
+        log.info('Cozy Light Dashboard is running on port 19104...');
+      });
+      initializeProxy(server);
+    });
+  },
+
+
+  /*
+  * App names correspond to Github repo. An app name is composed of a user name
+  * and a repository name.
+  * Installation starts by fetching the manifest from the repostiory
+  * (package.json located at the root). Then it installs sources and
+  * dependencies in the cozy-light folder.
+  *
+  * @param {String} app App to install (ex: cozy-labs/calendar).
+  */
+  installApp: function(app){
+    var client = request.newClient( 'https://raw.githubusercontent.com/');
+    var manifestUrl = app + '/master/package.json';
+
+    log.info('Installing application ' + app + '...');
+    client.get(manifestUrl, function(err, res, manifest) {
+      if (err) {
+        log.info(err);
+        log.info('Cannot find given app manifest. Make sure it lives on ' +
+                 'Github');
+      } else {
+        addAppToConfig(app, manifest);
+        npmInstall(app, function(err) {
+          if (err) {
+            log.raw(err);
+            log.error(app + ' installation failed.');
+
+          } else {
+            log.info(app + ' installed. Enjoy!');
+          };
+        });
+      };
+    });
+  },
+
+
+  /*
+  * Remove app from config and its source from node module folder.
+  *
+  * @param {String} app App to uninstall.
+  */
+  uninstallApp: function(app){
+    log.info('Uninstalling ' + app + '...');
+    if(config.apps[app] === undefined) {
+      log.error(app + ' is not installed.');
+    } else {
+      npmUninstall(app, function() {
+        log.info(app + ' successfully uninstalled.');
+        removeAppFromConfig(app);
+      });
+    }
+  },
+
+
+  /*
+  * Display configuration file contents: apps configuration and user settings.
+  */
+  displayConfig: function() {
+    console.log(fs.readFileSync(configPath).toString());
+  }
+};
+
+
+program
+  .version(pkg.version)
+
+program
+  .command('start')
+  .description('run remote setup commands')
+  .action(cli.start);
+
+program
+  .command('install <app>')
+  .description('Add app to current Cozy Light')
+  .action(cli.installApp);
+
+program
+  .command('uninstall <app>')
+  .description('Remove app from current Cozy Light')
+  .action(cli.uninstallApp);
+
+program
+  .command('display_config')
+  .description('Display current config of Cozy Light')
+  .action(cli.displayConfig);
+
+program
+  .command('*')
+  .description('display help')
+  .action(program.outputHelp);
+
+
+// Constants
+
+var log = printit({ prefix: 'Cozy Light' });
+var home = pathExtra.join(pathExtra.homedir(), '.cozy-light');
+var configPath = pathExtra.join(home, 'config.json');
+var defaultPort = 19104;
+
+
+// Global variables
+
+var routes = {}
+var port = 18001;
+var proxy = httpProxy.createProxyServer();
+
+
+// Create config file if it doesn't exist
+
+var exists = fs.existsSync(configPath);
+if (!exists) {
+  var config = { apps: {} }
+  fs.writeFileSync(configPath, JSON.stringify(config));
+};
+var config = require(configPath);
+
+
+// Go to the home folder ~/.cozy-light then start the command line tool.
+
+mkdirp(home);
+process.chdir(home);
+
+// Copy pouchdb to app folder to avoid apps to rebuild it every time they are
+// installed.
+var pouchPath = pathExtra.join(home, 'node_modules', 'pouchdb');
+var pouchSourcePath = pathExtra.join(__dirname, 'node_modules', 'pouchdb');
+
+if(!fs.existsSync(pouchPath)) {
+  fsExtra.copySync(pouchSourcePath, pouchPath);
+};
+
+program.parse(process.argv);
+
+
+// Manage wrong arguments
+
+if (!process.argv.slice(2).length) {
+  program.outputHelp();
+};
+
+
+// Manage erross
+
+process.on('uncaughtException', function(err) {
+  console.log(err);
+});
