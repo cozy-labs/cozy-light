@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 var fs = require('fs');
-var mkdirp = require('mkdirp');
 var pathExtra = require('path-extra');
 var program = require('commander');
 var npm = require('npm');
@@ -157,22 +156,87 @@ var controllers = {
    * Render front page and list available applications.
    */
   index: function(req, res, next) {
+
+    var memoryUsage = process.memoryUsage();
+    memoryUsage = Math.ceil(memoryUsage.heapUsed / 1000000);
+
     var template = ' \
     <html> \
     <head> \
         <meta http-equiv="content-type" content="text/html; charset=utf-8"> \
-        <title>Cozy Light: lightweight personal cloud</title> \
+        <title>Cozy Light: Your Personal Cloud at Home</title> \
         <style type="text/css" media="screen"> \
+          @font-face { \
+            font-family: mavenpro; \
+            src: url(maven-pro-light-200.otf); \
+          } \
+ \
+          @font-face { \
+            font-family: signika; \
+            src: url(signika-light.ttf); \
+          } \
+ \
+          body { \
+            font-family: mavenpro; \
+            padding: 20px; \
+          } \
+ \
+          h1 { \
+            margin-top: 0; \
+            font-weight: normal; \
+            font-size: 36px; \
+          } \
+          h2 { \
+            font-weight: normal; \
+            margin-top: 60px; \
+          } \
+ \
+          .logo { \
+            float: left;  \
+            margin-right: 20px; \
+          } \
+ \
+          .app-line { \
+            text-transform: uppercase; \
+            font-size: 16px; \
+          } \
+ \
+          a { \
+            font-weight: bold; \
+            text-decoration: none; \
+            color: black; \
+          } \
+          a:hover { \
+            color: orange; \
+          } \
+          a:visited { \
+            color: black; \
+          } \
+ \
+          } \
+          .app-line span { \
+            font-family: signika \
+            text-transform: normal; \
+            font-size: 14px; \
+          } \
         </style> \
     </head> \
-    <body>';
+    <body> \
+    <a href="http://cozy.io" target="_blank"> \
+    <img class="logo" src="happycloud.png" /> \
+    </a>  \
+    <h1>Cozy Light</h1> \
+    <h2>Your applications</h2> \
+    ';
 
     Object.keys(config.apps).forEach(function(key) {
       var app = config.apps[key];
       var name = app.name;
-      template += '<p><a href="apps/' + name + '/" target="_blank">' 
-      template += app.displayName + '</a>&nbsp;(' + app.version + ')</p>'
+      template += '<p class="app-line"><a href="apps/' + name + '/" target="_blank">' 
+      template += app.displayName + '</a><span>&nbsp;(' + app.version + ')</span></p>'
     });
+
+    template += '<h2>Resources</h2><p>Occupied memory' + memoryUsage +  'MB</p>'
 
     template += ' \
     </body> \
@@ -219,7 +283,10 @@ var controllers = {
 function createApplicationServer() {
   app = express()
 
+  app.use(express.static(pathExtra.join(__dirname, 'assets'),
+          { maxAge: 86400000 }));
   app.use(morgan('combined'));
+
   app.get('/', controllers.index);
 
   app.all('/apps/:name/*', controllers.proxyPrivate);
@@ -231,6 +298,33 @@ function createApplicationServer() {
   return app;
 };
 
+function startApplication(application, db, callback) {
+  var name = application.name;
+  var script = pathExtra.join(home, 'node_modules', name);
+  var module = null;
+
+  try {
+    module = require(script);
+  } catch(err) {
+    console.log(err);
+  }
+
+  if (module === null) {
+    log.error("Can't load application " + name + ".");
+    callback();
+  } if (module.start === undefined) {
+    log.error("Can't start application " + name + ".");
+    callback();
+  } else {
+    module.start({db: db, port: port}, function(app, server) {
+      routes[name] = port;
+      log.info('Application ' + name + ' is now running on port ' + 
+               port + '...');
+      port = port + 1;
+      callback();
+    });
+  }
+}
 
 // CLI
 
@@ -248,32 +342,7 @@ var cli = {
 
     async.eachSeries(Object.keys(config.apps), function(key, callback) {
       var application = config.apps[key];
-      var name = application.name;
-      var script = pathExtra.join(home, 'node_modules', name);
-      var module = null;
-
-      try {
-        module = require(script);
-      } catch(err) {
-        console.log(err);
-      }
-
-      if (module === null) {
-        log.error("Can't load application " + name + ".");
-        callback();
-      } if (module.start === undefined) {
-        log.error("Can't start application " + name + ".");
-        callback();
-      } else {
-        module.start({db: db, port: port}, function(app, server) {
-          var subpath = 'apps/' + name;
-          routes[name] = port;
-          log.info('Application ' + name + ' is now running on port ' + 
-                   port + '...');
-          port = port + 1;
-          callback();
-        });
-      }
+      startApplication(application, db, callback);
     }, function(err) {
       if(err) { log.error(err); }
       server = app.listen(defaultPort, function() {
@@ -402,7 +471,7 @@ var config = require(configPath);
 
 // Go to the home folder ~/.cozy-light then start the command line tool.
 
-mkdirp(home);
+fsExtra.mkdirsSync(home);
 process.chdir(home);
 
 // Copy pouchdb to app folder to avoid apps to rebuild it every time they are
