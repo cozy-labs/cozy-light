@@ -70,14 +70,14 @@ management.
 
 *Why auth management is not included?*
 
-For the first publication of Cozy Light we wanted to make it as Lean as
+For the first publication of Cozy Light we wanted to make it as lean as
 possible. Self hosting platform like Yunohost or arkOS already manages auth for
-the installed app. So we prefer to let that work to them or to another 
-proxy server like Nginx or Apache.
+the installed app. So we prefer to let that them do the work (a simple 
+proxy server like Nginx or Apache is good too for that).
 
 *Why don't you handle https?*
 
-Not sure that it's a good thing. We prefer you put Cozy behind a proxy based on
+Not sure that it's a good thing. We prefer you put Cozy behind a proxy like on
 Nginx or Apache. Then you could set HTTPS on that proxy. 
 If many people find an usage where it's useful, we'll think about adding this
 support.
@@ -96,18 +96,20 @@ users.
 
 *Why did you write Cozy Light with Javascript instead of Coffeescript?*
 
-We are Coffescript fanboys but many people complainte that our language choice
+We are Coffescript fanboys but many people complain that our language choice
 prevented them to contribute. We think that collaborative work matters the
 most. So we decided to write Cozy Light with Javascript. 
 
 *How do I write my own application?*
 
-Start from an existing one to understand the architecture. We recommend you to
-use the Americano web framework and its plugin Americano-cozy-pouchdb.
+Start from an existing one to understand the architecture. Then we recommend
+you to use the Americano web framework and its plugin Americano-cozy-pouchdb.
+You can refer to the actual Cozy.io documentation. Everything works the same
+except that you only need Node.js and Brunch as development environment.
 
 *I don't want or can't code, how can I help?*
 
 You have two options. You can either submit bug reports to us or application
 developers or simply spread the word. Tweeting about this new project or
-starring the Github repository are two great way to help us!
+starring the Github repository are two great way to support the project!
 
