@@ -42,6 +42,7 @@
     "morgan": "^1.2.2",
     "async": "^0.9.0",
     "pouchdb": "^2.2.3",
+    "search-index": "0.3.4",
     "http-proxy": "^1.2.0",
     "fs-extra": "^0.10.0"
   },

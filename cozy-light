@@ -74,15 +74,16 @@ var configHelpers = {
   },
 
   /*
-   * Copy pouchdb to app folder to avoid apps to fetch and rebuild it every
-   * time it's required as dependency.
+   * Copy given dependency to app folder to avoid apps to fetch and rebuild it
+   * every time it's required as dependency.
+   * Most dependencies are common and can be reused.
    */
-  copyPouchDbDependency: function () {
-    var pouchPath = pathExtra.join(HOME, 'node_modules', 'pouchdb');
-    var pouchSourcePath = pathExtra.join(__dirname, 'node_modules', 'pouchdb');
+  copyDependency: function (name) {
+    var destPath = pathExtra.join(HOME, 'node_modules', name);
+    var sourcePath = pathExtra.join(__dirname, 'node_modules', name);
 
-    if(!fs.existsSync(pouchPath)) {
-      fsExtra.copySync(pouchSourcePath, pouchPath);
+    if(!fs.existsSync(destPath)) {
+      fsExtra.copySync(sourcePath, destPath);
     };
   }
 };
@@ -461,7 +462,7 @@ const DEFAULT_PORT = 19104;
 
 var routes = {}
 var port = 18001;
-var proxy = httpProxy.createProxyServer({agent: new http.Agent());
+var proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
 var config = require(CONFIG_PATH);
 
 
@@ -469,7 +470,8 @@ var config = require(CONFIG_PATH);
 
 configHelpers.createHome();
 configHelpers.createConfigFile();
-configHelpers.copyPouchDbDependency();
+configHelpers.copyDependency('pouchdb');
+configHelpers.copyDependency('search-index');
 
 
 // CLI
