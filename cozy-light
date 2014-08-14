@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
+var http = require('http');
 var fs = require('fs');
+var fsExtra = require('fs-extra');
 var pathExtra = require('path-extra');
 var program = require('commander');
 var npm = require('npm');
@@ -11,7 +13,6 @@ var async = require('async');
 var printit = require('printit');
 var Pouchdb = require('pouchdb');
 var httpProxy = require('http-proxy');
-var fsExtra = require('fs-extra');
 var pkg = require('./package.json');
 
 
@@ -460,7 +461,7 @@ const DEFAULT_PORT = 19104;
 
 var routes = {}
 var port = 18001;
-var proxy = httpProxy.createProxyServer();
+var proxy = httpProxy.createProxyServer({agent: new http.Agent());
 var config = require(CONFIG_PATH);
 
 
