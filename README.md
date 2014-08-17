@@ -54,8 +54,10 @@ install and run them separately:
     
 # Available applications
 
-* cozy-labs/tasky: simple and efficient task manager.
-* cozy-calendar: alarm and events manager;
+* cozy-labs/tasky: simple and efficient task manager;
+* cozy-labs/cozy-calendar: alarm and events manager;
+* cozy-labs/cozy-files: file storage;
+* cozy-labs/cozy-contacts: contact book.
 
 # Contributions
 
