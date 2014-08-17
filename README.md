@@ -1,9 +1,26 @@
 # Cozy Light
 
+
+![Cozy Logo](https://raw.github.com/cozy/cozy-setup/gh-pages/assets/images/happycloud.png)
+
 Lightweight personal cloud based on Node.js and PouchB.
 Store and manage through web apps your files, calendars, contacts, todos, etc.
-Set your apps on your own hardware: Raspberry Pi at home, VPS on digital ocean
-servers or on your desktop computer.
+With Cozy Light set your apps and your data on cheap hardwares: Raspberry Pi
+at home, VPS on digital ocean servers or on good old desktop computer at home.
+
+For more information abou what is Cozy, you can check the 
+[website](http://cozy.io).
+
+# Benefits
+
+* No targeted ads because your data are stored where noone profiles you.
+* No more headaches with relying on too many services, all your apps are
+  located in the same place.
+* No need to learn a lot of system administration stuff, everything can be done
+  with very few command lines.
+* Cozy apps are simple, that means more productivity and time for you.
+* It's extensible, you can build your app to satisfy your specific needs.
+* Finally, you are no more dependant from your web app provider anymore.
 
 # Install 
 
@@ -18,13 +35,13 @@ cozy-light from the NPM package manager:
 
 # Install application
 
-Application are fetched from github. Application name is build from the
+Application are fetched from github. Application name is built from the
 username and the repository name:
 
     cozy-light install cozy-labs/calendar
 
-Most of the apps are runnable without Cozy Light. You can install and run them
-separately:
+For your information, most of the apps are runnable without Cozy Light. You can
+install and run them separately:
 
     npm install cozy-calendar -g
     cozy-calendar 
@@ -32,18 +49,7 @@ separately:
 # Uninstall application
 
     cozy-light uninstall cozy-labs/calendar
-
-# Benefits
-
-* No targeted ads because your data are stored where noone profiles you.
-* No more headaches with relying on too many services, all your apps are
-  located in the same place.
-* No need to learn a lot of system administration stuff, everything can be done
-  with very few command lines.
-* Cozy apps are simple, that means more productivity and time for you.
-* Extensible: build your app to satisfy your specific needs.
-* Finally, you are no more dependant from your web app provider anymore.
-
+    
 # Available applications
 
 * cozy-labs/tasky: simple and efficient task manager.
@@ -65,22 +71,22 @@ consumption make it too hard to set up for novice and/or cheap hardware owner.
 So we decided to provide a ligther architecture. That way anyone could deploy
 Cozy applications on their hardware.
 Of course, you lost some features on the way like synchronization, auth
-management, powerful indexing capabilities, app isolation and better realtime
+management, more performant indexing, app isolation and better realtime
 management.
 
 *Why auth management is not included?*
 
 For the first publication of Cozy Light we wanted to make it as lean as
 possible. Self hosting platform like Yunohost or arkOS already manages auth for
-the installed app. So we prefer to let that them do the work (a simple 
-proxy server like Nginx or Apache is good too for that).
+the installed app. So we prefer to let the work to be done by another
+application (a simple proxy server like Nginx or Apache is good too for that).
 
 *Why don't you handle https?*
 
-Not sure that it's a good thing. We prefer you put Cozy behind a proxy like on
-Nginx or Apache. Then you could set HTTPS on that proxy. 
-If many people find an usage where it's useful, we'll think about adding this
-support.
+We prefer you put Cozy behind a proxy like on Nginx or Apache. Then you could
+set HTTPS on that proxy. 
+If many people think it should be integrated to the platform we'll do something
+about it.
 
 *Why don't you propose CalDAV/CarDAV synchronization?*
 
@@ -103,7 +109,7 @@ most. So we decided to write Cozy Light with Javascript.
 *How do I write my own application?*
 
 Start from an existing one to understand the architecture. Then we recommend
-you to use the Americano web framework and its plugin Americano-cozy-pouchdb.
+you to use the Americano web framework and its plugin americano-cozy-pouchdb.
 You can refer to the actual Cozy.io documentation. Everything works the same
 except that you only need Node.js and Brunch as development environment.
 
