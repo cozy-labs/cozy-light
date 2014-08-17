@@ -54,6 +54,21 @@ var configHelpers = {
       fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   },
 
+  addPlugin: function (plugin, manifest) {
+    config.plugins[plugin] = {
+      name: manifest.name,
+      displayName: manifest.displayName,
+      version: manifest.version,
+      description: manifest.description
+    };
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+  },
+
+  removePlugin: function (app, manifest) {
+    delete config.plugins[app];
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+  },
+
   /*
    * Go to the HOME folder ~/.cozy-light then start the command line tool.
    */
@@ -442,6 +457,58 @@ var actions = {
   },
 
   /*
+  * Plugin names correspond to Github repo. A plugin name is composed of a user
+  * name and a repository name.
+  * Installation starts by fetching the manifest from the repostiory
+  * (package.json located at the root). Then it installs sources and
+  * dependencies in the cozy-light folder.
+  *
+  * @param {String} plugin Plugin to install (ex: cozy-labs/cozy-light-docker).
+  */
+  installPlugin: function (plugin){
+    var client = request.newClient( 'https://raw.githubusercontent.com/');
+    var manifestUrl = plugin + '/master/package.json';
+
+    LOGGER.info('Installing application ' + plugin + '...');
+    client.get(manifestUrl, function (err, res, manifest) {
+      if (err) {
+        LOGGER.info(err);
+        LOGGER.info('Cannot find given plugin manifest. Make sure it lives on '
+          + 'Github');
+      } else {
+        configHelpers.addPlugin(plugin, manifest);
+        npmHelpers.install(plugin, function (err) {
+          if (err) {
+            LOGGER.raw(err);
+            LOGGER.error(app + ' installation failed.');
+
+          } else {
+            LOGGER.info(app + ' installed. Enjoy!');
+          };
+        });
+      };
+    });
+  },
+
+
+  /*
+  * Remove plguin from config and its source from node module folder.
+  *
+  * @param {String} plugin Plugin to remove.
+  */
+  uninstallPlugin: function (plugin){
+    LOGGER.info('Removing ' + plugin + '...');
+    if(config.plugins[plugin] === undefined) {
+      LOGGER.error(plugin + ' is not installed.');
+    } else {
+      npmHelpers.uninstall(plugin, function () {
+        LOGGER.info(Plugin + ' successfully uninstalled.');
+        configHelpers.removePlugin(plugin);
+      });
+    }
+  }
+
+  /*
   * Display configuration file contents: apps configuration and user settings.
   */
   displayConfig: function () {
@@ -495,6 +562,16 @@ program
   .action(actions.uninstallApp);
 
 program
+  .command('add-plugin <plugin>')
+  .description('Add plugin to current Cozy Light')
+  .action(actions.installPlugin);
+
+program
+  .command('remove-plugin <plugin>')
+  .description('Remove plugin from current Cozy Light')
+  .action(actions.uninstallPlugin);
+
+program
   .command('display_config')
   .description('Display current config of Cozy Light')
   .action(actions.displayConfig);
@@ -503,6 +580,14 @@ program
   .command('*')
   .description('display help')
   .action(program.outputHelp);
+
+if(config.plugins !== undefined && typeof(config.plugins) === 'Array') {
+  for(pluginName in Object.keys(config.plugins)) {
+    var options = config.plugins[pluginName];
+    plugin = require(pathExtra.join(HOME, 'node_modules', pluginName);
+    plugin.configure(options, program);
+  };
+};
 
 program.parse(process.argv);
 
@@ -519,3 +604,13 @@ if (!process.argv.slice(2).length) {
 process.on('uncaughtException', function (err) {
   console.log(err);
 });
+
+
+// Export module for testing purpose.
+
+module.exports = {
+  configHelpers: configHelpers,
+  npmHelpers: npmHelpers,
+  serverHelpers: npmHelpers,
+  actions: actions
+}
