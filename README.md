@@ -7,7 +7,7 @@ Lightweight personal cloud based on Node.js and PouchB.
 
 Cozy Light allows you to store on your own box your files, calendars, contacts,
 todos, etc. it requires little configuration and can run on cheap hardwares:
-Raspberry Pi at home, VPS on digital ocean servers or on good old desktop
+Raspberry Pi at home, on a Digital Ocean VPS or on a good old desktop
 computer at home.
 
 For more information about what is Cozy, you can check the 
