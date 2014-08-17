@@ -4,12 +4,14 @@
 ![Cozy Logo](https://raw.github.com/cozy/cozy-setup/gh-pages/assets/images/happycloud.png)
 
 Lightweight personal cloud based on Node.js and PouchB.
-Store and manage through web apps your files, calendars, contacts, todos, etc.
-With Cozy Light set your apps and your data on cheap hardwares: Raspberry Pi
-at home, VPS on digital ocean servers or on good old desktop computer at home.
 
-For more information abou what is Cozy, you can check the 
-[website](http://cozy.io).
+Cozy Light allows you to store on your own box your files, calendars, contacts,
+todos, etc. it requires little configuration and can run on cheap hardwares:
+Raspberry Pi at home, VPS on digital ocean servers or on good old desktop
+computer at home.
+
+For more information about what is Cozy, you can check the 
+[full version website](http://cozy.io).
 
 # Benefits
 
