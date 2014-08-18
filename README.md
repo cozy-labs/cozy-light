@@ -3,6 +3,7 @@
 
 ![Cozy Logo](https://raw.github.com/cozy/cozy-setup/gh-pages/assets/images/happycloud.png)
 
+<<<<<<< HEAD
 Lightweight personal cloud based on Node.js and PouchB.
 Store and manage through web apps your files, calendars, contacts, todos, etc.
 With Cozy Light set your apps and your data on cheap hardwares: Raspberry Pi
@@ -10,6 +11,16 @@ at home, VPS on digital ocean servers or on good old desktop computer at home.
 
 For more information abou what is Cozy, you can check the 
 [website](http://cozy.io).
+=======
+Lightweight personal cloud based on Node.js and PouchDB.
+
+Cozy Light allows you to store on your own box your files, calendars, contacts,
+todos, etc. It requires little configuration and can be run on cheap hardwares
+like a Raspberry Pi, a Digital Ocean VPS or a good old desktop computer.
+
+For more information about what is Cozy, you can check the 
+[full version website](http://cozy.io).
+>>>>>>> master
 
 # Benefits
 
@@ -52,8 +63,10 @@ install and run them separately:
     
 # Available applications
 
-* cozy-labs/tasky: simple and efficient task manager.
-* cozy-calendar: alarm and events manager;
+* cozy-labs/tasky: simple and efficient task manager;
+* cozy-labs/cozy-calendar: alarm and events manager;
+* cozy-labs/cozy-files: file storage;
+* cozy-labs/cozy-contacts: contact book.
 
 # Contributions
 
@@ -77,9 +90,8 @@ management.
 *Why auth management is not included?*
 
 For the first publication of Cozy Light we wanted to make it as lean as
-possible. Self hosting platform like Yunohost or arkOS already manages auth for
-the installed app. So we prefer to let the work to be done by another
-application (a simple proxy server like Nginx or Apache is good too for that).
+the installed app. So we prefer to let the work to be done by 
+them (a simple proxy server like Nginx or Apache is good too for that).
 
 *Why don't you handle https?*
 
@@ -90,8 +102,9 @@ about it.
 
 *Why don't you propose CalDAV/CarDAV synchronization?*
 
-It could be done easily by reusing the Sync app from Cozy. Once again, if many
-many people ask for it, we'll probably implement it. 
+It could be done easily by reusing the Sync app from Cozy. It requires some
+extra work to be integrated. Once again, if many many people ask for it, we'll
+probably include it. 
 
 *How do I manage multi-user?*
 
@@ -118,4 +131,13 @@ except that you only need Node.js and Brunch as development environment.
 You have two options. You can either submit bug reports to us or application
 developers or simply spread the word. Tweeting about this new project or
 starring the Github repository are two great way to support the project!
+
+## Community
+
+You can reach the Cozy Community by:
+
+* Chatting with us on IRC #cozycloud on irc.freenode.net
+* Posting on our [Forum](https://forum.cozy.io)
+* Posting issues on this [repo](https://github.com/cozy-labs/cozy-light)
+* Mentioning us on [Twitter](http://twitter.com/mycozycloud)
 
