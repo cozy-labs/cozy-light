@@ -458,20 +458,20 @@ const CONFIG_PATH = pathExtra.join(HOME, 'config.json');
 const DEFAULT_PORT = 19104;
 
 
-// "Global" variables
-
-var routes = {}
-var port = 18001;
-var proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
-var config = require(CONFIG_PATH);
-
-
 // Create config file and folders and prepare PouchDB dependency.
 
 configHelpers.createHome();
 configHelpers.createConfigFile();
 configHelpers.copyDependency('pouchdb');
 configHelpers.copyDependency('search-index');
+
+
+// "Global" variables
+
+var routes = {}
+var port = 18001;
+var proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
+var config = require(CONFIG_PATH);
 
 
 // CLI
