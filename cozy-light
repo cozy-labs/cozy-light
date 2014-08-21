@@ -39,6 +39,24 @@ var configHelpers = {
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   },
 
+  addContainer: function (app, manifest) {
+    if(config.containers === undefined) {
+      config.containers = {};
+    }
+    config.containers[app] = {
+      name: manifest.name,
+      displayName: manifest.displayName,
+      version: manifest.version,
+      description: manifest.description,
+      type: manifest.type,
+      defaultPort: manifest.defaultPort,
+      container: manifest.container,
+      containerId: manifest.containerId
+    };
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+  },
+
+
   /**
   * Add a new application to the configuration file. The configuration file is
   * written in JSON. It adds an entry to the apps field. Name, display name,
@@ -68,7 +86,7 @@ var configHelpers = {
   createConfigFile: function () {
     var exists = fs.existsSync(CONFIG_PATH);
     if (!exists) {
-      var config = { apps: {} };
+      var config = { apps: {}, containers: {} };
       fs.writeFileSync(CONFIG_PATH, JSON.stringify(config));
     };
   },
@@ -324,6 +342,20 @@ var controllers = {
       template += '<em>no application installed.</em>'
     }
 
+    if (Object.keys(config.containers).length > 0) {
+      Object.keys(config.containers).forEach(function (key) {
+        var app = config.containers[key];
+        var name = app.name;
+        template += '<p class="app-line"><a href="apps/' + 
+                    name + '/" target="_blank">' 
+        template += app.displayName + '</a><span>&nbsp;(' + 
+                    app.version + ')</span></p>'
+      });
+    } else {
+      template += '<em>no application installed.</em>'
+    }
+
+
     template += '<h2>Resources</h2><p>Occupied memory:&nbsp;' + 
                 memoryUsage +  'MB</p>'
 
@@ -382,11 +414,27 @@ var actions = {
       var application = config.apps[key];
       serverHelpers.startApplication(application, db, callback);
     }, function (err) {
-      if(err) { LOGGER.error(err); }
-      server = app.listen(DEFAULT_PORT, function () {
-        LOGGER.info('Cozy Light Dashboard is running on port 19104...');
+      async.eachSeries(Object.keys(config.containers), function (key, callback) {
+        var manifest = config.containers[key];
+        var Docker = require('dockerode');
+        var docker = new Docker({socketPath: '/var/run/docker.sock'});
+        port++;
+        var container = docker.getContainer(manifest.name);
+        container.defaultOptions.start.PortBindings = {}
+        container.defaultOptions.start.PortBindings[manifest.defaultPort + "/tcp"] = [{ "HostPort": "" + port }]
+        container.start(function (err, data) {
+          console.log(err);
+          routes[manifest.name] = port;
+          LOGGER.info(manifest.displayName + ' started on port ' + port + '. Enjoy!');
+          callback();
+        });
+      }, function (err) {
+        if(err) { LOGGER.error(err); }
+        server = app.listen(DEFAULT_PORT, function () {
+          LOGGER.info('Cozy Light Dashboard is running on port 19104...');
+        });
+        serverHelpers.initializeProxy(server);
       });
-      serverHelpers.initializeProxy(server);
     });
   },
 
@@ -423,6 +471,44 @@ var actions = {
       };
     });
   },
+
+  installDockerApp: function (app){
+    var client = request.newClient( 'https://raw.githubusercontent.com/');
+    var manifestUrl = app + '/master/package.json';
+
+    LOGGER.info('Installing application ' + app + '...');
+    client.get(manifestUrl, function (err, res, manifest) {
+      if (err) {
+        LOGGER.info(err);
+        LOGGER.info('Cannot find given app manifest. Make sure it lives on ' +
+                 'Github');
+      } else {
+        var Docker = require('dockerode');
+        var docker = new Docker({socketPath: '/var/run/docker.sock'});
+        docker.pull(manifest.container, function(err, data) {
+          lastId = null;
+          data.on('data', function(chunk) { 
+            console.log(chunk.toString()); 
+            lastId = JSON.parse(chunk.toString()).id;
+          });
+          data.on('end', function(err) { 
+            var slug = manifest.name;
+            var options = {
+              'name': slug,
+              'Image': manifest.container,
+              'Tty': false
+            };
+
+            docker.createContainer(options, function (err, data) {
+              container = docker.getContainer(slug);
+              LOGGER.info(slug + ' container installed');
+            });
+          });
+        });
+      };
+    });
+  },
+
 
   /*
   * Remove app from config and its source from node module folder.
@@ -495,9 +581,14 @@ program
   .action(actions.uninstallApp);
 
 program
-  .command('display_config')
+  .command('display-config')
   .description('Display current config of Cozy Light')
   .action(actions.displayConfig);
+
+program
+  .command('install-docker <app>')
+  .description('Add Docker-based app to current Cozy Light')
+  .action(actions.installDockerApp);
 
 program
   .command('*')
