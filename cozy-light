@@ -55,12 +55,16 @@ var configHelpers = {
   },
 
   addPlugin: function (plugin, manifest) {
+    if(config.plugins === undefined) {
+      config.plugins = {};
+    };
     config.plugins[plugin] = {
       name: manifest.name,
       displayName: manifest.displayName,
       version: manifest.version,
       description: manifest.description
     };
+    console.log(config.plugins);
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   },
 
@@ -468,10 +472,11 @@ var actions = {
   installPlugin: function (plugin){
     var client = request.newClient( 'https://raw.githubusercontent.com/');
     var manifestUrl = plugin + '/master/package.json';
+    console.log(manifestUrl);
 
     LOGGER.info('Installing application ' + plugin + '...');
     client.get(manifestUrl, function (err, res, manifest) {
-      if (err) {
+      if (res.statusCode !== 200) {
         LOGGER.info(err);
         LOGGER.info('Cannot find given plugin manifest. Make sure it lives on '
           + 'Github');
@@ -480,10 +485,10 @@ var actions = {
         npmHelpers.install(plugin, function (err) {
           if (err) {
             LOGGER.raw(err);
-            LOGGER.error(app + ' installation failed.');
+            LOGGER.error(plugin + ' installation failed.');
 
           } else {
-            LOGGER.info(app + ' installed. Enjoy!');
+            LOGGER.info(plugin + ' installed. Enjoy!');
           };
         });
       };
@@ -506,7 +511,7 @@ var actions = {
         configHelpers.removePlugin(plugin);
       });
     }
-  }
+  },
 
   /*
   * Display configuration file contents: apps configuration and user settings.
@@ -581,12 +586,12 @@ program
   .description('display help')
   .action(program.outputHelp);
 
-if(config.plugins !== undefined && typeof(config.plugins) === 'Array') {
-  for(pluginName in Object.keys(config.plugins)) {
+if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
+  Object.keys(config.plugins).forEach(function (pluginName) {
     var options = config.plugins[pluginName];
-    plugin = require(pathExtra.join(HOME, 'node_modules', pluginName);
-    plugin.configure(options, program);
-  };
+    plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
+    plugin.configure(options, config, program);
+  });
 };
 
 program.parse(process.argv);
