@@ -44,8 +44,7 @@
     "pouchdb": "^2.2.3",
     "search-index": "0.3.4",
     "http-proxy": "^1.2.0",
-    "fs-extra": "^0.10.0",
-    "dockerode": "^2.0.2"
+    "fs-extra": "^0.10.0"
   },
   "devDependencies": {},
   "scripts": {},
