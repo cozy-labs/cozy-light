@@ -589,8 +589,12 @@ program
 if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
   Object.keys(config.plugins).forEach(function (pluginName) {
     var options = config.plugins[pluginName];
-    plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
-    plugin.configure(options, config, program);
+    try {
+      plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
+      options.config_path = CONFIG_PATH;
+      plugin.configure(options, config, program);
+    } catch (err) {
+    };
   });
 };
 
