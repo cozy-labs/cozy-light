@@ -34,6 +34,8 @@ cozy-light from the NPM package manager:
 
     cozy-light start
 
+Then, with your browser, connect to: `http://localhost:19104`
+
 # Install application
 
 Application are fetched from github. Application name is built from the
