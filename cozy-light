@@ -417,6 +417,8 @@ var actions = {
       plugin = loadedPlugins[pluginName];
       if (plugin.configureAppServer !== undefined) {
         plugin.configureAppServer(app, config, routes, callback);
+      } else {
+        callback();
       };
     };
 
