@@ -500,6 +500,7 @@ var actions = {
             };
 
             docker.createContainer(options, function (err, data) {
+              configHelpers.addContainer(app, manifest);
               container = docker.getContainer(slug);
               LOGGER.info(slug + ' container installed');
             });
