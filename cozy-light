@@ -40,20 +40,24 @@ var configHelpers = {
   },
 
   /**
-  * Add a new application to the configuration file. The configuration file is
-  * written in JSON. It adds an entry to the apps field. Name, display name,
-  * version and description are required.
-  *
-  * Config file is ~/.cozy-light/.config
+  * Remove given application from the configuration file. The configuration file
+  * is written in JSON.
   *
   * @param {String} app The app name as it's typed by the user (user/repo).
-  * @param {String} manifest Manifest containing application fields.
   */
-  removeApp: function (app, manifest) {
+  removeApp: function (app) {
       delete config.apps[app];
       fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   },
 
+  /**
+  * Add a new plugin to the configuration file. The configuration file is
+  * written in JSON. It adds an entry to the plugins field. Name, display name,
+  * version and description are required.
+  *
+  * @param {String} plugin The plugin name as it's typed by the user (user/repo).
+  * @param {String} manifest Manifest containing plugin fields.
+  */
   addPlugin: function (plugin, manifest) {
     if(config.plugins === undefined) {
       config.plugins = {};
@@ -64,12 +68,17 @@ var configHelpers = {
       version: manifest.version,
       description: manifest.description
     };
-    console.log(config.plugins);
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   },
 
-  removePlugin: function (app, manifest) {
-    delete config.plugins[app];
+  /**
+  * Remove given plugin from the configuration file.
+  *
+  * @param {String} plugin The plugin name as it's typed by the user
+  * (user/repo).
+  */
+  removePlugin: function (plugin, manifest) {
+    delete config.plugins[plugin];
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   },
 
