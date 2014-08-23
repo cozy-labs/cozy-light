@@ -352,6 +352,13 @@ var controllers = {
       template += '<em>no application installed.</em>'
     }
 
+    Object.keys(loadedPlugins).forEach(function (pluginName) {
+      var plugin = loadedPlugins[pluginName];
+      if (plugin.getTemplate !== undefined) {
+        template += plugin.getTemplate(config);
+      };
+    });
+
     template += '<h2>Resources</h2><p>Occupied memory:&nbsp;' + 
                 memoryUsage +  'MB</p>'
 
@@ -398,23 +405,37 @@ var controllers = {
 var actions = {
   
   /*
-   * Get all installed app modules. Expect that a start function is available,
-   * then run the app server on given port. Ports are expected to be available.
+   * Apply plugin customatisation on server. Then get all installed app
+   * modules. Expect that a start function is available, then run the app
+   * server on given port. Ports are expected to be available.
    */
   start: function () {
-    app = serverHelpers.createApplicationServer(); 
-
+    var app = serverHelpers.createApplicationServer(); 
     var db = new Pouchdb('cozy');
 
-    async.eachSeries(Object.keys(config.apps), function (key, callback) {
+    var runPlugin = function (pluginName, callback) {
+      plugin = loadedPlugins[pluginName];
+      if (plugin.configureAppServer !== undefined) {
+        plugin.configureAppServer(app, config, routes, callback);
+      };
+    };
+
+    var runApp = function (key, callback) {
       var application = config.apps[key];
       serverHelpers.startApplication(application, db, callback);
-    }, function (err) {
+    };
+
+    async.eachSeries(Object.keys(loadedPlugins), runPlugin, function (err) {
       if(err) { LOGGER.error(err); }
-      server = app.listen(DEFAULT_PORT, function () {
-        LOGGER.info('Cozy Light Dashboard is running on port 19104...');
+
+      async.eachSeries(Object.keys(config.apps), runApp, function (err) {
+        if(err) { LOGGER.error(err); }
+
+        server = app.listen(DEFAULT_PORT, function () {
+          LOGGER.info('Cozy Light Dashboard is running on port 19104...');
+        });
+        serverHelpers.initializeProxy(server);
       });
-      serverHelpers.initializeProxy(server);
     });
   },
 
@@ -550,6 +571,7 @@ configHelpers.copyDependency('search-index');
 // "Global" variables
 
 var routes = {}
+var loadedPlugins = {}
 var port = 18001;
 var proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
 var config = require(CONFIG_PATH);
@@ -595,17 +617,25 @@ program
   .description('display help')
   .action(program.outputHelp);
 
+
+// Apply plugins customisation
+
 if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
   Object.keys(config.plugins).forEach(function (pluginName) {
     var options = config.plugins[pluginName];
-    try {
-      plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
-      options.config_path = CONFIG_PATH;
-      plugin.configure(options, config, program);
-    } catch (err) {
-    };
+    LOGGER.info('Apply plugin: ' + pluginName + '...');
+
+    plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
+    options.config_path = CONFIG_PATH;
+    plugin.configure(options, config, program);
+
+    loadedPlugins[pluginName] = plugin;
+    LOGGER.info('Plugin ' + pluginName + ' applied successfully');
   });
 };
+
+
+// Process arguments
 
 program.parse(process.argv);
 
