@@ -140,7 +140,6 @@ var npmHelpers = {
   * @param {Function} manifest Callback to run once work is done.
    */
   uninstall: function (app, callback) {
-    module = config.apps[app].name;
     npm.load({}, function () {
       npm.commands.uninstall([module], callback);
     });
@@ -485,6 +484,7 @@ var actions = {
     if(config.apps[app] === undefined) {
       LOGGER.error(app + ' is not installed.');
     } else {
+      module = config.apps[app].name;
       npmHelpers.uninstall(app, function () {
         LOGGER.info(app + ' successfully uninstalled.');
         configHelpers.removeApp(app);
@@ -538,8 +538,9 @@ var actions = {
     if(config.plugins[plugin] === undefined) {
       LOGGER.error(plugin + ' is not installed.');
     } else {
+      module = config.plugins[plugin].name;
       npmHelpers.uninstall(plugin, function () {
-        LOGGER.info(Plugin + ' successfully uninstalled.');
+        LOGGER.info(plugin + ' successfully uninstalled.');
         configHelpers.removePlugin(plugin);
       });
     }
@@ -610,7 +611,7 @@ program
   .action(actions.uninstallPlugin);
 
 program
-  .command('display_config')
+  .command('display-config')
   .description('Display current config of Cozy Light')
   .action(actions.displayConfig);
 
