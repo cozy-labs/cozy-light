@@ -36,7 +36,9 @@ cozy-light from the NPM package manager:
 
 Then, with your browser, connect to: `http://localhost:19104/`
 
-# Install application
+# Applications
+
+## Install application
 
 Application are fetched from github. Application name is built from the
 username and the repository name:
@@ -49,16 +51,33 @@ install and run them separately:
     npm install cozy-calendar -g
     cozy-calendar 
 
-# Uninstall application
+## Uninstall application
 
     cozy-light uninstall cozy-labs/calendar
     
-# Available applications
+## Available applications
 
 * cozy-labs/tasky: simple and efficient task manager;
 * cozy-labs/cozy-calendar: alarm and events manager;
 * cozy-labs/cozy-files: file storage;
 * cozy-labs/cozy-contacts: contact book.
+
+# Plugins
+
+## Add plugin
+
+You can extend capability of the platform by adding plugins:
+
+    cozy-light add-plugin cozy-labs/calendar
+
+## Remove plugin
+
+    cozy-light remove-plugin cozy-labs/calendar
+
+## Available plugins
+
+* cozy-labs/cozy-light-docker: experimental plugin to start docker container as Cozy app.
+* cozy-labs/cozy-light-auth: add auth capabilities to Cozy Light (work in progress).
 
 # Contributions
 
