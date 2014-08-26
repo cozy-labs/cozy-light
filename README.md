@@ -68,11 +68,11 @@ install and run them separately:
 
 You can extend capability of the platform by adding plugins:
 
-    cozy-light add-plugin cozy-labs/calendar
+    cozy-light add-plugin cozy-labs/cozy-light-docker
 
 ## Remove plugin
 
-    cozy-light remove-plugin cozy-labs/calendar
+    cozy-light remove-plugin cozy-labs/cozy-light-docker
 
 ## Available plugins
 
@@ -101,9 +101,9 @@ management.
 *Why auth management is not included?*
 
 For the first publication of Cozy Light we wanted to make it as lean as
-possible. Self hosting platforms like Yunohost or arkOS already manage auth for
+possible. Self hosting platforms like YunoHost or ArkOS already manage auth for
 the installed app. So we prefer to let the work to be done by 
-them (a simple proxy server like Nginx or Apache is good too for that).
+them (a simple proxy server like Nginx or Apache is good for that too).
 
 *Why don't you handle https?*
 
@@ -125,11 +125,11 @@ new instance of Cozy Light by making it run by another Unix user. It will run
 the full stack again, but you will have a strong isolation between the two
 users.
 
-*Why did you write Cozy Light with Javascript instead of Coffeescript?*
+*Why did you write Cozy Light in Javascript instead of Coffeescript?*
 
 We are Coffescript fanboys but many people complain that our language choice
 prevented them to contribute. We think that collaborative work matters the
-most. So we decided to write Cozy Light with Javascript. 
+most. So we decided to write Cozy Light in Javascript. 
 
 *How do I write my own application?*
 
@@ -140,9 +140,9 @@ except that you only need Node.js and Brunch as development environment.
 
 *I don't want or can't code, how can I help?*
 
-You have two options. You can either submit bug reports to us or application
-developers or simply spread the word. Tweeting about this new project or
-starring the Github repository are two great way to support the project!
+You have two options. You can either submit [bug reports](https://github.com/cozy-labs/cozy-light/issues)
+to us or application developers or simply spread the word. Tweeting about this new project or
+starring the Github repository are two great ways to support the project!
 
 ## Community
 
