@@ -95,7 +95,7 @@ consumption make it too hard to set up for novice and/or cheap hardware owner.
 So we decided to provide a ligther architecture. That way anyone could deploy
 Cozy applications on their hardware.
 Of course, you lost some features on the way like synchronization, auth
-management, more performant indexing, app isolation and better realtime
+management, powerful indexer, app isolation and better realtime
 management.
 
 *Why auth management is not included?*
