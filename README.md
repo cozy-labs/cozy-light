@@ -82,15 +82,16 @@ You can extend capability of the platform by adding plugins:
 # Configuration
 
 The configuration file is located at `~/.cozy-light/config.json` path. App and
-plugin configuration is set through the command line. Here are the values that
-should be set directly via the configuration file. The configuraiton file
-follows the JSON format.
+plugin configuration is set through the command line. Other settings must be
+filled directly in the configuration file. 
 
-*Port*
+*NB: The configuraiton file follows the JSON format.*
+
+**Port**
 
   "port": 80,
 
-*HTTPS certificates*
+**HTTPS certificates**
 
 Once the ssl field is present in the configuration file, Cozy Light will use
 SSL and require HTTPS protocol to be browsed.
