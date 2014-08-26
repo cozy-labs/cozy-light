@@ -89,17 +89,17 @@ filled directly in the configuration file.
 
 **Port**
 
-  "port": 80,
+    "port": 80,
 
 **HTTPS**
 
 Once the ssl field is present in the configuration file, Cozy Light will use
 SSL and require HTTPS protocol to be browsed.
 
-  "ssl": {
-    "key": "/etc/cozy/server.key",
-    "cert": "/etc/cozy/server.crt"
-  },
+    "ssl": {
+      "key": "/etc/cozy/server.key",
+      "cert": "/etc/cozy/server.crt"
+    },
 
 # Contributions
 
