@@ -208,22 +208,37 @@ var serverHelpers = {
   /*
    * Create dashboard application server. 
    */
-  createApplicationServer: function () {
+  createApplicationServer: function (callback) {
     app = express()
 
-    app.use(express.static(pathExtra.join(__dirname, 'assets'),
-            { maxAge: 86400000 }));
-    app.use(morgan('combined'));
+    var runPlugin = function (pluginName, cb) {
+      LOGGER.debug(pluginName);
+      plugin = loadedPlugins[pluginName];
+      if (plugin.configureAppServer !== undefined) {
+        LOGGER.debug('configure plugin');
+        plugin.configureAppServer(app, config, routes, cb);
+      } else {
+        callback();
+      };
+    };
 
-    app.get('/', controllers.index);
+    async.eachSeries(Object.keys(loadedPlugins), runPlugin, function (err) {
+      if(err) { LOGGER.error(err); }
 
-    app.all('/apps/:name/*', controllers.proxyPrivate);
-    app.all('/apps/:name*', controllers.proxyPrivate);
+      app.use(express.static(pathExtra.join(__dirname, 'assets'),
+              { maxAge: 86400000 }));
+      app.use(morgan('combined'));
 
-    app.all('/public/:name/*', controllers.proxyPublic);
-    app.all('/public/:name*', controllers.proxyPublic);
+      app.get('/', controllers.index);
 
-    return app;
+      app.all('/apps/:name/*', controllers.proxyPrivate);
+      app.all('/apps/:name*', controllers.proxyPrivate);
+
+      app.all('/public/:name/*', controllers.proxyPublic);
+      app.all('/public/:name*', controllers.proxyPublic);
+
+      callback(app);
+    });
   },
 
   startApplication: function (application, db, callback) {
@@ -409,25 +424,13 @@ var actions = {
    * server on given port. Ports are expected to be available.
    */
   start: function () {
-    var app = serverHelpers.createApplicationServer(); 
-    var db = new Pouchdb('cozy');
+    serverHelpers.createApplicationServer(function (app) {
+      var db = new Pouchdb('cozy');
 
-    var runPlugin = function (pluginName, callback) {
-      plugin = loadedPlugins[pluginName];
-      if (plugin.configureAppServer !== undefined) {
-        plugin.configureAppServer(app, config, routes, callback);
-      } else {
-        callback();
+      var runApp = function (key, callback) {
+        var application = config.apps[key];
+        serverHelpers.startApplication(application, db, callback);
       };
-    };
-
-    var runApp = function (key, callback) {
-      var application = config.apps[key];
-      serverHelpers.startApplication(application, db, callback);
-    };
-
-    async.eachSeries(Object.keys(loadedPlugins), runPlugin, function (err) {
-      if(err) { LOGGER.error(err); }
 
       async.eachSeries(Object.keys(config.apps), runApp, function (err) {
         if(err) { LOGGER.error(err); }
@@ -626,14 +629,16 @@ program
 if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
   Object.keys(config.plugins).forEach(function (pluginName) {
     var options = config.plugins[pluginName];
-    LOGGER.info('Apply plugin: ' + pluginName + '...');
+    try {
+      plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
+      options.config_path = CONFIG_PATH;
+      plugin.configure(options, config, program);
 
-    plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
-    options.config_path = CONFIG_PATH;
-    plugin.configure(options, config, program);
-
-    loadedPlugins[pluginName] = plugin;
-    LOGGER.info('Plugin ' + pluginName + ' applied successfully');
+      loadedPlugins[pluginName] = plugin;
+    } catch(err) {
+      console.log(err);
+      LOGGER.error('Plugin ' + pluginName + 'loading failed');
+    }
   });
 };
 
