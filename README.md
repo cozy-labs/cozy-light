@@ -78,6 +78,7 @@ You can extend capability of the platform by adding plugins:
 
 * cozy-labs/cozy-light-docker: experimental plugin to start docker container as Cozy app.
 * cozy-labs/cozy-light-auth: add auth capabilities to Cozy Light (work in progress).
+* cozy-labs/cozy-light-basic-auth: add basic auth capabilities to Cozy Light.
 
 # Configuration
 
