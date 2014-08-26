@@ -98,20 +98,6 @@ Of course, you lost some features on the way like synchronization, auth
 management, powerful indexer, app isolation and better realtime
 management.
 
-*Why auth management is not included?*
-
-For the first publication of Cozy Light we wanted to make it as lean as
-possible. Self hosting platforms like YunoHost or ArkOS already manage auth for
-the installed app. So we prefer to let the work to be done by 
-them (a simple proxy server like Nginx or Apache is good for that too).
-
-*Why don't you handle https?*
-
-We prefer you put Cozy behind a proxy like on Nginx or Apache. Then you could
-set HTTPS on that proxy. 
-If many people think it should be integrated to the platform we'll do something
-about it.
-
 *Why don't you propose CalDAV/CarDAV synchronization?*
 
 It could be done easily by reusing the Sync app from Cozy. It requires some

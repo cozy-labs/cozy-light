@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var http = require('http');
+var https = require('https');
 var fs = require('fs');
 var fsExtra = require('fs-extra');
 var pathExtra = require('path-extra');
@@ -440,11 +441,20 @@ var actions = {
         if(config.port !== undefined) {
           port = config.port;
         }
-        server = app.listen(port, function () {
-          LOGGER.info(
-            'Cozy Light Dashboard is running on port ' + port + '...');
-        });
+
+        // Set SSL configuration if certificates path are properly set.
+        if (config.ssl !== undefined) {
+          var options = {
+            key: fs.readFileSync(config.ssl.key, 'utf8'),
+            cert: fs.readFileSync(config.ssl.cert, 'utf8')
+          };
+          var server = https.createServer(options, app).listen(port);
+        } else {
+          var server = http.createServer(app).listen(port);
+        }
         serverHelpers.initializeProxy(server);
+        LOGGER.info(
+          'Cozy Light Dashboard is running on port ' + port + '...');
       });
     });
   },
