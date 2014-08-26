@@ -79,6 +79,27 @@ You can extend capability of the platform by adding plugins:
 * cozy-labs/cozy-light-docker: experimental plugin to start docker container as Cozy app.
 * cozy-labs/cozy-light-auth: add auth capabilities to Cozy Light (work in progress).
 
+# Configuration
+
+The configuration file is located at `~/.cozy-light/config.json` path. App and
+plugin configuration is set through the command line. Here are the values that
+should be set directly via the configuration file. The configuraiton file
+follows the JSON format.
+
+*Port*
+
+  "port": 80,
+
+*HTTPS certificates*
+
+Once the ssl field is present in the configuration file, Cozy Light will use
+SSL and require HTTPS protocol to be browsed.
+
+  "ssl": {
+    "key": "/etc/cozy/server.key",
+    "cert": "/etc/cozy/server.crt"
+  },
+
 # Contributions
 
 Feel free to contribute in any way to this platform. The code is contained in
