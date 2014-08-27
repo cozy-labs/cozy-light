@@ -211,9 +211,9 @@ var serverHelpers = {
    */
   createApplicationServer: function (callback) {
     app = express()
+    app.use(morgan('combined'));
 
     var runPlugin = function (pluginName, cb) {
-      LOGGER.debug(pluginName);
       plugin = loadedPlugins[pluginName];
       if (plugin.configureAppServer !== undefined) {
         LOGGER.debug('configure plugin');
@@ -228,7 +228,6 @@ var serverHelpers = {
 
       app.use(express.static(pathExtra.join(__dirname, 'assets'),
               { maxAge: 86400000 }));
-      app.use(morgan('combined'));
 
       app.get('/', controllers.index);
 
@@ -368,7 +367,7 @@ var controllers = {
     }
 
     Object.keys(loadedPlugins).forEach(function (pluginName) {
-      var plugin = loadedPlugins[pluginName];
+      LOGGER.debug(pluginName);
       if (plugin.getTemplate !== undefined) {
         template += plugin.getTemplate(config);
       };
