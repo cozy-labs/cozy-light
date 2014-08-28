@@ -521,7 +521,6 @@ var actions = {
   installPlugin: function (plugin){
     var client = request.newClient( 'https://raw.githubusercontent.com/');
     var manifestUrl = plugin + '/master/package.json';
-    console.log(manifestUrl);
 
     LOGGER.info('Installing application ' + plugin + '...');
     client.get(manifestUrl, function (err, res, manifest) {
@@ -529,6 +528,7 @@ var actions = {
         LOGGER.info(err);
         LOGGER.info('Cannot find given plugin manifest. Make sure it lives on '
           + 'Github');
+        LOGGER.error(plugin + ' installation failed.');
       } else {
         configHelpers.addPlugin(plugin, manifest);
         npmHelpers.install(plugin, function (err) {
