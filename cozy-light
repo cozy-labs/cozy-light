@@ -212,6 +212,8 @@ var serverHelpers = {
   createApplicationServer: function (callback) {
     app = express()
     app.use(morgan('combined'));
+    app.use(express.static(pathExtra.join(__dirname, 'assets'),
+            { maxAge: 86400000 }));
 
     var runPlugin = function (pluginName, cb) {
       plugin = loadedPlugins[pluginName];
@@ -225,9 +227,6 @@ var serverHelpers = {
 
     async.eachSeries(Object.keys(loadedPlugins), runPlugin, function (err) {
       if(err) { LOGGER.error(err); }
-
-      app.use(express.static(pathExtra.join(__dirname, 'assets'),
-              { maxAge: 86400000 }));
 
       app.get('/', controllers.index);
 
