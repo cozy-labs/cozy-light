@@ -80,6 +80,11 @@ You can extend capability of the platform by adding plugins:
 * cozy-labs/cozy-light-auth: add auth capabilities to Cozy Light.
 * cozy-labs/cozy-light-basic-auth: add basic auth capabilities to Cozy Light.
 
+*Ideas*
+
+* updates: add a plugin that manages application and/or platform updating.
+* sync: add sync capabilities with a remote Cozy (great for a desktop usage).
+
 # Configuration
 
 The configuration file is located at `~/.cozy-light/config.json` path. App and
