@@ -219,6 +219,7 @@ var serverHelpers = {
       plugin = loadedPlugins[pluginName];
       if (plugin.configureAppServer !== undefined) {
         LOGGER.debug('configure plugin');
+        config.pouchdb = Pouchdb;
         plugin.configureAppServer(app, config, routes, cb);
       } else {
         callback();
