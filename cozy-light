@@ -31,11 +31,15 @@ var configHelpers = {
   * @param {String} manifest Manifest containing application fields.
   */
   addApp: function (app, manifest) {
+    if(manifest.type === undefined) {
+      manifest.type = "classic";
+    }
     config.apps[app] = {
       name: manifest.name,
       displayName: manifest.displayName,
       version: manifest.version,
-      description: manifest.description
+      description: manifest.description,
+      type: manifest.type
     };
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   },
@@ -218,9 +222,10 @@ var serverHelpers = {
     var runPlugin = function (pluginName, cb) {
       plugin = loadedPlugins[pluginName];
       if (plugin.configureAppServer !== undefined) {
-        LOGGER.debug('configure plugin');
+        LOGGER.info('Configuring plugin ' + pluginName + '...');
         config.pouchdb = Pouchdb;
         plugin.configureAppServer(app, config, routes, cb);
+        LOGGER.info('Plugin ' + pluginName + ' configured.');
       } else {
         callback();
       };
@@ -246,26 +251,31 @@ var serverHelpers = {
     var script = pathExtra.join(HOME, 'node_modules', name);
     var module = null;
 
-    try {
-      module = require(script);
-    } catch(err) {
-      console.log(err);
-    }
+    if (application.type === undefined || application.type === "classic") {
+      try {
+        module = require(script);
+      } catch(err) {
+        console.log(err);
+      }
 
-    if (module === null) {
-      LOGGER.error("Can't load application " + name + ".");
-      callback();
-    } if (module.start === undefined) {
-      LOGGER.error("Can't start application " + name + ".");
-      callback();
-    } else {
-      module.start({db: db, port: port, silent: true}, function (app, server) {
-        routes[name] = port;
-        LOGGER.info('Application ' + name + ' is now running on port ' + 
-                 port + '...');
-        port = port + 1;
+      if (module === null) {
+        LOGGER.error("Can't load application " + name + ".");
         callback();
-      });
+      } if (module.start === undefined) {
+        LOGGER.error("Can't start application " + name + ".");
+        callback();
+      } else {
+        var options = {db: db, port: port, silent: true};
+        module.start(options, function (app, server) {
+          routes[name] = port;
+          LOGGER.info('Application ' + name + ' is now running on port ' + 
+                   port + '...');
+          port = port + 1;
+          callback();
+        });
+      };
+    } else {
+      callback();
     };
   }
 };
@@ -367,7 +377,6 @@ var controllers = {
     }
 
     Object.keys(loadedPlugins).forEach(function (pluginName) {
-      LOGGER.debug(pluginName);
       if (plugin.getTemplate !== undefined) {
         template += plugin.getTemplate(config);
       };
