@@ -224,8 +224,10 @@ var serverHelpers = {
       if (plugin.configureAppServer !== undefined) {
         LOGGER.info('Configuring plugin ' + pluginName + '...');
         config.pouchdb = Pouchdb;
-        plugin.configureAppServer(app, config, routes, cb);
-        LOGGER.info('Plugin ' + pluginName + ' configured.');
+        plugin.configureAppServer(app, config, routes, function() {
+          LOGGER.info('Plugin ' + pluginName + ' configured.');
+          cb();
+        });
       } else {
         callback();
       };
