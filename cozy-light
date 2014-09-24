@@ -309,7 +309,7 @@ var controllers = {
  \
           @font-face { \
             font-family: signika; \
-            src: url(signika-light.ttf); \
+            src: url(soure-sans-pro.ttf); \
           } \
  \
           body { \
