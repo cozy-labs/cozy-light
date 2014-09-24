@@ -267,7 +267,7 @@ var serverHelpers = {
         LOGGER.error("Can't start application " + name + ".");
         callback();
       } else {
-        var options = {db: db, port: port};
+        var options = {db: db, port: port, silent: true};
         module.start(options, function (app, server) {
           routes[name] = port;
           LOGGER.info('Application ' + name + ' is now running on port ' + 
