@@ -62,6 +62,10 @@ install and run them separately:
 * cozy-labs/cozy-files: file storage;
 * cozy-labs/cozy-contacts: contact book.
 
+*static (require static-apps plugin)*
+
+* frankrousseau/coffee-snake: snake game.
+
 # Plugins
 
 ## Add plugin
