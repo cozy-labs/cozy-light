@@ -43,7 +43,7 @@
     "pouchdb": "3.0.5",
     "http-proxy": "1.2.0",
     "fs-extra": "0.10.0",
-    "request-json": "0.4.11"
+    "request-json-light": "0.5.6"
   },
   "devDependencies": {},
   "scripts": {},
