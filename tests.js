@@ -18,12 +18,14 @@ describe('Config Helpers', function(){
       assert.equal(true, fs.existsSync(HOME));
     });
   });
+
   describe('createConfigFile', function(){
     it('should create an empty config file', function(){
       configHelpers.createConfigFile();
       assert.equal(true, fs.existsSync(CONFIG_PATH));
     });
   });
+
   describe('addApp', function(){
     it('should add app manifest to the config file', function(){
       var manifest = {
@@ -43,4 +45,13 @@ describe('Config Helpers', function(){
       assert.equal(manifest.type, config.apps[app].type);
     });
   });
+});
+
+describe('NPM Helpers', function(){
+});
+
+describe('Server Helpers', function(){
+});
+
+describe('Controllers', function(){
 });
