@@ -7,7 +7,7 @@ var fsExtra = require('fs-extra');
 var pathExtra = require('path-extra');
 var program = require('commander');
 var npm = require('npm');
-var request = require('request-json');
+var request = require('request-json-light');
 var express = require('express');
 var morgan = require('morgan');
 var async = require('async');
@@ -671,7 +671,9 @@ if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
 
 // Process arguments
 
-program.parse(process.argv);
+if(module.parent === null) {
+  program.parse(process.argv);
+};
 
 
 // If argumernts doesn't match any of the one set, it displays help.
