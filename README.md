@@ -64,7 +64,8 @@ install and run them separately:
 
 *static (require static-apps plugin)*
 
-* frankrousseau/coffee-snake: snake game.
+* frankrousseau/coffee-snake: snake game;
+* frankrousseau/CrappyBird: Flappy bird clone.
 
 # Plugins
 
