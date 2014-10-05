@@ -62,7 +62,7 @@ install and run them separately:
 * cozy-labs/cozy-files: file storage;
 * cozy-labs/cozy-contacts: contact book.
 
-*static (require static-apps plugin)*
+*HTML5 apps (require html5-apps plugin)*
 
 * frankrousseau/coffee-snake: snake game;
 * frankrousseau/CrappyBird: Flappy bird clone.
@@ -83,7 +83,7 @@ You can extend capability of the platform by adding plugins:
 
 * cozy-labs/cozy-light-auth: add auth capabilities to Cozy Light.
 * cozy-labs/cozy-light-basic-auth: add basic auth capabilities to Cozy Light.
-* cozy-labs/cozy-light-static-apps: to install HTML5 apps like normal app.
+* cozy-labs/cozy-light-html5-apps: to install HTML5 apps like normal app.
 
 WIP:
 
