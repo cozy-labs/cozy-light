@@ -7,27 +7,27 @@ var configHelpers = require('./cozy-light').configHelpers;
 var HOME = pathExtra.join(pathExtra.homedir(), '.cozy-light');
 var CONFIG_PATH = pathExtra.join(HOME, 'config.json');
 
-describe('Config Helpers', function(){
-  before(function(done) {
+describe('Config Helpers', function () {
+  before(function (done) {
     rimraf(HOME, done);
   });
 
-  describe('createHome', function(){
-    it('should create Home directory', function(){
+  describe('createHome', function () {
+    it('should create Home directory', function () {
       configHelpers.createHome();
       assert.equal(true, fs.existsSync(HOME));
     });
   });
 
-  describe('createConfigFile', function(){
-    it('should create an empty config file', function(){
+  describe('createConfigFile', function () {
+    it('should create an empty config file', function () {
       configHelpers.createConfigFile();
       assert.equal(true, fs.existsSync(CONFIG_PATH));
     });
   });
 
   describe('addApp', function(){
-    it('should add app manifest to the config file', function(){
+    it('should add app manifest to the config file', function () {
       var manifest = {
         "name": "cozy-test",
         "displayName": "Cozy Test",
@@ -47,11 +47,11 @@ describe('Config Helpers', function(){
   });
 });
 
-describe('NPM Helpers', function(){
+describe('NPM Helpers', function () {
 });
 
-describe('Server Helpers', function(){
+describe('Server Helpers', function () {
 });
 
-describe('Controllers', function(){
+describe('Controllers', function () {
 });
