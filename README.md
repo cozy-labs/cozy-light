@@ -79,7 +79,7 @@ install and run them separately:
 * frankrousseau/coffee-snake: snake game;
 * frankrousseau/CrappyBird: Flappy bird clone.
 
-* Docker apps (require docker plugin)*
+*Docker apps (require docker plugin)*
 
 
 * frankrousseau/couchdb: a couchdb database, can be useful for your
