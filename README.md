@@ -12,6 +12,14 @@ like a Raspberry Pi, a Digital Ocean VPS or a good old desktop computer.
 For more information about what is Cozy, you can check the 
 [full version website](http://cozy.io).
 
+# Use cases
+
+* File Storage
+* Productivity tool (task, calendar and contact managers)
+* Video game console
+* Reverse-proxy
+* ...
+
 # Benefits
 
 * No targeted ads because your data are stored where noone profiles you.
