@@ -83,7 +83,7 @@ You can extend capability of the platform by adding plugins:
 
 * cozy-labs/cozy-light-auth: add auth capabilities to Cozy Light.
 * cozy-labs/cozy-light-basic-auth: add basic auth capabilities to Cozy Light.
-* cozy-labs/cozy-light-html5-apps: to install HTML5 apps like normal app.
+* cozy-labs/cozy-light-html5-apps: to manage HTML5 apps like classic apps.
 * cozy-labs/cozy-light-docker: experimental plugin to manage docker containers like classic apps.
 
 *Ideas*
