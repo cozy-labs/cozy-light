@@ -14,10 +14,14 @@ For more information about what is Cozy, you can check the
 
 # Use cases
 
+Because of its very flexible architecture Cozy Light can satisfy many usages
+related to self-hosting. Here are some examples:
+
 * File Storage
 * Productivity tool (task, calendar and contact managers)
 * Video game console
 * Reverse-proxy
+* Simple Docker container manager
 * ...
 
 # Benefits
@@ -74,6 +78,13 @@ install and run them separately:
 
 * frankrousseau/coffee-snake: snake game;
 * frankrousseau/CrappyBird: Flappy bird clone.
+
+* Docker apps (require docker plugin)*
+
+
+* frankrousseau/couchdb: a couchdb database, can be useful for your
+  PouchDB-based apps;
+* frankrousseau/wordpress: Wordpress blog engine.
 
 # Plugins
 

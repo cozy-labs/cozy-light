@@ -2,6 +2,7 @@
 
 var http = require('http');
 var https = require('https');
+var url = require('url');
 var fs = require('fs');
 var fsExtra = require('fs-extra');
 var pathExtra = require('path-extra');
@@ -161,8 +162,28 @@ var serverHelpers = {
    */
   initializeProxy: function (server) {
 
+    proxy.on('error', function onError(err) { console.log(err); });
     proxy.on('error', function (err, req, res) {
       res.send(err, 500);
+    });
+
+    proxy.on('proxyRes', function (proxyRes, req, res) {
+      if (proxyRes.statusCode == 302) {
+        var app = req.originalUrl.split('/')[2];
+        var link = url.parse(proxyRes.headers.location);
+        if(link.path.indexOf(app) < 0) {
+          if(link.path[0] !== '/') {
+            link.path = '/' + link.path;
+          }
+          if (link.path.indexOf(link.query) >= 0) {
+            link.query = '';
+            link.search = '';
+          };
+          link.path = '/apps/' + app + link.path;
+          link.pathname = link.path;
+          proxyRes.headers.location = unescape(link.format());
+        }
+      }
     });
 
     server.on('upgrade', function (req, socket, head) {
@@ -237,13 +258,15 @@ var serverHelpers = {
     async.eachSeries(Object.keys(loadedPlugins), runPlugin, function (err) {
       if(err) { LOGGER.error(err); }
 
-      app.get('/', controllers.index);
+      app.all('/', controllers.index);
 
       app.all('/apps/:name/*', controllers.proxyPrivate);
       app.all('/apps/:name*', controllers.proxyPrivate);
 
       app.all('/public/:name/*', controllers.proxyPublic);
       app.all('/public/:name*', controllers.proxyPublic);
+
+      app.all('/*', controllers.automaticRedirect);
 
       callback(app);
     });
@@ -292,6 +315,11 @@ var controllers = {
    * Render front page and list available applications.
    */
   index: function (req, res, next) {
+
+    if (req.headers.referer !== undefined &&
+        req.headers.referer.indexOf('apps') > 0) {
+      return module.exports.controllers.automaticRedirect(req, res, next);
+    };
 
     var config = require(CONFIG_PATH);
     var memoryUsage = process.memoryUsage();
@@ -404,7 +432,6 @@ var controllers = {
     req.url = req.url.substring(("/apps/" + appName).length);
     if (port !== null) {
       proxy.web(req, res, { target: "http://localhost:" + port });
-      proxy.on('error', function onError(err) { console.log(err); });
     } else {
       res.send(404);
     }
@@ -422,8 +449,31 @@ var controllers = {
     } else {
       res.send(404);
     }
-  }
+  },
 
+  automaticRedirect: function (req, res, next) {
+    var referer = url.parse(req.headers.referer);
+    var app = referer.path.split('/')[2];
+    if (app !== undefined && app !== '') {
+      var link = url.parse(encodeURI(req.url));
+      link.path = link.path.split('?')[0];
+      link.path = '/apps/' + app + link.path;
+      link.pathname = link.path;
+      if (link.path.indexOf(link.query) > 0) {
+        link.query = '';
+        link.search = '';
+      };
+      if (link.search === null) {
+        link.search = '';
+      }
+      res.redirect(link.format(), 307);
+      //req.url = link.pathname;
+      //req.params.name = app;
+      //module.exports.controllers.proxyPrivate(req, res, next);
+    } else {
+        res.redirect('/', 307);
+    };
+  }
 }
 
 
@@ -722,5 +772,6 @@ module.exports = {
   configHelpers: configHelpers,
   npmHelpers: npmHelpers,
   serverHelpers: npmHelpers,
-  actions: actions
+  actions: actions,
+  controllers: controllers
 }
