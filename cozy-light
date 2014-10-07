@@ -168,10 +168,13 @@ var serverHelpers = {
     });
 
     proxy.on('proxyRes', function (proxyRes, req, res) {
-      if (proxyRes.statusCode == 302) {
+      if (proxyRes.statusCode === 301 
+          || proxyRes.statusCode === 302 
+          || proxyRes.statusCode === 303 
+          || proxyRes.statusCode === 307) {
         var app = req.originalUrl.split('/')[2];
         var link = url.parse(proxyRes.headers.location);
-        if(link.path.indexOf(app) < 0) {
+        if(link.path.indexOf('apps/' + app) < 0) {
           if(link.path[0] !== '/') {
             link.path = '/' + link.path;
           }
@@ -452,26 +455,30 @@ var controllers = {
   },
 
   automaticRedirect: function (req, res, next) {
-    var referer = url.parse(req.headers.referer);
-    var app = referer.path.split('/')[2];
-    if (app !== undefined && app !== '') {
-      var link = url.parse(encodeURI(req.url));
-      link.path = link.path.split('?')[0];
-      link.path = '/apps/' + app + link.path;
-      link.pathname = link.path;
-      if (link.path.indexOf(link.query) > 0) {
-        link.query = '';
-        link.search = '';
+    if (req.headers.referer !== undefined) {
+      var referer = url.parse(req.headers.referer);
+      var app = referer.path.split('/')[2];
+      if (app !== undefined && app !== '') {
+        var link = url.parse(encodeURI(req.url));
+        link.path = link.path.split('?')[0];
+        link.path = '/apps/' + app + link.path;
+        link.pathname = link.path;
+        if (link.path.indexOf(link.query) > 0) {
+          link.query = '';
+          link.search = '';
+        };
+        if (link.search === null) {
+          link.search = '';
+        }
+        res.redirect(link.format(), 307);
+        //req.url = link.pathname;
+        //req.params.name = app;
+        //module.exports.controllers.proxyPrivate(req, res, next);
+      } else {
+          res.redirect('/', 307);
       };
-      if (link.search === null) {
-        link.search = '';
-      }
-      res.redirect(link.format(), 307);
-      //req.url = link.pathname;
-      //req.params.name = app;
-      //module.exports.controllers.proxyPrivate(req, res, next);
     } else {
-        res.redirect('/', 307);
+        res.send(404);
     };
   }
 }
@@ -515,6 +522,7 @@ var actions = {
           var server = http.createServer(app).listen(port);
         }
         serverHelpers.initializeProxy(server);
+        LOGGER.debug(routes);
         LOGGER.info(
           'Cozy Light Dashboard is running on port ' + port + '...');
       });
