@@ -522,7 +522,6 @@ var actions = {
           var server = http.createServer(app).listen(port);
         }
         serverHelpers.initializeProxy(server);
-        LOGGER.debug(routes);
         LOGGER.info(
           'Cozy Light Dashboard is running on port ' + port + '...');
       });
