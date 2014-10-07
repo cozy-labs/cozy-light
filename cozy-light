@@ -774,7 +774,7 @@ var exitHandler = function (err) {
   } else {
     LOGGER.info('Cozy light was properly terminated.');
     process.exit(0);
-  });
+  };
 };
 process.on('SIGINT', exitHandler);
 
