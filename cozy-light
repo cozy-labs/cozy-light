@@ -752,21 +752,26 @@ process.on('uncaughtException', function (err) {
 // Manage terminaison
 
 var exitHandler = function (err) {
-  async.eachSeries(Object.keys(config.plugins), function (pluginName, cb) {
-    var options = config.plugins[pluginName];
-    try {
-      plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
-      if (plugin.onExit !== undefined) {
-        plugin.onExit(options, config, cb);
-      } else {
+  if(config.plugins !== undefined) {
+    async.eachSeries(Object.keys(config.plugins), function (pluginName, cb) {
+      var options = config.plugins[pluginName];
+      try {
+        plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
+        if (plugin.onExit !== undefined) {
+          plugin.onExit(options, config, cb);
+        } else {
+          cb();
+        }
+      } catch(err) {
+        console.log(err);
+        LOGGER.error('Plugin ' + pluginName + ' loading failed');
         cb();
       }
-    } catch(err) {
-      console.log(err);
-      LOGGER.error('Plugin ' + pluginName + ' loading failed');
-      cb();
-    }
-  }, function() {
+    }, function() {
+      LOGGER.info('Cozy light was properly terminated.');
+      process.exit(0);
+    });
+  } else {
     LOGGER.info('Cozy light was properly terminated.');
     process.exit(0);
   });
