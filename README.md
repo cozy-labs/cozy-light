@@ -15,7 +15,7 @@ For more information about what is Cozy, you can check the
 
 # Screencast
 
-[Online Instrodcution Screencast Video](https://vimeo.com/108332389) (Viemo
+[Introdcution Screencast Video](https://vimeo.com/108332389) (Viemo
 Link)
 
 # Use cases
