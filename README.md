@@ -12,6 +12,11 @@ like a Raspberry Pi, a Digital Ocean VPS or a good old desktop computer.
 For more information about what is Cozy, you can check the 
 [full version website](http://cozy.io).
 
+
+# Screencast
+
+<iframe src="//player.vimeo.com/video/108332389" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
 # Use cases
 
 Because of its very flexible architecture Cozy Light can satisfy many usages
