@@ -15,7 +15,8 @@ For more information about what is Cozy, you can check the
 
 # Screencast
 
-<iframe src="//player.vimeo.com/video/108332389" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+[Online Instrodcution Screencast Video](https://vimeo.com/108332389) (Viemo
+Link)
 
 # Use cases
 
