@@ -2,6 +2,7 @@
 
 var http = require('http');
 var https = require('https');
+
 var fs = require('fs');
 var fsExtra = require('fs-extra');
 var pathExtra = require('path-extra');
@@ -280,6 +281,24 @@ var serverHelpers = {
       callback();
     };
   }
+
+  loadPlugins: function() {
+    if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
+      Object.keys(config.plugins).forEach(function (pluginName) {
+        var options = config.plugins[pluginName];
+        try {
+          plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
+          options.config_path = CONFIG_PATH;
+          plugin.configure(options, config, program);
+
+          loadedPlugins[pluginName] = plugin;
+        } catch(err) {
+          console.log(err);
+          LOGGER.error('Plugin ' + pluginName + 'loading failed');
+        }
+      });
+    };
+  }
 };
 
 
@@ -436,15 +455,15 @@ var actions = {
    * server on given port. Ports are expected to be available.
    */
   start: function () {
+    var db = new Pouchdb('cozy');
+
+    var runApp = function (key, callback) {
+      var application = config.apps[key];
+      serverHelpers.startApplication(application, db, callback);
+    };
+
     serverHelpers.createApplicationServer(function (app) {
-      var db = new Pouchdb('cozy');
-
-      var runApp = function (key, callback) {
-        var application = config.apps[key];
-        serverHelpers.startApplication(application, db, callback);
-      };
-
-      async.eachSeries(Object.keys(config.apps), runApp, function (err) {
+      var startServer = function (err) {
         if(err) { LOGGER.error(err); }
 
         // Take port from config, use default one if not set.
@@ -466,7 +485,9 @@ var actions = {
         serverHelpers.initializeProxy(server);
         LOGGER.info(
           'Cozy Light Dashboard is running on port ' + port + '...');
-      });
+      };
+
+      async.eachSeries(Object.keys(config.apps), runApp, startServer);
     });
   },
 
@@ -650,28 +671,11 @@ program
   .action(program.outputHelp);
 
 
-// Apply plugins customisation
-
-if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
-  Object.keys(config.plugins).forEach(function (pluginName) {
-    var options = config.plugins[pluginName];
-    try {
-      plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
-      options.config_path = CONFIG_PATH;
-      plugin.configure(options, config, program);
-
-      loadedPlugins[pluginName] = plugin;
-    } catch(err) {
-      console.log(err);
-      LOGGER.error('Plugin ' + pluginName + 'loading failed');
-    }
-  });
-};
-
-
 // Process arguments
 
 if(module.parent === null) {
+  serverHelpers.loadPlugins();
+
   program.parse(process.argv);
 };
 
@@ -681,6 +685,7 @@ if(module.parent === null) {
 if (!process.argv.slice(2).length) {
   program.outputHelp();
 };
+
 
 
 // Manage errors
