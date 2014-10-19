@@ -1,7 +1,7 @@
 {
   "name": "cozy-light",
   "description": "Light personal cloud for your server or your desktop.",
-  "version": "0.2.11",
+  "version": "0.2.15",
   "author": "Cozy Cloud <contact@cozycloud.cc> (http://cozycloud.cc)",
   "licenses": [
     {

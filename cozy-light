@@ -2,7 +2,7 @@
 
 var http = require('http');
 var https = require('https');
-
+var url = require('url');
 var fs = require('fs');
 var fsExtra = require('fs-extra');
 var pathExtra = require('path-extra');
@@ -147,7 +147,7 @@ var npmHelpers = {
    */
   uninstall: function (app, callback) {
     npm.load({}, function () {
-      npm.commands.uninstall([module], callback);
+      npm.commands.uninstall([app], callback);
     });
   }
 };
@@ -162,11 +162,35 @@ var serverHelpers = {
    */
   initializeProxy: function (server) {
 
-    proxy.on('error', function (err, req, res) {
+    proxy.on('error', function onProxyError(err, req, res) {
+      console.log(err);
       res.send(err, 500);
     });
 
-    server.on('upgrade', function (req, socket, head) {
+    // Dirty stuff to manage redirection for non classic apps.
+    proxy.on('proxyRes', function onProxyRes(proxyRes, req, res) {
+      if (proxyRes.statusCode === 301 
+          || proxyRes.statusCode === 302 
+          || proxyRes.statusCode === 303 
+          || proxyRes.statusCode === 307) {
+        var app = req.originalUrl.split('/')[2];
+        var link = url.parse(proxyRes.headers.location);
+        if(link.path.indexOf('apps/' + app) < 0) {
+          if(link.path[0] !== '/') {
+            link.path = '/' + link.path;
+          }
+          if (link.path.indexOf(link.query) >= 0) {
+            link.query = '';
+            link.search = '';
+          };
+          link.path = '/apps/' + app + link.path;
+          link.pathname = link.path;
+          proxyRes.headers.location = unescape(link.format());
+        }
+      }
+    });
+
+    server.on('upgrade', function onProxyUpgrade(req, socket, head) {
 
       function proxyWS(port) {
         proxy.ws(req, socket, head, {
@@ -221,29 +245,33 @@ var serverHelpers = {
             { maxAge: 86400000 }));
 
     var runPlugin = function (pluginName, cb) {
+
       plugin = loadedPlugins[pluginName];
       if (plugin.configureAppServer !== undefined) {
         LOGGER.info('Configuring plugin ' + pluginName + '...');
         config.pouchdb = Pouchdb;
+        config.appPort = port;
         plugin.configureAppServer(app, config, routes, function logResult() {
           LOGGER.info('Plugin ' + pluginName + ' configured.');
           cb();
         });
       } else {
-        callback();
+        cb();
       };
     };
 
     async.eachSeries(Object.keys(loadedPlugins), runPlugin, function (err) {
       if(err) { LOGGER.error(err); }
 
-      app.get('/', controllers.index);
+      app.all('/', controllers.index);
 
       app.all('/apps/:name/*', controllers.proxyPrivate);
       app.all('/apps/:name*', controllers.proxyPrivate);
 
       app.all('/public/:name/*', controllers.proxyPublic);
       app.all('/public/:name*', controllers.proxyPublic);
+
+      app.all('/*', controllers.automaticRedirect);
 
       callback(app);
     });
@@ -264,7 +292,7 @@ var serverHelpers = {
       if (module === null) {
         LOGGER.error("Can't load application " + name + ".");
         callback();
-      } if (module.start === undefined) {
+      } else if (module.start === undefined) {
         LOGGER.error("Can't start application " + name + ".");
         callback();
       } else {
@@ -280,15 +308,16 @@ var serverHelpers = {
     } else {
       callback();
     };
-  }
+  },
 
   loadPlugins: function() {
     if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
-      Object.keys(config.plugins).forEach(function (pluginName) {
+      Object.keys(config.plugins).forEach(function loadPlugin(pluginName) {
         var options = config.plugins[pluginName];
         try {
           plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
           options.config_path = CONFIG_PATH;
+          options.home = HOME;
           plugin.configure(options, config, program);
 
           loadedPlugins[pluginName] = plugin;
@@ -310,6 +339,11 @@ var controllers = {
    * Render front page and list available applications.
    */
   index: function (req, res, next) {
+
+    if (req.headers.referer !== undefined &&
+        req.headers.referer.indexOf('apps') > 0) {
+      return module.exports.controllers.automaticRedirect(req, res, next);
+    };
 
     var config = require(CONFIG_PATH);
     var memoryUsage = process.memoryUsage();
@@ -422,7 +456,6 @@ var controllers = {
     req.url = req.url.substring(("/apps/" + appName).length);
     if (port !== null) {
       proxy.web(req, res, { target: "http://localhost:" + port });
-      proxy.on('error', function onError(err) { console.log(err); });
     } else {
       res.send(404);
     }
@@ -440,8 +473,35 @@ var controllers = {
     } else {
       res.send(404);
     }
-  }
+  },
 
+  automaticRedirect: function (req, res, next) {
+    if (req.headers.referer !== undefined) {
+      var referer = url.parse(req.headers.referer);
+      var app = referer.path.split('/')[2];
+      if (app !== undefined && app !== '') {
+        var link = url.parse(encodeURI(req.url));
+        link.path = link.path.split('?')[0];
+        link.path = '/apps/' + app + link.path;
+        link.pathname = link.path;
+        if (link.path.indexOf(link.query) > 0) {
+          link.query = '';
+          link.search = '';
+        };
+        if (link.search === null) {
+          link.search = '';
+        }
+        res.redirect(link.format(), 307);
+        //req.url = link.pathname;
+        //req.params.name = app;
+        //module.exports.controllers.proxyPrivate(req, res, next);
+      } else {
+          res.redirect('/', 307);
+      };
+    } else {
+        res.send(404);
+    };
+  }
 }
 
 
@@ -500,7 +560,7 @@ var actions = {
   *
   * @param {String} app App to install (ex: cozy-labs/calendar).
   */
-  installApp: function (app){
+  installApp: function (app) {
     var client = request.newClient( 'https://raw.githubusercontent.com/');
     var manifestUrl = app + '/master/package.json';
 
@@ -695,11 +755,42 @@ process.on('uncaughtException', function (err) {
 });
 
 
+// Manage terminaison
+
+var exitHandler = function (err) {
+  if(config.plugins !== undefined) {
+    async.eachSeries(Object.keys(config.plugins), function (pluginName, cb) {
+      var options = config.plugins[pluginName];
+      try {
+        plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
+        if (plugin.onExit !== undefined) {
+          plugin.onExit(options, config, cb);
+        } else {
+          cb();
+        }
+      } catch(err) {
+        console.log(err);
+        LOGGER.error('Plugin ' + pluginName + ' loading failed');
+        cb();
+      }
+    }, function() {
+      LOGGER.info('Cozy light was properly terminated.');
+      process.exit(0);
+    });
+  } else {
+    LOGGER.info('Cozy light was properly terminated.');
+    process.exit(0);
+  };
+};
+process.on('SIGINT', exitHandler);
+
+
 // Export module for testing purpose.
 
 module.exports = {
   configHelpers: configHelpers,
   npmHelpers: npmHelpers,
-  serverHelpers: npmHelpers,
-  actions: actions
+  serverHelpers: serverHelpers,
+  actions: actions,
+  controllers: controllers
 }

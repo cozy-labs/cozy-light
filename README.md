@@ -12,6 +12,23 @@ like a Raspberry Pi, a Digital Ocean VPS or a good old desktop computer.
 For more information about what is Cozy, you can check the 
 [full version website](http://cozy.io).
 
+
+# Screencast
+
+[Introduction Screencast](https://vimeo.com/108332389) (Vimeo Link)
+
+# Use cases
+
+Because of its very flexible architecture Cozy Light can satisfy many usages
+related to self-hosting. Here are some examples:
+
+* File Storage
+* Productivity tool (task, calendar and contact managers)
+* Video game console
+* Reverse-proxy
+* Simple Docker container manager
+* ...
+
 # Benefits
 
 * No targeted ads because your data are stored where noone profiles you.
@@ -25,7 +42,7 @@ For more information about what is Cozy, you can check the
 
 # Install 
 
-Install Node.js (>= 0.10) and essential build tools then install
+Install Node.js (>= 0.10), Git and essential build tools then install
 cozy-light from the NPM package manager:
 
     sudo npm install cozy-light -g
@@ -62,9 +79,17 @@ install and run them separately:
 * cozy-labs/cozy-files: file storage;
 * cozy-labs/cozy-contacts: contact book.
 
-*static (require static-apps plugin)*
+*HTML5 apps (require html5-apps plugin)*
 
-* frankrousseau/coffee-snake: snake game.
+* frankrousseau/coffee-snake: snake game;
+* frankrousseau/CrappyBird: Flappy bird clone.
+
+*Docker apps (require docker plugin)*
+
+
+* frankrousseau/couchdb: a couchdb database, can be useful for your
+  PouchDB-based apps;
+* frankrousseau/wordpress: Wordpress blog engine.
 
 # Plugins
 
@@ -82,11 +107,8 @@ You can extend capability of the platform by adding plugins:
 
 * cozy-labs/cozy-light-auth: add auth capabilities to Cozy Light.
 * cozy-labs/cozy-light-basic-auth: add basic auth capabilities to Cozy Light.
-* cozy-labs/cozy-light-static-apps: to install HTML5 apps like normal app.
-
-WIP:
-
-* cozy-labs/cozy-light-docker: experimental plugin to start docker container like normal app.
+* cozy-labs/cozy-light-html5-apps: to manage HTML5 apps like classic apps.
+* cozy-labs/cozy-light-docker: experimental plugin to manage docker containers like classic apps.
 
 *Ideas*
 
