@@ -560,7 +560,7 @@ var actions = {
   *
   * @param {String} app App to install (ex: cozy-labs/calendar).
   */
-  installApp: function (app) {
+  installApp: function (app, callback) {
     var client = request.newClient( 'https://raw.githubusercontent.com/');
     var manifestUrl = app + '/master/package.json';
 
@@ -580,6 +580,7 @@ var actions = {
           } else {
             LOGGER.info(app + ' installed. Enjoy!');
           };
+          if (callback !== undefined) { callback(); ];
         });
       };
     });
