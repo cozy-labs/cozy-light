@@ -147,7 +147,7 @@ var npmHelpers = {
    */
   uninstall: function (app, callback) {
     npm.load({}, function () {
-      npm.commands.uninstall([module], callback);
+      npm.commands.uninstall([app], callback);
     });
   }
 };
@@ -162,12 +162,13 @@ var serverHelpers = {
    */
   initializeProxy: function (server) {
 
-    proxy.on('error', function onError(err) { console.log(err); });
-    proxy.on('error', function (err, req, res) {
+    proxy.on('error', function onProxyError(err, req, res) {
+      console.log(err);
       res.send(err, 500);
     });
 
-    proxy.on('proxyRes', function (proxyRes, req, res) {
+    // Dirty stuff to manage redirection for non classic apps.
+    proxy.on('proxyRes', function onProxyRes(proxyRes, req, res) {
       if (proxyRes.statusCode === 301 
           || proxyRes.statusCode === 302 
           || proxyRes.statusCode === 303 
@@ -189,7 +190,7 @@ var serverHelpers = {
       }
     });
 
-    server.on('upgrade', function (req, socket, head) {
+    server.on('upgrade', function onProxyUpgrade(req, socket, head) {
 
       function proxyWS(port) {
         proxy.ws(req, socket, head, {
@@ -244,6 +245,7 @@ var serverHelpers = {
             { maxAge: 86400000 }));
 
     var runPlugin = function (pluginName, cb) {
+
       plugin = loadedPlugins[pluginName];
       if (plugin.configureAppServer !== undefined) {
         LOGGER.info('Configuring plugin ' + pluginName + '...');
@@ -290,7 +292,7 @@ var serverHelpers = {
       if (module === null) {
         LOGGER.error("Can't load application " + name + ".");
         callback();
-      } if (module.start === undefined) {
+      } else if (module.start === undefined) {
         LOGGER.error("Can't start application " + name + ".");
         callback();
       } else {
@@ -305,6 +307,25 @@ var serverHelpers = {
       };
     } else {
       callback();
+    };
+  },
+
+  loadPlugins: function() {
+    if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
+      Object.keys(config.plugins).forEach(function loadPlugin(pluginName) {
+        var options = config.plugins[pluginName];
+        try {
+          plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
+          options.config_path = CONFIG_PATH;
+          options.home = HOME;
+          plugin.configure(options, config, program);
+
+          loadedPlugins[pluginName] = plugin;
+        } catch(err) {
+          console.log(err);
+          LOGGER.error('Plugin ' + pluginName + 'loading failed');
+        }
+      });
     };
   }
 };
@@ -493,15 +514,15 @@ var actions = {
    * server on given port. Ports are expected to be available.
    */
   start: function () {
+    var db = new Pouchdb('cozy');
+
+    var runApp = function (key, callback) {
+      var application = config.apps[key];
+      serverHelpers.startApplication(application, db, callback);
+    };
+
     serverHelpers.createApplicationServer(function (app) {
-      var db = new Pouchdb('cozy');
-
-      var runApp = function (key, callback) {
-        var application = config.apps[key];
-        serverHelpers.startApplication(application, db, callback);
-      };
-
-      async.eachSeries(Object.keys(config.apps), runApp, function (err) {
+      var startServer = function (err) {
         if(err) { LOGGER.error(err); }
 
         // Take port from config, use default one if not set.
@@ -523,7 +544,9 @@ var actions = {
         serverHelpers.initializeProxy(server);
         LOGGER.info(
           'Cozy Light Dashboard is running on port ' + port + '...');
-      });
+      };
+
+      async.eachSeries(Object.keys(config.apps), runApp, startServer);
     });
   },
 
@@ -536,7 +559,7 @@ var actions = {
   *
   * @param {String} app App to install (ex: cozy-labs/calendar).
   */
-  installApp: function (app){
+  installApp: function (app, callback) {
     var client = request.newClient( 'https://raw.githubusercontent.com/');
     var manifestUrl = app + '/master/package.json';
 
@@ -556,6 +579,7 @@ var actions = {
           } else {
             LOGGER.info(app + ' installed. Enjoy!');
           };
+          if (callback !== undefined) { callback(); ];
         });
       };
     });
@@ -730,6 +754,8 @@ if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
 // Process arguments
 
 if(module.parent === null) {
+  serverHelpers.loadPlugins();
+
   program.parse(process.argv);
 };
 
@@ -739,6 +765,7 @@ if(module.parent === null) {
 if (!process.argv.slice(2).length) {
   program.outputHelp();
 };
+
 
 
 // Manage errors
@@ -792,7 +819,7 @@ process.on('SIGINT', exitHandler);
 module.exports = {
   configHelpers: configHelpers,
   npmHelpers: npmHelpers,
-  serverHelpers: npmHelpers,
+  serverHelpers: serverHelpers,
   actions: actions,
   controllers: controllers
 }
