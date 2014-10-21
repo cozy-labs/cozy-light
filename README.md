@@ -22,6 +22,7 @@ For more information about what is Cozy, you can check the
 Because of its very flexible architecture Cozy Light can satisfy many usages
 related to self-hosting. Here are some examples:
 
+* Static blog deployer 
 * File Storage
 * Productivity tool (task, calendar and contact managers)
 * Video game console
