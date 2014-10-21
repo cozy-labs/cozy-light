@@ -254,7 +254,7 @@ var serverHelpers = {
           cb();
         });
       } else {
-        callback();
+        cb();
       };
     };
 
@@ -318,7 +318,6 @@ var controllers = {
    * Render front page and list available applications.
    */
   index: function (req, res, next) {
-
     if (req.headers.referer !== undefined &&
         req.headers.referer.indexOf('apps') > 0) {
       return module.exports.controllers.automaticRedirect(req, res, next);
@@ -716,6 +715,7 @@ if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
     try {
       plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
       options.config_path = CONFIG_PATH;
+      options.home = HOME;
       plugin.configure(options, config, program);
 
       loadedPlugins[pluginName] = plugin;
@@ -751,8 +751,9 @@ process.on('uncaughtException', function (err) {
 // Manage terminaison
 
 var exitHandler = function (err) {
+
   if(config.plugins !== undefined) {
-    async.eachSeries(Object.keys(config.plugins), function (pluginName, cb) {
+    var exitPlugin = function (pluginName, cb) {
       var options = config.plugins[pluginName];
       try {
         plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
@@ -763,12 +764,20 @@ var exitHandler = function (err) {
         }
       } catch(err) {
         console.log(err);
-        LOGGER.error('Plugin ' + pluginName + ' loading failed');
+        LOGGER.error('Plugin ' + pluginName + 
+                     ' loading failed for termination.');
         cb();
       }
-    }, function() {
-      LOGGER.info('Cozy light was properly terminated.');
-      process.exit(0);
+    };
+
+    async.eachSeries(Object.keys(config.plugins), exitPlugin, function(err) {
+      if (err) {
+        LOGGER.error('Cozy light was not properly terminated.');
+        process.exit(1);
+      } else {
+        LOGGER.info('Cozy light was properly terminated.');
+        process.exit(0);
+      };
     });
   } else {
     LOGGER.info('Cozy light was properly terminated.');
