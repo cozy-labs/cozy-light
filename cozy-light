@@ -68,12 +68,14 @@ var configHelpers = {
     if(config.plugins === undefined) {
       config.plugins = {};
     };
+
     config.plugins[plugin] = {
       name: manifest.name,
       displayName: manifest.displayName,
       version: manifest.version,
       description: manifest.description
     };
+    console.log(config.plugins);
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   },
 
@@ -165,29 +167,6 @@ var serverHelpers = {
     proxy.on('error', function onProxyError(err, req, res) {
       console.log(err);
       res.send(err, 500);
-    });
-
-    // Dirty stuff to manage redirection for non classic apps.
-    proxy.on('proxyRes', function onProxyRes(proxyRes, req, res) {
-      if (proxyRes.statusCode === 301 
-          || proxyRes.statusCode === 302 
-          || proxyRes.statusCode === 303 
-          || proxyRes.statusCode === 307) {
-        var app = req.originalUrl.split('/')[2];
-        var link = url.parse(proxyRes.headers.location);
-        if(link.path.indexOf('apps/' + app) < 0) {
-          if(link.path[0] !== '/') {
-            link.path = '/' + link.path;
-          }
-          if (link.path.indexOf(link.query) >= 0) {
-            link.query = '';
-            link.search = '';
-          };
-          link.path = '/apps/' + app + link.path;
-          link.pathname = link.path;
-          proxyRes.headers.location = unescape(link.format());
-        }
-      }
     });
 
     server.on('upgrade', function onProxyUpgrade(req, socket, head) {
@@ -313,18 +292,27 @@ var serverHelpers = {
   loadPlugins: function() {
     if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
       Object.keys(config.plugins).forEach(function loadPlugin(pluginName) {
-        var options = config.plugins[pluginName];
         try {
-          plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
-          options.config_path = CONFIG_PATH;
-          options.home = HOME;
-          options.npmHelpers = npmHelpers;
+          var pluginConfig = config.plugins[pluginName];
+          var pluginPath = pathExtra.join(
+            HOME, 'node_modules', pluginConfig.name);
+          var plugin = require(pluginPath);
+          var options = {
+            name: pluginConfig.name,
+            displayName: pluginConfig.displayName,
+            version: pluginConfig.version,
+            description: pluginConfig.description,
+            config_path: CONFIG_PATH,
+            home: HOME,
+            npmHelpers: npmHelpers,
+            proxy: proxy
+          };
           plugin.configure(options, config, program);
 
           loadedPlugins[pluginName] = plugin;
         } catch(err) {
           console.log(err);
-          LOGGER.error('Plugin ' + pluginName + 'loading failed');
+          LOGGER.error('Plugin ' + pluginName + ' loading failed');
         }
       });
     };
@@ -340,10 +328,6 @@ var controllers = {
    * Render front page and list available applications.
    */
   index: function (req, res, next) {
-    if (req.headers.referer !== undefined &&
-        req.headers.referer.indexOf('apps') > 0) {
-      return module.exports.controllers.automaticRedirect(req, res, next);
-    };
 
     var config = require(CONFIG_PATH);
     var memoryUsage = process.memoryUsage();
@@ -492,9 +476,6 @@ var controllers = {
           link.search = '';
         }
         res.redirect(link.format(), 307);
-        //req.url = link.pathname;
-        //req.params.name = app;
-        //module.exports.controllers.proxyPrivate(req, res, next);
       } else {
           res.redirect('/', 307);
       };
@@ -617,7 +598,7 @@ var actions = {
     var client = request.newClient( 'https://raw.githubusercontent.com/');
     var manifestUrl = plugin + '/master/package.json';
 
-    LOGGER.info('Installing application ' + plugin + '...');
+    LOGGER.info('Installing plugin ' + plugin + '...');
     client.get(manifestUrl, function (err, res, manifest) {
       if (res.statusCode !== 200) {
         LOGGER.info(err);
