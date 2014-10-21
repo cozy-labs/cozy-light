@@ -318,6 +318,7 @@ var serverHelpers = {
           plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
           options.config_path = CONFIG_PATH;
           options.home = HOME;
+          options.npmHelpers = npmHelpers;
           plugin.configure(options, config, program);
 
           loadedPlugins[pluginName] = plugin;
@@ -729,26 +730,6 @@ program
   .command('*')
   .description('display help')
   .action(program.outputHelp);
-
-
-// Apply plugins customisation
-
-if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
-  Object.keys(config.plugins).forEach(function (pluginName) {
-    var options = config.plugins[pluginName];
-    try {
-      plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
-      options.config_path = CONFIG_PATH;
-      options.home = HOME;
-      plugin.configure(options, config, program);
-
-      loadedPlugins[pluginName] = plugin;
-    } catch(err) {
-      console.log(err);
-      LOGGER.error('Plugin ' + pluginName + 'loading failed');
-    }
-  });
-};
 
 
 // Process arguments
