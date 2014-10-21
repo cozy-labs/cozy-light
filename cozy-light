@@ -579,7 +579,7 @@ var actions = {
           } else {
             LOGGER.info(app + ' installed. Enjoy!');
           };
-          if (callback !== undefined) { callback(); ];
+          if (callback !== undefined) { callback(); };
         });
       };
     });
