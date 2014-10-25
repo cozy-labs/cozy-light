@@ -256,6 +256,13 @@ var serverHelpers = {
     });
   },
 
+  /*
+   * Start given classic application as a new listening server.
+   *
+   * @param application The application to start.
+   * @db The database to give as parameter to the application (they all share
+   *     the same datastore).
+   */
   startApplication: function (application, db, callback) {
     var name = application.name;
     var script = pathExtra.join(HOME, 'node_modules', name);
@@ -289,6 +296,9 @@ var serverHelpers = {
     };
   },
 
+  /*
+   * Require and configure every plugins listed in the configuration file.
+   */
   loadPlugins: function() {
     if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
       Object.keys(config.plugins).forEach(function loadPlugin(pluginName) {
@@ -312,11 +322,54 @@ var serverHelpers = {
           loadedPlugins[pluginName] = plugin;
         } catch(err) {
           console.log(err);
-          LOGGER.error('Plugin ' + pluginName + ' loading failed');
+          LOGGER.error('Plugin ' + pluginName + ' loading failed.');
         }
       });
     };
-  }
+  },
+
+  /*
+   * Manage properly exit of the process when SIGINT signal is triggered.
+   * It asks to every plugin to end properly.
+   */
+  exitHandler: function (err) {
+
+    if(config.plugins !== undefined) {
+
+      var exitPlugin = function (pluginName, cb) {
+        var options = config.plugins[pluginName];
+        try {
+          plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
+          if (plugin.onExit !== undefined) {
+            plugin.onExit(options, config, cb);
+          } else {
+            cb();
+          }
+        } catch(err) {
+          console.log(err);
+          LOGGER.error('Plugin ' + pluginName + 
+                       ' loading failed for termination.');
+          cb();
+        }
+      };
+
+      var endProcess = function (err) {
+        if (err) {
+          LOGGER.error('Cozy light was not properly terminated.');
+          process.exit(1);
+        } else {
+          LOGGER.info('Cozy light was properly terminated.');
+          process.exit(0);
+        };
+      });
+
+      async.eachSeries(Object.keys(config.plugins), exitPlugin, endProcess);
+
+    } else {
+      LOGGER.info('Cozy Light exited properly.');
+      process.exit(0);
+    };
+  };
 };
 
 
@@ -459,6 +512,9 @@ var controllers = {
     }
   },
 
+  /*
+   * If request path don't match any existing route, it's redirected to 
+   */
   automaticRedirect: function (req, res, next) {
     if (req.headers.referer !== undefined) {
       var referer = url.parse(req.headers.referer);
@@ -477,7 +533,7 @@ var controllers = {
         }
         res.redirect(link.format(), 307);
       } else {
-          res.redirect('/', 307);
+        res.redirect('/', 307);
       };
     } else {
         res.send(404);
@@ -737,43 +793,9 @@ process.on('uncaughtException', function (err) {
 });
 
 
-// Manage terminaison
+// Manage termination
 
-var exitHandler = function (err) {
-
-  if(config.plugins !== undefined) {
-    var exitPlugin = function (pluginName, cb) {
-      var options = config.plugins[pluginName];
-      try {
-        plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
-        if (plugin.onExit !== undefined) {
-          plugin.onExit(options, config, cb);
-        } else {
-          cb();
-        }
-      } catch(err) {
-        console.log(err);
-        LOGGER.error('Plugin ' + pluginName + 
-                     ' loading failed for termination.');
-        cb();
-      }
-    };
-
-    async.eachSeries(Object.keys(config.plugins), exitPlugin, function(err) {
-      if (err) {
-        LOGGER.error('Cozy light was not properly terminated.');
-        process.exit(1);
-      } else {
-        LOGGER.info('Cozy light was properly terminated.');
-        process.exit(0);
-      };
-    });
-  } else {
-    LOGGER.info('Cozy light was properly terminated.');
-    process.exit(0);
-  };
-};
-process.on('SIGINT', exitHandler);
+process.on('SIGINT', severHelpers.exitHandler);
 
 
 // Export module for testing purpose.

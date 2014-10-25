@@ -3,13 +3,15 @@
 
 ![Cozy Logo](https://raw.github.com/cozy/cozy-setup/gh-pages/assets/images/happycloud.png)
 
-Lightweight personal cloud based on Node.js and PouchDB.
+Cozy Light is a micro-PaaS that makes self-hosting easy.
 
-Cozy Light allows you to store on your own box your files, calendars, contacts,
-todos, etc. It requires little configuration and can be run on cheap hardwares
-like a Raspberry Pi, a Digital Ocean VPS or a good old desktop computer.
+Through its various plugins Cozy Light allows you to deal without effort with
+many self-hosting use cases like deploying your static blog, managing
+dockerized web apps or use simple Node.js apps to store your calendars and
+your files.
 
-For more information about what is Cozy, you can check the 
+
+For more information about the oriingal Cozy, you can check the 
 [full version website](http://cozy.io).
 
 
@@ -23,23 +25,24 @@ Because of its very flexible architecture Cozy Light can satisfy many usages
 related to self-hosting. Here are some examples:
 
 * Static blog deployer 
-* File Storage
-* Productivity tool (task, calendar and contact managers)
+* Personal cloud (file storage) 
+* Simple Docker container manager
+* Productivity suite (task, calendar and contact managers)
 * Video game console
 * Reverse-proxy
-* Simple Docker container manager
 * ...
 
 # Benefits
 
-* No targeted ads because your data are stored where noone profiles you.
+* No need to learn a lot about system administration, everything can be done
+  with very few command lines.
+* Can run on cheap hardwares like the Raspberry Pi.
+* You install only the modules you need.
+* No targeted ads because your apps store data where noone profiles you.
 * No more headaches with relying on too many services, all your apps are
   located in the same place.
-* No need to learn a lot of system administration stuff, everything can be done
-  with very few command lines.
-* Cozy apps are simple, that means more productivity and time for you.
-* It's extensible, you can build your app to satisfy your specific needs.
-* Finally, you are no more dependant from your web app provider anymore.
+* It's extensible, you can build your own app to satisfy your specific needs.
+* Or simply write a plugin to give more features to the platform.
 
 # Install 
 
@@ -54,9 +57,13 @@ cozy-light from the NPM package manager:
 
 Then, with your browser, connect to: `http://localhost:19104/`
 
-# Applications
+# Platform applications
 
-## Install application
+By default the application handles only apps based on Node.js and PouchDB.
+But through plugins you can install application only made of
+static HTML or Apps available via the Docker registry in a Docker container. 
+
+## Install default applications
 
 Application are fetched from github. Application name is built from the
 username and the repository name:
@@ -87,10 +94,10 @@ install and run them separately:
 
 *Docker apps (require docker plugin)*
 
-
 * frankrousseau/couchdb: a couchdb database, can be useful for your
   PouchDB-based apps;
 * frankrousseau/wordpress: Wordpress blog engine.
+* frankrousseau/ghost: GhosT blog engine.
 
 # Plugins
 
@@ -114,11 +121,6 @@ You can extend capability of the platform by adding plugins:
 * cozy-labs/cozy-light-domains: link a domain name to a static app.
 * cozy-labs/cozy-light-githook: reinstall an app when a commit occurs on the
   Github repository.
-
-*Ideas*
-
-* updates: add a plugin that manages application and/or platform updating.
-* sync: add sync capabilities with a remote Cozy (great for a desktop usage).
 
 # Configuration
 
