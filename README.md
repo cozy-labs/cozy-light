@@ -65,6 +65,7 @@ related to self-hosting. Here are some examples:
 Install Node.js (>= 0.10), Git and essential build tools then install
 cozy-light from the NPM package manager:
 
+    sudo apt-get install git npm nodejs-legacy
     sudo npm install cozy-light -g
 
 # Run
