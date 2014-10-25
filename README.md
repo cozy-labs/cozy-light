@@ -75,9 +75,9 @@ Then, with your browser, connect to: `http://localhost:19104/`
 
 # Platform applications
 
-By default the application handles only apps based on Node.js and PouchDB.
-But through plugins you can install application only made of
-static HTML or Apps available via the Docker registry in a Docker container. 
+By default the platform handles only apps based on Node.js and PouchDB.
+But through plugins you can install appsi made only of
+static HTML or container available on the Docker registry. 
 
 ## Install default applications
 
