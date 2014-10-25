@@ -10,11 +10,6 @@ many self-hosting use cases like deploying your static blog, managing
 dockerized web apps or use simple Node.js apps to store your calendars and
 your files.
 
-
-For more information about the oriingal Cozy, you can check the 
-[full version website](http://cozy.io).
-
-
 # Screencast
 
 [Introduction Screencast](https://vimeo.com/108332389) (Vimeo Link)
