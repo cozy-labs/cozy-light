@@ -8,7 +8,8 @@ Cozy Light is a micro-PaaS that makes self-hosting easy.
 Through its various plugins Cozy Light allows you to deal without effort with
 many self-hosting use cases like deploying your static blog, managing
 dockerized web apps or use simple Node.js apps to store your calendars and
-your files.
+your files. Because it's lightweight, it performs well on cheap hardwares like
+the Raspberry Pi or a small Digital Ocean VPS.
 
 As an illustration here is how you handle the Static Blog use case. The goal is
 to publish a blog made of static files that updates every time you commit on
