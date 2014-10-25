@@ -10,6 +10,27 @@ many self-hosting use cases like deploying your static blog, managing
 dockerized web apps or use simple Node.js apps to store your calendars and
 your files.
 
+As an illustration here is how you handle the Static Blog use case. The goal is
+to publish a blog made of static files that updates every time you commit on
+the Github repostory:
+
+```
+# Platform configuration
+cozy-light add-plugin cozy-light-html5-apps
+cozy-light add-plugin cozy-light-domains
+cozy-light add-plugin cozy-light-githooks
+
+# App install
+cozy-light install mygithubuser/myrepo
+
+# App configuration
+cozy-light add-domain mywebsite.com mygithubuser/myrepo
+cozy-light add-githook mygithubuser/myrepo mysecret
+
+# Run the platform and access to your blog on the 80 port
+cozy-light start --port 80 
+```
+
 # Screencast
 
 [Introduction Screencast](https://vimeo.com/108332389) (Vimeo Link)
