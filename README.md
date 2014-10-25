@@ -17,9 +17,9 @@ the Github repostory:
 
 ```
 # Platform configuration
-cozy-light add-plugin cozy-light-html5-apps
-cozy-light add-plugin cozy-light-domains
-cozy-light add-plugin cozy-light-githooks
+cozy-light add-plugin cozy-labs/cozy-light-html5-apps
+cozy-light add-plugin cozy-labs/cozy-light-domains
+cozy-light add-plugin cozy-labs/cozy-light-githooks
 
 # App install
 cozy-light install mygithubuser/myrepo
