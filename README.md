@@ -12,7 +12,7 @@ your files. Because it's lightweight, it performs well on cheap hardwares like
 the Raspberry Pi or a small Digital Ocean VPS.
 
 As an illustration here is how you handle the Static Blog use case. The goal is
-to publish a blog made of static files that updates every time you commit on
+to publish a blog made of static files that is updated every time you commit on
 the Github repostory:
 
 ```
