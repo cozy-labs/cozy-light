@@ -361,16 +361,16 @@ var serverHelpers = {
           LOGGER.info('Cozy light was properly terminated.');
           process.exit(0);
         };
-      });
+      };
 
       async.eachSeries(Object.keys(config.plugins), exitPlugin, endProcess);
 
     } else {
       LOGGER.info('Cozy Light exited properly.');
       process.exit(0);
-    };
-  };
-};
+    }
+  }
+}
 
 
 // Express app controllers
@@ -795,7 +795,7 @@ process.on('uncaughtException', function (err) {
 
 // Manage termination
 
-process.on('SIGINT', severHelpers.exitHandler);
+process.on('SIGINT', serverHelpers.exitHandler);
 
 
 // Export module for testing purpose.
