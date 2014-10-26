@@ -149,7 +149,7 @@ var npmHelpers = {
    */
   uninstall: function (app, callback) {
     npm.load({}, function () {
-      npm.commands.uninstall([app], callback);
+      npm.commands.uninstall([app.split('/')[1]], callback);
     });
   }
 };
