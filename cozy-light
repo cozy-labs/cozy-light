@@ -75,7 +75,6 @@ var configHelpers = {
       version: manifest.version,
       description: manifest.description
     };
-    console.log(config.plugins);
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   },
 
@@ -617,7 +616,9 @@ var actions = {
           } else {
             LOGGER.info(app + ' installed. Enjoy!');
           };
-          if (callback !== undefined) { callback(); };
+          if (callback !== undefined && typeof(callback) === "function") { 
+            callback(); 
+          };
         });
       };
     });
