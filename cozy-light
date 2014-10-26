@@ -148,7 +148,7 @@ var npmHelpers = {
    */
   uninstall: function (app, callback) {
     npm.load({}, function () {
-      npm.commands.uninstall([app.split('/')[1]], callback);
+      npm.commands.uninstall([app], callback);
     });
   }
 };
@@ -635,7 +635,7 @@ var actions = {
       LOGGER.error(app + ' is not installed.');
     } else {
       module = config.apps[app].name;
-      npmHelpers.uninstall(app, function () {
+      npmHelpers.uninstall(module, function () {
         LOGGER.info(app + ' successfully uninstalled.');
         configHelpers.removeApp(app);
       });
