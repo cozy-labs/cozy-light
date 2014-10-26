@@ -1,6 +1,6 @@
 {
   "name": "cozy-light",
-  "description": "Light personal cloud for your server or your desktop.",
+  "description": "Micro PaaS that makes self-hosting easy",
   "version": "0.2.18",
   "author": "Cozy Cloud <contact@cozycloud.cc> (http://cozycloud.cc)",
   "licenses": [
