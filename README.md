@@ -21,12 +21,12 @@ cozy-light add-plugin cozy-labs/cozy-light-html5-apps
 cozy-light add-plugin cozy-labs/cozy-light-domains
 cozy-light add-plugin cozy-labs/cozy-light-githooks
 
-# App install
-cozy-light install mygithubuser/myrepo
+# Static Blog install
+cozy-light install mygithubuser/myblog
 
-# App configuration
-cozy-light add-domain mywebsite.com mygithubuser/myrepo
-cozy-light add-githook mygithubuser/myrepo mysecret
+# Blog configuration
+cozy-light add-domain mywebsite.com mygithubuser/myblog
+cozy-light add-githook mygithubuser/myblog mysecret
 
 # Run the platform and access to your blog on the 80 port
 cozy-light start --port 80 
@@ -115,7 +115,7 @@ install and run them separately:
 * frankrousseau/couchdb: a couchdb database, can be useful for your
   PouchDB-based apps;
 * frankrousseau/wordpress: Wordpress blog engine.
-* frankrousseau/ghost: GhosT blog engine.
+* frankrousseau/ghost: Ghost blog engine.
 
 # Plugins
 
