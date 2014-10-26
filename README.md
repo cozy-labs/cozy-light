@@ -3,16 +3,16 @@
 
 ![Cozy Logo](https://raw.github.com/cozy/cozy-setup/gh-pages/assets/images/happycloud.png)
 
-Cozy Light is a micro-PaaS that makes self-hosting easy.
+Cozy Light is a micro PaaS that makes self-hosting easy.
 
 Through its various plugins Cozy Light allows you to deal without effort with
-many self-hosting use cases like deploying your static blog, managing
+many self-hosting use cases like deploying your static website, managing
 dockerized web apps or use simple Node.js apps to store your calendars and
 your files. Because it's lightweight, it performs well on cheap hardwares like
 the Raspberry Pi or a small Digital Ocean VPS.
 
-As an illustration here is how you handle the Static Blog use case. The goal is
-to publish a blog made of static files that is updated every time you commit on
+As an illustration here is how you handle the Static Website use case. The goal is
+to publish a website made of static files that is updated every time you commit on
 the Github repostory:
 
 ```
@@ -21,14 +21,14 @@ cozy-light add-plugin cozy-labs/cozy-light-html5-apps
 cozy-light add-plugin cozy-labs/cozy-light-domains
 cozy-light add-plugin cozy-labs/cozy-light-githooks
 
-# Static Blog install
-cozy-light install mygithubuser/myblog
+# Static Website install
+cozy-light install mygithubuser/mywebsite
 
-# Blog configuration
-cozy-light add-domain mywebsite.com mygithubuser/myblog
-cozy-light add-githook mygithubuser/myblog mysecret
+# Website configuration
+cozy-light add-domain mywebsite.com mygithubuser/mywebsite
+cozy-light add-githook mygithubuser/mywebsite mysecret
 
-# Run the platform and access to your blog on the 80 port
+# Run the platform and access to your website on the 80 port
 cozy-light start --port 80 
 ```
 
