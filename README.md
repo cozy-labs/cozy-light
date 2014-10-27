@@ -25,7 +25,7 @@ cozy-light add-plugin cozy-labs/cozy-light-githooks
 cozy-light install mygithubuser/mywebsite
 
 # Website configuration
-cozy-light add-domain mywebsite.com mygithubuser/mywebsite
+cozy-light link-domain mywebsite.com mygithubuser/mywebsite
 cozy-light add-githook mygithubuser/mywebsite mysecret
 
 # Run the platform and access to your website on the 80 port
