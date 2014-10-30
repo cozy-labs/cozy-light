@@ -13,7 +13,7 @@ the Raspberry Pi or a small Digital Ocean VPS.
 
 As an illustration here is how you handle the Static Website use case. The goal is
 to publish a website made of static files that is updated every time you commit on
-the Github repostory:
+the Github repository:
 
 ```
 # Platform configuration
@@ -174,7 +174,7 @@ send us your PR!
 
 *What's the main difference with Cozy?*
 
-Cozy is a great and full featured. But its installation process and its memory
+Cozy is great and full featured. But its installation process and its memory
 consumption make it too hard to set up for novice and/or cheap hardware owner.
 So we decided to provide a ligther architecture. That way anyone could deploy
 Cozy applications on their hardware.
@@ -195,11 +195,11 @@ new instance of Cozy Light by making it run by another Unix user. It will run
 the full stack again, but you will have a strong isolation between the two
 users.
 
-*Why did you write Cozy Light in Javascript instead of Coffeescript?*
+*Why did you write Cozy Light in JavaScript instead of Coffeescript?*
 
 We are Coffescript fanboys but many people complain that our language choice
 prevented them to contribute. We think that collaborative work matters the
-most. So we decided to write Cozy Light in Javascript. 
+most. So we decided to write Cozy Light in JavaScript. 
 
 *How do I write my own application?*
 
