@@ -32,10 +32,10 @@ cozy-light add-githook mygithubuser/mywebsite mysecret
 cozy-light start --port 80 
 ```
 
-# Screencast
+# Screencasts
 
-[Screencast d'introduction (French)](https://vimeo.com/110419102) (Vimeo Link)
-[Introduction Screencast](https://vimeo.com/108332389) (Vimeo Link)
+* [Screencast d'introduction (French)](https://vimeo.com/110419102) (Vimeo Link)
+* [Introduction Screencast](https://vimeo.com/108332389) (Vimeo Link)
 
 # Use cases
 
