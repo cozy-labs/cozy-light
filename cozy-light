@@ -89,7 +89,7 @@ var configHelpers = {
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   },
 
-  /*
+  /**
    * Go to the HOME folder ~/.cozy-light then start the command line tool.
    */
   createHome: function () {
@@ -97,7 +97,7 @@ var configHelpers = {
     process.chdir(HOME);
   },
  
-  /*
+  /**
    * Create config file if it doesn't exist
    */
   createConfigFile: function () {
@@ -108,7 +108,7 @@ var configHelpers = {
     };
   },
 
-  /*
+  /**
    * Copy given dependency to app folder to avoid apps to fetch and rebuild it
    * every time it's required as dependency.
    * Most dependencies are common and can be reused.
@@ -156,7 +156,7 @@ var npmHelpers = {
 
 var serverHelpers = {
 
-  /*
+  /**
    * Configure properly proxy: handle errors and websockets.
    *
    * @param {Object} server Express server.
@@ -213,7 +213,7 @@ var serverHelpers = {
     return proxy;
   },
 
-  /*
+  /**
    * Create dashboard application server. 
    */
   createApplicationServer: function (callback) {
@@ -254,7 +254,7 @@ var serverHelpers = {
     });
   },
 
-  /*
+  /**
    * Start given classic application as a new listening server.
    *
    * @param application The application to start.
@@ -294,7 +294,7 @@ var serverHelpers = {
     };
   },
 
-  /*
+  /**
    * Require and configure every plugins listed in the configuration file.
    */
   loadPlugins: function() {
@@ -326,7 +326,7 @@ var serverHelpers = {
     };
   },
 
-  /*
+  /**
    * Manage properly exit of the process when SIGINT signal is triggered.
    * It asks to every plugin to end properly.
    */
@@ -375,7 +375,7 @@ var serverHelpers = {
 
 var controllers = {
   
-  /*
+  /**
    * Render front page and list available applications.
    */
   index: function (req, res, next) {
@@ -482,7 +482,7 @@ var controllers = {
     res.send(template);
   },
 
-  /*
+  /**
    * Proxy requests targeting apps.
    */
   proxyPrivate: function (req, res, next) {
@@ -496,7 +496,7 @@ var controllers = {
     }
   },
   
-  /*
+  /**
    * Proxy requests targeting apps public path.
    */
   proxyPublic: function (req, res, next) {
@@ -510,7 +510,7 @@ var controllers = {
     }
   },
 
-  /*
+  /**
    * If request path don't match any existing route, it's redirected to 
    */
   automaticRedirect: function (req, res, next) {
@@ -544,7 +544,7 @@ var controllers = {
 
 var actions = {
   
-  /*
+  /**
    * Apply plugin customatisation on server. Then get all installed app
    * modules. Expect that a start function is available, then run the app
    * server on given port. Ports are expected to be available.
@@ -591,7 +591,7 @@ var actions = {
     });
   },
 
-  /*
+  /**
   * App names correspond to Github repo. An app name is composed of a user name
   * and a repository name.
   * Installation starts by fetching the manifest from the repostiory
@@ -628,7 +628,7 @@ var actions = {
     });
   },
 
-  /*
+  /**
   * Remove app from config and its source from node module folder.
   *
   * @param {String} app App to uninstall.
@@ -646,7 +646,7 @@ var actions = {
     }
   },
 
-  /*
+  /**
   * Plugin names correspond to Github repo. A plugin name is composed of a user
   * name and a repository name.
   * Installation starts by fetching the manifest from the repostiory
@@ -682,7 +682,7 @@ var actions = {
   },
 
 
-  /*
+  /**
   * Remove plguin from config and its source from node module folder.
   *
   * @param {String} plugin Plugin to remove.
@@ -700,7 +700,7 @@ var actions = {
     }
   },
 
-  /*
+  /**
   * Display configuration file contents: apps configuration and user settings.
   */
   displayConfig: function () {
