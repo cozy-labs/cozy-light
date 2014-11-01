@@ -550,7 +550,7 @@ var actions = {
    * modules. Expect that a start function is available, then run the app
    * server on given port. Ports are expected to be available.
    */
-  start: function () {
+  start: function (program) {
     var db = new Pouchdb('cozy');
 
     var runApp = function (key, callback) {
@@ -737,10 +737,8 @@ program
   .version(pkg.version)
 
 program
-  .option('-p, --port <n>', 'port number on which Cozy Light is available')
-
-program
   .command('start')
+  .option('-p, --port <n>', 'port number on which Cozy Light is available')
   .description('run remote setup commands')
   .action(actions.start);
 
