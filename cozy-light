@@ -550,7 +550,7 @@ var actions = {
    * modules. Expect that a start function is available, then run the app
    * server on given port. Ports are expected to be available.
    */
-  start: function (program) {
+  start: function (program, callback) {
     var db = new Pouchdb('cozy');
 
     var runApp = function (key, callback) {
@@ -583,6 +583,9 @@ var actions = {
         serverHelpers.initializeProxy(server);
         LOGGER.info(
           'Cozy Light Dashboard is running on port ' + port + '...');
+        if (callback !== undefined && typeof(callback) === "function") {
+          callback();
+        };
       };
 
       async.eachSeries(Object.keys(config.apps), runApp, startServer);
