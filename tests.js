@@ -14,6 +14,7 @@ var CONFIG_PATH = pathExtra.join(HOME, 'config.json');
 
 describe('Config Helpers', function () {
   before(function (done) {
+    this.timeout(10000);
     rimraf(HOME, done);
   });
 
@@ -103,6 +104,7 @@ describe('NPM Helpers', function () {
 
   describe('install', function () {
     it('should install module in the cozy-light folder.', function (done) {
+      this.timeout(10000);
       process.chdir(HOME);
       var destPath = pathExtra.join(HOME, 'node_modules', 'hello');
       npmHelpers.install('cozy-labs/hello', function () {
@@ -172,7 +174,7 @@ describe('actions', function () {
 
   describe('start', function () {
     it('should listen and respond to http requests.', function (done) {
-      var opt = {port:8090};
+      var opt = {port: 8090};
       actions.start(opt,function(){
         var options = {
           host: 'localhost',
@@ -186,7 +188,7 @@ describe('actions', function () {
           });
           res.on('end', function () {
             var expected = 'Cozy Light: Your Personal Cloud at Home';
-            assert( body.indexOf(expected) > -1 );
+            assert(body.indexOf(expected) > -1);
             done();
           });
         }).on('error', function(e) {

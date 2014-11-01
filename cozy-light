@@ -217,13 +217,12 @@ var serverHelpers = {
    * Create dashboard application server. 
    */
   createApplicationServer: function (callback) {
-    app = express()
+    var app = express();
     app.use(morgan('combined'));
     app.use(express.static(pathExtra.join(__dirname, 'assets'),
             { maxAge: 86400000 }));
 
     var runPlugin = function (pluginName, cb) {
-
       plugin = loadedPlugins[pluginName];
       if (plugin.configureAppServer !== undefined) {
         LOGGER.info('Configuring plugin ' + pluginName + '...');
