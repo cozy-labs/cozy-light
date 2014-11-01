@@ -351,11 +351,39 @@ var serverHelpers = {
   },
 
   /**
+   * Stop currently running apps, refresh config from config file and restart
+   * all apps described by the config. It's aimed to be loaded after a
+   * configuration change.
+   */
+  reloadApps: function(callback) {
+
+    var runApp = function (key, callback) {
+      var application = config.apps[key];
+      serverHelpers.startApplication(application, db, callback);
+    };
+
+    LOGGER.info('Stopping apps...');
+    actions.stop(function() {
+      LOGGER.info('Apps stopped.');
+      loadedApps = {};
+      routes = {};
+      LOGGER.info('Restarting all apps...');
+      async.eachSeries(Object.keys(config.apps), runApp, function() {
+        LOGGER.info('Apps started.');
+        if (callback !== undefined && typeof(callback) === "function") { 
+          callback(); 
+        }
+      });
+    });
+  },
+
+
+  /**
    * Require and configure every plugins listed in the configuration file.
    */
   loadPlugins: function() {
     if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
-      Object.keys(config.plugins).forEach(function loadPlugin(pluginName) {
+      Object.keys(config.plugins).forEach(function loadPlugin (pluginName) {
         try {
           var pluginConfig = config.plugins[pluginName];
           var pluginPath = pathExtra.join(
@@ -606,7 +634,6 @@ var actions = {
    * server on given port. Ports are expected to be available.
    */
   start: function (program, callback) {
-    var db = new Pouchdb('cozy');
 
     var runApp = function (key, callback) {
       var application = config.apps[key];
@@ -640,13 +667,14 @@ var actions = {
         LOGGER.info(
           'Cozy Light Dashboard is running on port ' + port + '...');
 
-        fs.watchFile(CONFIG_PATH,{ persistent: false, interval: 1000 },function(curr, prev){
-          actions.stop(function(){
-            loadedApps = {};
-            routes = {};
-            config = require(CONFIG_PATH);
-            async.eachSeries(Object.keys(config.apps), runApp);
-          });
+        // Set watcher on config file to reload configuration when the config
+        // file changes.
+        var watchOptions = {persistent: false, interval: 1000}
+        fs.watchFile(CONFIG_PATH, watchOptions, function onConfigChanged () {
+          LOGGER.info(
+            'Configuration file changed. Reloading configuration...');
+          config = require(CONFIG_PATH);
+          serverHelpers.reloadApps();
         });
 
         if (callback !== undefined && typeof(callback) === "function") {
@@ -659,7 +687,7 @@ var actions = {
   },
 
   /**
-  /*
+   * Stop all running applications.
    */
   stop: function (callback) {
     var stopApp = function (key, callback) {
@@ -669,8 +697,7 @@ var actions = {
     async.eachSeries(Object.keys(config.apps), stopApp, callback);
   },
 
-  /*
->>>>>>> ccd2490c0a30ee3174687f2b69d63038020567a4
+  /**
   * App names correspond to Github repo. An app name is composed of a user name
   * and a repository name.
   * Installation starts by fetching the manifest from the repostiory
@@ -811,6 +838,7 @@ var loadedPlugins = {}
 var port = 18001;
 var proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
 var config = require(CONFIG_PATH);
+var db = new Pouchdb('cozy');
 
 
 // CLI
