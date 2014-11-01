@@ -3,7 +3,9 @@ var pathExtra = require("path-extra");
 var assert = require("assert");
 var rimraf = require("rimraf");
 var express = require("express");
+var http = require("http");
 
+var actions = require('./cozy-light').actions;
 var configHelpers = require('./cozy-light').configHelpers;
 var npmHelpers = require('./cozy-light').npmHelpers;
 var serverHelpers = require('./cozy-light').serverHelpers;
@@ -169,6 +171,29 @@ describe('Controllers', function () {
 describe('actions', function () {
 
   describe('start', function () {
+    it('should listen and respond to http requests.', function (done) {
+      var opt = {port:8090};
+      actions.start(opt,function(){
+        var options = {
+          host: 'localhost',
+          port: opt.port
+        };
+        http.get(options, function(res) {
+          res.setEncoding('utf8');
+          var body = '';
+          res.on('data', function (chunk) {
+            body += chunk;
+          });
+          res.on('end', function () {
+            var expected = 'Cozy Light: Your Personal Cloud at Home';
+            assert( body.indexOf(expected) > -1 );
+            done();
+          });
+        }).on('error', function(e) {
+          done(e);
+        });
+      })
+    });
   });
 
   //describe('installApp', function (done) {
