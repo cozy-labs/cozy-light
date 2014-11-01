@@ -564,7 +564,9 @@ var actions = {
 
         // Take port from config, use default one if not set.
         var port = DEFAULT_PORT;
-        if(config.port !== undefined) {
+        if(program.port !== undefined) {
+          port = program.port;
+        }else if(config.port !== undefined) {
           port = config.port;
         }
 
@@ -733,6 +735,9 @@ var config = require(CONFIG_PATH);
 
 program
   .version(pkg.version)
+
+program
+  .option('-p, --port <n>', 'port number on which Cozy Light is available')
 
 program
   .command('start')
