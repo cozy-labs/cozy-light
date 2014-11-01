@@ -144,6 +144,12 @@ describe('Server Helpers', function () {
   describe('startApplication', function(){
   });
 
+  describe('stopApplication', function(){
+  });
+
+  describe('reloadApps', function(){
+  });
+
   describe('loadPlugins', function(){
   });
 
