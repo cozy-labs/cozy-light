@@ -562,7 +562,7 @@ var actions = {
       var startServer = function (err) {
         if(err) { LOGGER.error(err); }
 
-        // Take port from config, use default one if not set.
+        // Take port from command line args, or config, fallback to default one if none set.
         var port = DEFAULT_PORT;
         if(program.port !== undefined) {
           port = program.port;
