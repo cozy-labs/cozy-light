@@ -281,10 +281,26 @@ var serverHelpers = {
         LOGGER.error("Can't start application " + name + ".");
         callback();
       } else {
+        loadedApps[script] = {
+          module:module,
+          server:null,
+          sockets:[]
+        };
         var options = {db: db, port: port, silent: true};
-        module.start(options, function (app, server) {
+        module.start(options, function (err, app, server) {
+          if(err) { LOGGER.error(err); }
+
+          loadedApps[script].server = server;
+          server.on('connection', function (socket) {
+            var socketId = loadedApps[script].sockets.length;
+            loadedApps[script].sockets.push(socket);
+            socket.on('close', function () {
+              delete loadedApps[script].sockets[socketId];
+            });
+          });
+
           routes[name] = port;
-          LOGGER.info('Application ' + name + ' is now running on port ' + 
+          LOGGER.info('Application ' + name + ' is now running on port ' +
                    port + '...');
           port = port + 1;
           callback();
@@ -293,6 +309,39 @@ var serverHelpers = {
     } else {
       callback();
     };
+  },
+
+  /**
+   * Stop given classic application.
+   *
+   * @param application The application to stop.
+   */
+  stopApplication: function (application, callback) {
+    var name = application.name;
+    var script = pathExtra.join(HOME, 'node_modules', name);
+
+    if(loadedApps[script]){
+      var module = loadedApps[script].module;
+      var close_server = function(){
+        var server = loadedApps[script].server;
+        var sockets = loadedApps[script].sockets;
+        for( var n in require.cache ){
+          if(n.indexOf("/"+name) ) delete require.cache[n];
+        }
+        delete loadedApps[script];
+        sockets.forEach(function(socket){
+          if(socket) socket.close();
+        });
+        server.close(callback);
+        LOGGER.info('Application ' + name + ' is now stopped...');
+      };
+      if( module.stop == undefined ){
+        module.stop = function(c){c();};
+      }
+      module.stop(close_server);
+    }else{
+      callback();
+    }
   },
 
   /*
@@ -581,10 +630,30 @@ var actions = {
         serverHelpers.initializeProxy(server);
         LOGGER.info(
           'Cozy Light Dashboard is running on port ' + port + '...');
+
+        fs.watchFile(CONFIG_PATH,{ persistent: false, interval: 1000 },function(curr, prev){
+          actions.stop(function(){
+            loadedApps = {};
+            routes = {};
+            config = require(CONFIG_PATH);
+            async.eachSeries(Object.keys(config.apps), runApp);
+          });
+        });
+
       };
 
       async.eachSeries(Object.keys(config.apps), runApp, startServer);
     });
+  },
+
+  /*
+   */
+  stop: function (callback) {
+    var stopApp = function (key, callback) {
+      var application = config.apps[key];
+      serverHelpers.stopApplication(application, callback);
+    };
+    async.eachSeries(Object.keys(config.apps), stopApp, callback);
   },
 
   /*
@@ -722,6 +791,7 @@ configHelpers.copyDependency('pouchdb');
 
 // "Global" variables
 
+var loadedApps = {}
 var routes = {}
 var loadedPlugins = {}
 var port = 18001;
