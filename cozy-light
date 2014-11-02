@@ -868,8 +868,8 @@ var actions = {
     LOGGER.info('Installing plugin ' + plugin + '...');
     client.get(manifestUrl, function (err, res, manifest) {
       if (res.statusCode !== 200) {
-        LOGGER.info(err);
-        LOGGER.info('Cannot find given plugin manifest. Make sure it lives on '
+        LOGGER.error(err);
+        LOGGER.error('Cannot find given plugin manifest. Make sure it lives on '
           + 'Github');
         LOGGER.error(plugin + ' installation failed.');
       } else {
