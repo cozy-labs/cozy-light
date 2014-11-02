@@ -702,17 +702,17 @@ var actions = {
     LOGGER.info('Installing application ' + app + '...');
     client.get(manifestUrl, function (err, res, manifest) {
       if (err) {
-        LOGGER.info(err);
-        LOGGER.info('Cannot find given app manifest. Make sure it lives on ' +
+        LOGGER.error(err);
+        LOGGER.error('Cannot find given app manifest. Make sure it lives on ' +
                  'Github');
       } else {
-        configHelpers.addApp(app, manifest);
         npmHelpers.install(app, function (err) {
           if (err) {
             LOGGER.raw(err);
             LOGGER.error(app + ' installation failed.');
 
           } else {
+            configHelpers.addApp(app, manifest);
             LOGGER.info(app + ' installed. Enjoy!');
           };
           if (callback !== undefined && typeof(callback) === "function") { 
@@ -728,15 +728,18 @@ var actions = {
   *
   * @param {String} app App to uninstall.
   */
-  uninstallApp: function (app){
+  uninstallApp: function (app, callback) {
     LOGGER.info('Uninstalling ' + app + '...');
     if(config.apps[app] === undefined) {
       LOGGER.error(app + ' is not installed.');
     } else {
       module = config.apps[app].name;
       npmHelpers.uninstall(module, function () {
-        LOGGER.info(app + ' successfully uninstalled.');
         configHelpers.removeApp(app);
+        LOGGER.info(app + ' successfully uninstalled.');
+        if (callback !== undefined && typeof(callback) === "function") { 
+          callback(); 
+        };
       });
     }
   },
