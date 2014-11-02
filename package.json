@@ -53,7 +53,7 @@
   "devDependencies": {
   },
   "scripts": {
-    "test": "mocha tests.js"
+    "test": "mocha --globals s --reporter spec tests.js"
   },
   "repository": {
     "type": "git",

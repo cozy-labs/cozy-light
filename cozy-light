@@ -24,6 +24,51 @@ var pkg = require('./package.json');
 var configHelpers = {
 
   /**
+   * The path where is installed and stored modules and configuration files
+   * of cozy-light.
+   * Default is : {HOMEDIR}/.cozy-light/
+   *
+   * @var {String}
+   */
+  HOME: '',
+
+  /**
+   * The cozy-light configuration file path.
+   * File is type of JSON.
+   * Default is : {HOMEDIR}/.cozy-light/config.json
+   *
+   * @var {String}
+   */
+  CONFIG_PATH: '',
+
+  /**
+   * Return installation path module.
+   *
+   * @param {String} npmModule The name of the cozy-light module
+   */
+  npmModulePath: function (npmModule) {
+    return pathExtra.join(configHelpers.HOME, 'node_modules', npmModule);
+  },
+
+  /**
+   * Load config file
+   *
+   * @return {Object} config
+   */
+  loadConfigFile: function () {
+    return JSON.parse(fs.readFileSync(configHelpers.CONFIG_PATH,'utf-8'));
+  },
+
+
+  /**
+   * Save config file to disk.
+   */
+  saveConfig: function () {
+    var configString = JSON.stringify(config, null, 2);
+    fs.writeFileSync(configHelpers.CONFIG_PATH, configString);
+  },
+
+  /**
   * Add a new application to the configuration file. The configuration file is
   * written in JSON. It adds an entry to the apps field. Name, display name,
   * version and description are required.
@@ -42,7 +87,7 @@ var configHelpers = {
       description: manifest.description,
       type: manifest.type
     };
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+    configHelpers.saveConfig();
   },
 
   /**
@@ -52,8 +97,9 @@ var configHelpers = {
   * @param {String} app The app name as it's typed by the user (user/repo).
   */
   removeApp: function (app) {
-      delete config.apps[app];
-      fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+    delete config.apps[app];
+    console.log(config);
+    configHelpers.saveConfig();
   },
 
   /**
@@ -75,7 +121,7 @@ var configHelpers = {
       version: manifest.version,
       description: manifest.description
     };
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+    configHelpers.saveConfig();
   },
 
   /**
@@ -86,25 +132,17 @@ var configHelpers = {
   */
   removePlugin: function (plugin, manifest) {
     delete config.plugins[plugin];
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
-  },
-
-  /**
-   * Go to the HOME folder ~/.cozy-light then start the command line tool.
-   */
-  createHome: function () {
-    fsExtra.mkdirsSync(HOME);
-    process.chdir(HOME);
+    configHelpers.saveConfig();
   },
  
   /**
    * Create config file if it doesn't exist
    */
   createConfigFile: function () {
-    var exists = fs.existsSync(CONFIG_PATH);
+    var exists = fs.existsSync(configHelpers.CONFIG_PATH);
     if (!exists) {
       var config = { apps: {} };
-      fs.writeFileSync(CONFIG_PATH, JSON.stringify(config));
+      configHelpers.saveConfig();
     };
   },
 
@@ -114,12 +152,77 @@ var configHelpers = {
    * Most dependencies are common and can be reused.
    */
   copyDependency: function (name) {
-    var destPath = pathExtra.join(HOME, 'node_modules', name);
+    var destPath = configHelpers.modulePath(name);
     var sourcePath = pathExtra.join(__dirname, 'node_modules', name);
 
     if(!fs.existsSync(destPath)) {
       fsExtra.copySync(sourcePath, destPath);
     };
+  },
+
+  /**
+   * Set configHelpers HOME and CONFIG_PATH
+   * Create HOME folder
+   * Change CWD to HOME folder
+   * Initialize a default config file if none exists
+   * Manage config file watcher subscriptions
+   * Load and return config file.
+   *
+   * @param {String} HOME The home path where .cozy-light folder belongs
+   *
+   * @return {Object} config
+   */
+  init: function (home) {
+    home = home || pathExtra.join(pathExtra.homedir(), '.cozy-light');
+
+    configHelpers.HOME = home;
+    configHelpers.CONFIG_PATH = pathExtra.join(home, 'config.json');
+
+    fsExtra.mkdirsSync(configHelpers.HOME);
+    process.chdir(configHelpers.HOME);
+
+    configHelpers.createConfigFile();
+
+    if (configHelpers.watcher_) {
+      configHelpers.watcher_.stop();
+    }
+
+    var watchOptions = {persistent: false, interval: 1000};
+    var onConfigChanged = function  () {
+      for (var name in configHelpers.watchers_ ){
+        if (configHelpers.watchers_) configHelpers.watchers_[name]();
+      }
+    })
+    configHelpers.watcher_ = fs.watchFile(
+        configHelpers.CONFIG_PATH, 
+        watchOptions, 
+        onConfigChanged
+    );
+
+    return configHelpers.loadConfigFile();
+  },
+
+  watchers_: [],
+  watcher_: null,
+
+  /**
+   * Subscribe an handler
+   * to config file updates
+   *
+   * @return {Object} config
+   */
+  watchConfig: function (then) {
+    configHelpers.watchers_.push(then);
+    if(!configHelpers.watcher) {
+      var watchOptions = {persistent: false, interval: 1000};
+      var onConfigChanged = function  () {
+        for (var name in configHelpers.watchers_) {
+          if(configHelpers.watchers_) configHelpers.watchers_[name]();
+        }
+      };
+      configHelpers.watcher_ = fs.watchFile(
+        configHelpers.CONFIG_PATH, watchOptions, onConfigChanged);
+    }
   }
 };
 
@@ -136,7 +239,7 @@ var npmHelpers = {
   */
   install: function (app, callback) {
     npm.load({}, function () {
-      npm.commands.install(HOME, [app], callback);
+      npm.commands.install(configHelpers.HOME, [app], callback);
     });
   },
 
@@ -262,14 +365,13 @@ var serverHelpers = {
    *     the same datastore).
    */
   startApplication: function (application, db, callback) {
-    var name = application.name;
-    var script = pathExtra.join(HOME, 'node_modules', name);
-    var options = {db: db, port: port, silent: true};
 
     if (application.type === undefined || application.type === "classic") {
 
+      var name = application.name;
+
       try {
-        var appModule = require(script);
+        var appModule = require( configHelpers.modulePath(name) );
       } catch(err) {
         console.log(err);
       }
@@ -287,6 +389,7 @@ var serverHelpers = {
           server: null
         };
 
+        var options = {db: db, port: port, silent: true};
         appModule.start(options, function (err, app, server) {
           if (err) { LOGGER.error(err); }
 
@@ -310,15 +413,13 @@ var serverHelpers = {
    */
   stopApplication: function (application, callback) {
     var name = application.name;
-    var script = pathExtra.join(HOME, 'node_modules', name);
 
     if(loadedApps[name]){
       var appModule = loadedApps[name].appModule;
 
       var closeServer = function(){
-        var server = loadedApps[name].server;
         try {
-          server.close(function logInfo (err) {
+          loadedApps[name].server.close(function logInfo (err) {
             LOGGER.info('Application ' + name + ' is now stopped...');
             callback();
           });
@@ -333,6 +434,7 @@ var serverHelpers = {
       } else {
         appModule.stop(closeServer);
       };
+      delete loadedApps[name];
 
     }else{
       callback();
@@ -340,14 +442,23 @@ var serverHelpers = {
   },
 
   /**
-   * Stop currently running apps, refresh config from config file and restart
-   * all apps described by the config. It's aimed to be loaded after a
-   * configuration change.
+   * Stop currently running apps,
+   * clear require cache of each re started apps,
+   * refresh config from config file
+   * and restart all apps described by the config.
+   * It's aimed to be loaded after a configuration change.
    */
   reloadApps: function(callback) {
 
     var runApp = function (key, callback) {
       var application = config.apps[key];
+      var modulePath = configHelpers.modulePath(key);
+      // Clean require's cache, otherwise same code is loaded twice
+      for( var n in require.cache ){
+        if( n.match(new RegExp("^"+modulePath)) ){
+          delete require.cache[n];
+        }
+      }
       serverHelpers.startApplication(application, db, callback);
     };
 
@@ -375,16 +486,15 @@ var serverHelpers = {
       Object.keys(config.plugins).forEach(function loadPlugin (pluginName) {
         try {
           var pluginConfig = config.plugins[pluginName];
-          var pluginPath = pathExtra.join(
-            HOME, 'node_modules', pluginConfig.name);
+          var pluginPath = configHelpers.modulePath(pluginConfig.name);
           var plugin = require(pluginPath);
           var options = {
             name: pluginConfig.name,
             displayName: pluginConfig.displayName,
             version: pluginConfig.version,
             description: pluginConfig.description,
-            config_path: CONFIG_PATH,
-            home: HOME,
+            config_path: configHelpers.CONFIG_PATH,
+            home: configHelpers.HOME,
             npmHelpers: npmHelpers,
             proxy: proxy
           };
@@ -410,7 +520,7 @@ var serverHelpers = {
       var exitPlugin = function (pluginName, cb) {
         var options = config.plugins[pluginName];
         try {
-          plugin = require(pathExtra.join(HOME, 'node_modules', options.name));
+          plugin = require( configHelpers.modulePath(options.name) );
           if (plugin.onExit !== undefined) {
             plugin.onExit(options, config, cb);
           } else {
@@ -441,7 +551,7 @@ var serverHelpers = {
       process.exit(0);
     }
   }
-}
+};
 
 
 // Express app controllers
@@ -453,7 +563,7 @@ var controllers = {
    */
   index: function (req, res, next) {
 
-    var config = require(CONFIG_PATH);
+    var config = configHelpers.loadConfigFile();
     var memoryUsage = process.memoryUsage();
     memoryUsage = Math.ceil(memoryUsage.heapUsed / 1000000);
 
@@ -559,7 +669,7 @@ var controllers = {
    * Proxy requests targeting apps.
    */
   proxyPrivate: function (req, res, next) {
-    var appName = req.params.name
+    var appName = req.params.name;
     var port = routes[appName];
     req.url = req.url.substring(("/apps/" + appName).length);
     if (port !== null) {
@@ -573,7 +683,7 @@ var controllers = {
    * Proxy requests targeting apps public path.
    */
   proxyPublic: function (req, res, next) {
-    var appName = req.params.name
+    var appName = req.params.name;
     var port = routes[appName];
     req.url = "/public" + req.url.substring(("/public/" + appName).length);
     if (port !== null) {
@@ -656,13 +766,11 @@ var actions = {
         LOGGER.info(
           'Cozy Light Dashboard is running on port ' + port + '...');
 
-        // Set watcher on config file to reload configuration when the config
-        // file changes.
-        var watchOptions = {persistent: false, interval: 1000}
-        fs.watchFile(CONFIG_PATH, watchOptions, function onConfigChanged () {
+        // Reload apps when file configuration is modified
+        configHelpers.watchConfig(function(){
           LOGGER.info(
             'Configuration file changed. Reloading configuration...');
-          config = require(CONFIG_PATH);
+          config = configHelpers.loadConfigFile();
           serverHelpers.reloadApps();
         });
 
@@ -802,34 +910,29 @@ var actions = {
   * Display configuration file contents: apps configuration and user settings.
   */
   displayConfig: function () {
-    console.log(fs.readFileSync(CONFIG_PATH).toString());
+    console.log(JSON.stringify(configHelpers.loadConfigFile(), null, 2));
   }
 };
 
 
 // Constants
-
 const LOGGER = printit({ prefix: 'Cozy Light' });
-const HOME = pathExtra.join(pathExtra.homedir(), '.cozy-light');
-const CONFIG_PATH = pathExtra.join(HOME, 'config.json');
 const DEFAULT_PORT = 19104;
 
 
 // Create config file and folders and prepare PouchDB dependency.
-
-configHelpers.createHome();
-configHelpers.createConfigFile();
+configHelpers.init();
 configHelpers.copyDependency('pouchdb');
 
 
 // "Global" variables
 
-var loadedApps = {}
 var routes = {}
+var loadedApps = {}
 var loadedPlugins = {}
 var port = 18001;
 var proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
-var config = require(CONFIG_PATH);
+var config = configHelpers.loadConfigFile();
 var db = new Pouchdb('cozy');
 
 
@@ -912,4 +1015,4 @@ module.exports = {
   serverHelpers: serverHelpers,
   actions: actions,
   controllers: controllers
-}
+};

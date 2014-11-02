@@ -12,8 +12,20 @@ var configHelpers = cozyLight.configHelpers;
 var npmHelpers = cozyLight.npmHelpers;
 var serverHelpers = cozyLight.serverHelpers;
 
-var HOME = pathExtra.join(pathExtra.homedir(), '.cozy-light');
-var CONFIG_PATH = pathExtra.join(HOME, 'config.json');
+var working_dir = __dirname+"/.test-working_dir/";
+var HOME = pathExtra.join(working_dir, '.cozy-light');
+
+
+before(function(){
+  fs.removeSync(working_dir);
+  fs.mkdirSync(working_dir);
+  configHelpers.init(HOME);
+});
+
+
+after(function(){
+  fs.removeSync(working_dir);
+});
 
 
 describe('Config Helpers', function () {
@@ -23,16 +35,21 @@ describe('Config Helpers', function () {
   });
 
   describe('createHome', function () {
-    it('should create Home directory', function () {
-      configHelpers.createHome();
-      assert.equal(true, fs.existsSync(HOME));
+    it('should initialize Home directory', function () {
+      fs.removeSync(working_dir);
+      fs.mkdirSync(working_dir);
+      configHelpers.init(HOME);
+      assert(fs.existsSync(HOME), 'HOME directory not created');
+      assert(fs.existsSync(pathExtra.join(HOME, 'config.json')),
+        'configuration file not created');
     });
   });
 
   describe('createConfigFile', function () {
     it('should create an empty config file', function () {
       configHelpers.createConfigFile();
-      assert.equal(true, fs.existsSync(CONFIG_PATH));
+      assert(fs.existsSync(pathExtra.join(HOME, 'config.json')),
+        'configuration file not created');
     });
   });
 
@@ -47,7 +64,7 @@ describe('Config Helpers', function () {
       };
       var app = 'cozy-labs/cozy-test'
       configHelpers.addApp(app, manifest);
-      var config = require(CONFIG_PATH);
+      var config = configHelpers.loadConfigFile();
       assert.equal(manifest.name, config.apps[app].name);
       assert.equal(manifest.displayName, config.apps[app].displayName);
       assert.equal(manifest.version, config.apps[app].version);
@@ -60,7 +77,7 @@ describe('Config Helpers', function () {
     it('should remove app manifest from the config file', function () {
       var app = 'cozy-labs/cozy-test'
       configHelpers.removeApp(app);
-      var config = require(CONFIG_PATH);
+      var config = configHelpers.loadConfigFile();
       assert.equal(undefined, config.apps[app]);
     });
   });
@@ -74,7 +91,7 @@ describe('Config Helpers', function () {
         "description": "Test plugin.",
       };
       var plugin = 'cozy-labs/cozy-test-plugin'
-      var config = require(CONFIG_PATH);
+      var config = configHelpers.loadConfigFile();
       configHelpers.addPlugin(plugin, manifest);
       assert.equal(manifest.name, config.plugins[plugin].name);
       assert.equal(manifest.displayName, config.plugins[plugin].displayName);
@@ -87,7 +104,7 @@ describe('Config Helpers', function () {
   describe('removePlugin', function(){
     it('should remove plugin manifest from the config file', function () {
       var plugin = 'cozy-labs/cozy-test'
-      var config = require(CONFIG_PATH);
+      var config = configHelpers.loadConfigFile();
       configHelpers.removeApp(plugin);
       assert.equal(undefined, config.plugins[plugin]);
     });
@@ -95,7 +112,7 @@ describe('Config Helpers', function () {
 
   describe('copyDependency', function(){
     it('should copy dependency in the cozy light folder.', function () {
-      var destPath = pathExtra.join(HOME, 'node_modules', "path-extra");
+      var destPath = configHelpers.modulePath("path-extra");
       configHelpers.copyDependency("path-extra");
       assert(fs.existsSync(destPath));
     });
@@ -110,7 +127,7 @@ describe('NPM Helpers', function () {
     it('should install module in the cozy-light folder.', function (done) {
       this.timeout(10000);
       process.chdir(HOME);
-      var destPath = pathExtra.join(HOME, 'node_modules', 'hello');
+      var destPath = configHelpers.modulePath("hello");
       npmHelpers.install('cozy-labs/hello', function () {
         assert(fs.existsSync(destPath));
         done();
@@ -121,7 +138,7 @@ describe('NPM Helpers', function () {
   describe('uninstall', function(){
     it('should remove module from the cozy-light folder.', function (done) {
       process.chdir(HOME);
-      var destPath = pathExtra.join(HOME, 'node_modules', 'hello');
+      var destPath = configHelpers.modulePath("hello");
       npmHelpers.uninstall('hello', function () {
         assert(!fs.existsSync(destPath));
         done();
@@ -141,7 +158,7 @@ describe('Server Helpers', function () {
 
   it('startApplication', function (done) {
     var source = pathExtra.join(__dirname, 'fixtures', 'test-app');
-    var dest = pathExtra.join(HOME, 'node_modules', 'test-app');
+    var dest = configHelpers.modulePath("test-app");
     fs.copySync(source, dest);
 
     var sourceExpress = pathExtra.join(__dirname, 'node_modules', 'express');
@@ -162,7 +179,7 @@ describe('Server Helpers', function () {
   });
 
   it('stopApplication', function (done) {
-    var appHome = pathExtra.join(HOME, 'node_modules', 'test-app');
+    var appHome = configHelpers.modulePath("test-app");
     var manifest = require(pathExtra.join(appHome, 'package.json'));
     manifest.type = "classic";
 
@@ -177,7 +194,7 @@ describe('Server Helpers', function () {
   });
 
   it('reloadApps', function(done) {
-    var appHome = pathExtra.join(HOME, 'node_modules', 'test-app');
+    var appHome = configHelpers.modulePath("test-app");
     var manifest = require(pathExtra.join(appHome, 'package.json'));
     configHelpers.addApp('test-app', manifest);
 
@@ -189,6 +206,46 @@ describe('Server Helpers', function () {
                      'Wrong return code for test app.');
         configHelpers.removeApp('test-app');
         serverHelpers.stopApplication(manifest, done);
+      });
+    });
+  });
+
+  it('reloadAppsSourceCode', function(done) {
+    var appHome = configHelpers.modulePath("test-app");
+    var manifest = require(pathExtra.join(appHome, 'package.json'));
+    manifest.type = "classic";
+    configHelpers.addApp('test-app', manifest);
+
+    var db = new PouchDB('test');
+    serverHelpers.startApplication(manifest, db, function assertAccess () {
+      var client = request.newClient('http://localhost:18003');
+
+      client.get('', function assertResponse (err, res, body) {
+        assert(err === null, 'An error occured while accessing test app.');
+        assert(res.statusCode == 200, 'Wrong return code for test app.');
+        assert(body.ok === true, 'Wrong initial response body for test app.');
+
+        var serverFile = appHome+'/server.js';
+        var content = fs.readFileSync(serverFile,'utf-8');
+        content = content.replace("send({ok: true})","send({ok: false})");
+        fs.writeFileSync(serverFile, content);
+
+        serverHelpers.reloadApps(function assertAppAccess () {
+          var client = request.newClient('http://localhost:18004');
+
+          client.get('', function assertResponse (err, res, body) {
+            assert.equal(err, null,
+                         'An error occured while accessing test app.');
+            assert.equal(res.statusCode, 200,
+                         'Wrong return code for test app.');
+            assert(body.ok === false,
+                   'Wrong reloaded response body for test app.');
+            content = content.replace("send({ok: false})","send({ok: true})");
+            fs.writeFileSync(serverFile,content);
+            configHelpers.removeApp('test-app');
+            serverHelpers.stopApplication(manifest, done);
+          });
+        });
       });
     });
   });
@@ -224,7 +281,7 @@ describe('actions', function () {
   describe('start', function () {
     it('should listen and respond to http requests.', function (done) {
       var opt = {port: 8090};
-      actions.start(opt,function(){
+      actions.start(opt, function(app, server) {
         var options = {
           host: 'localhost',
           port: opt.port
@@ -238,6 +295,7 @@ describe('actions', function () {
           res.on('end', function () {
             var expected = 'Cozy Light: Your Personal Cloud at Home';
             assert(body.indexOf(expected) > -1);
+            server.close();
             done();
           });
         }).on('error', function(e) {
@@ -251,7 +309,7 @@ describe('actions', function () {
     it('should add app folders and update configuration.', function (done) {
       var app = 'cozy-labs/hello';
       actions.installApp(app, function () {
-        var config = require(CONFIG_PATH);
+        vAr config = configHelpers.loadConfigFile();
         assert.equal('hello', config.apps[app].name);
         done();
       });
@@ -262,7 +320,7 @@ describe('actions', function () {
     it('should remove app folder and update configuration. ', function (done) {
       var app = 'cozy-labs/hello';
       actions.uninstallApp(app, function () {
-        var config = require(CONFIG_PATH);
+        var config = configHelpers.loadConfigFile();
         assert.equal(config.apps[app], undefined);
         done();
       });
@@ -282,8 +340,9 @@ describe('actions', function () {
 
 describe('Functional tests', function () {
   describe('Hot app install', function () {
-    it('start server.', function (done) {
-      done()
+    it('starts the main server.', function (done) {
+      var opt = {port: 8090};
+      actions.start(opt, done);
     });
     it('install fake app manually.', function (done) {
       done()
