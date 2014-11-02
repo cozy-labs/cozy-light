@@ -19,7 +19,6 @@ var HOME = pathExtra.join(working_dir, '.cozy-light');
 before(function(){
   fs.removeSync(working_dir);
   fs.mkdirSync(working_dir);
-  configHelpers.init(HOME);
 });
 
 
@@ -34,10 +33,8 @@ describe('Config Helpers', function () {
     fs.remove(HOME, done);
   });
 
-  describe('createHome', function () {
+  describe('init', function () {
     it('should initialize Home directory', function () {
-      fs.removeSync(working_dir);
-      fs.mkdirSync(working_dir);
       configHelpers.init(HOME);
       assert(fs.existsSync(HOME), 'HOME directory not created');
       assert(fs.existsSync(pathExtra.join(HOME, 'config.json')),
@@ -172,8 +169,10 @@ describe('Server Helpers', function () {
       serverHelpers.startApplication(manifest, db, function assertAccess () {
         var client = request.newClient('http://localhost:18001');
         client.get('', function assertResponse (err, res, body) {
-          assert.equal(err, null, 'An error occured while accessing test app.');
-          assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
+          assert.equal(err, null,
+                       'An error occured while accessing test app.');
+          assert.equal(res.statusCode, 200,
+                       'Wrong return code for test app.');
           done();
         });
       });
@@ -349,7 +348,7 @@ describe('Functional tests', function () {
       actions.start(opt, done);
     });
     it('install fake app manually.', function (done) {
-      // Nothing to do test app is still in the .cozy-light folder.
+      // Nothing to do test app is still in the cozy-light folder.
       done()
     });
     it('change configuration file.', function (done) {
@@ -362,7 +361,7 @@ describe('Functional tests', function () {
       setTimeout(done, 1000);
     });
     it('fake app should be started.', function (done) {
-      var client = request.newClient('http://localhost:18003');
+      var client = request.newClient('http://localhost:18005');
       client.get('', function assertResponse (err, res, body) {
         assert.equal(err, null, 'An error occured while accessing test app.');
         assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
