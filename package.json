@@ -51,6 +51,8 @@
     "request-json-light": "0.5.6"
   },
   "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-jshint": "~0.10.0"
   },
   "scripts": {
     "test": "mocha tests.js"

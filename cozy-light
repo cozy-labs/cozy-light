@@ -67,7 +67,7 @@ var configHelpers = {
   addPlugin: function (plugin, manifest) {
     if(config.plugins === undefined) {
       config.plugins = {};
-    };
+    }
 
     config.plugins[plugin] = {
       name: manifest.name,
@@ -105,7 +105,7 @@ var configHelpers = {
     if (!exists) {
       var config = { apps: {} };
       fs.writeFileSync(CONFIG_PATH, JSON.stringify(config));
-    };
+    }
   },
 
   /**
@@ -119,7 +119,7 @@ var configHelpers = {
 
     if(!fs.existsSync(destPath)) {
       fsExtra.copySync(sourcePath, destPath);
-    };
+    }
   }
 };
 
@@ -175,16 +175,16 @@ var serverHelpers = {
           target: "ws://localhost:" + port,
           ws: true
         });
-      };
+      }
 
       function fail(err) {
-        if (err != null) {
+        if (err !== null) {
           LOGGER.error(err);
         }
         LOGGER.error("Socket unauthorized");
         socket.end("HTTP/1.1 400 Connection Refused \r\n" + 
                    "Connection: close\r\n\r\n", 'ascii');
-      };
+      }
 
       req.originalUrl = req.url;
 
@@ -234,7 +234,7 @@ var serverHelpers = {
         });
       } else {
         cb();
-      };
+      }
     };
 
     async.eachSeries(Object.keys(loadedPlugins), runPlugin, function (err) {
@@ -268,8 +268,10 @@ var serverHelpers = {
 
     if (application.type === undefined || application.type === "classic") {
 
+      var appModule;
+
       try {
-        var appModule = require(script);
+        appModule = require(script);
       } catch(err) {
         console.log(err);
       }
@@ -297,10 +299,10 @@ var serverHelpers = {
           port = port + 1;
           callback();
         });
-      };
+      }
     } else {
       callback();
-    };
+    }
   },
 
   /**
@@ -310,7 +312,6 @@ var serverHelpers = {
    */
   stopApplication: function (application, callback) {
     var name = application.name;
-    var script = pathExtra.join(HOME, 'node_modules', name);
 
     if(loadedApps[name]){
       var appModule = loadedApps[name].appModule;
@@ -332,7 +333,7 @@ var serverHelpers = {
         closeServer();
       } else {
         appModule.stop(closeServer);
-      };
+      }
 
     }else{
       callback();
@@ -396,7 +397,7 @@ var serverHelpers = {
           LOGGER.error('Plugin ' + pluginName + ' loading failed.');
         }
       });
-    };
+    }
   },
 
   /**
@@ -431,7 +432,7 @@ var serverHelpers = {
         } else {
           LOGGER.info('Cozy light was properly terminated.');
           process.exit(0);
-        };
+        }
       };
 
       async.eachSeries(Object.keys(config.plugins), exitPlugin, endProcess);
@@ -441,7 +442,7 @@ var serverHelpers = {
       process.exit(0);
     }
   }
-}
+};
 
 
 // Express app controllers
@@ -531,22 +532,22 @@ var controllers = {
         var app = config.apps[key];
         var name = app.name;
         template += '<p class="app-line"><a href="apps/' + 
-                    name + '/" target="_blank">' 
+                    name + '/" target="_blank">';
         template += app.displayName + '</a><span>&nbsp;(' + 
-                    app.version + ')</span></p>'
+                    app.version + ')</span></p>';
       });
     } else {
-      template += '<em>no application installed.</em>'
+      template += '<em>no application installed.</em>';
     }
 
     Object.keys(loadedPlugins).forEach(function (pluginName) {
       if (plugin.getTemplate !== undefined) {
         template += plugin.getTemplate(config);
-      };
+      }
     });
 
     template += '<h2>Resources</h2><p>Occupied memory:&nbsp;' + 
-                memoryUsage +  'MB</p>'
+                memoryUsage +  'MB</p>';
 
     template += ' \
     </body> \
@@ -559,7 +560,7 @@ var controllers = {
    * Proxy requests targeting apps.
    */
   proxyPrivate: function (req, res, next) {
-    var appName = req.params.name
+    var appName = req.params.name;
     var port = routes[appName];
     req.url = req.url.substring(("/apps/" + appName).length);
     if (port !== null) {
@@ -573,7 +574,7 @@ var controllers = {
    * Proxy requests targeting apps public path.
    */
   proxyPublic: function (req, res, next) {
-    var appName = req.params.name
+    var appName = req.params.name;
     var port = routes[appName];
     req.url = "/public" + req.url.substring(("/public/" + appName).length);
     if (port !== null) {
@@ -598,19 +599,19 @@ var controllers = {
         if (link.path.indexOf(link.query) > 0) {
           link.query = '';
           link.search = '';
-        };
+        }
         if (link.search === null) {
           link.search = '';
         }
         res.redirect(link.format(), 307);
       } else {
         res.redirect('/', 307);
-      };
+      }
     } else {
         res.send(404);
-    };
+    }
   }
-}
+};
 
 
 // Actions
@@ -643,22 +644,20 @@ var actions = {
         }
 
         // Set SSL configuration if certificates path are properly set.
+        var server;
+        var options = {};
         if (config.ssl !== undefined) {
-          var options = {
-            key: fs.readFileSync(config.ssl.key, 'utf8'),
-            cert: fs.readFileSync(config.ssl.cert, 'utf8')
-          };
-          var server = https.createServer(options, app).listen(port);
-        } else {
-          var server = http.createServer(app).listen(port);
+          options.key = fs.readFileSync(config.ssl.key, 'utf8');
+          options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
         }
+        server = http.createServer(options, app).listen(port);
         serverHelpers.initializeProxy(server);
         LOGGER.info(
           'Cozy Light Dashboard is running on port ' + port + '...');
 
         // Set watcher on config file to reload configuration when the config
         // file changes.
-        var watchOptions = {persistent: false, interval: 1000}
+        var watchOptions = {persistent: false, interval: 1000};
         fs.watchFile(CONFIG_PATH, watchOptions, function onConfigChanged () {
           LOGGER.info(
             'Configuration file changed. Reloading configuration...');
@@ -668,7 +667,7 @@ var actions = {
 
         if (callback !== undefined && typeof(callback) === "function") {
           callback();
-        };
+        }
       };
 
       async.eachSeries(Object.keys(config.apps), runApp, startServer);
@@ -714,12 +713,12 @@ var actions = {
 
           } else {
             LOGGER.info(app + ' installed. Enjoy!');
-          };
+          }
           if (callback !== undefined && typeof(callback) === "function") { 
             callback(); 
-          };
+          }
         });
-      };
+      }
     });
   },
 
@@ -733,7 +732,7 @@ var actions = {
     if(config.apps[app] === undefined) {
       LOGGER.error(app + ' is not installed.');
     } else {
-      module = config.apps[app].name;
+      var module = config.apps[app].name;
       npmHelpers.uninstall(module, function () {
         LOGGER.info(app + ' successfully uninstalled.');
         configHelpers.removeApp(app);
@@ -758,8 +757,8 @@ var actions = {
     client.get(manifestUrl, function (err, res, manifest) {
       if (res.statusCode !== 200) {
         LOGGER.info(err);
-        LOGGER.info('Cannot find given plugin manifest. Make sure it lives on '
-          + 'Github');
+        LOGGER.info('Cannot find given plugin manifest. Make sure it lives on ' +
+          'Github');
         LOGGER.error(plugin + ' installation failed.');
       } else {
         configHelpers.addPlugin(plugin, manifest);
@@ -770,9 +769,9 @@ var actions = {
 
           } else {
             LOGGER.info(plugin + ' installed. Enjoy!');
-          };
+          }
         });
-      };
+      }
     });
   },
 
@@ -787,7 +786,6 @@ var actions = {
     if(config.plugins[plugin] === undefined) {
       LOGGER.error(plugin + ' is not installed.');
     } else {
-      module = config.plugins[plugin].name;
       npmHelpers.uninstall(plugin, function () {
         LOGGER.info(plugin + ' successfully uninstalled.');
         configHelpers.removePlugin(plugin);
@@ -821,9 +819,9 @@ configHelpers.copyDependency('pouchdb');
 
 // "Global" variables
 
-var loadedApps = {}
-var routes = {}
-var loadedPlugins = {}
+var loadedApps = {};
+var routes = {};
+var loadedPlugins = {};
 var port = 18001;
 var proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
 var config = require(CONFIG_PATH);
@@ -833,7 +831,7 @@ var db = new Pouchdb('cozy');
 // CLI
 
 program
-  .version(pkg.version)
+  .version(pkg.version);
 
 program
   .command('start')
@@ -878,14 +876,14 @@ if(module.parent === null) {
   serverHelpers.loadPlugins();
 
   program.parse(process.argv);
-};
+}
 
 
 // If argumernts doesn't match any of the one set, it displays help.
 
 if (!process.argv.slice(2).length) {
   program.outputHelp();
-};
+}
 
 
 
@@ -909,4 +907,4 @@ module.exports = {
   serverHelpers: serverHelpers,
   actions: actions,
   controllers: controllers
-}
+};

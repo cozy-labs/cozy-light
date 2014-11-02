@@ -16,7 +16,7 @@ var application = module.exports.start = function(options, callback) {
     var server = app.listen(options.port, function (err) {
       callback(err, app, server);
     });
-  };
+  }
 };
 
 if (!module.parent) {

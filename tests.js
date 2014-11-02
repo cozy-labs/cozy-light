@@ -45,7 +45,7 @@ describe('Config Helpers', function () {
         "description": "Test app.",
         "type": "classic"
       };
-      var app = 'cozy-labs/cozy-test'
+      var app = 'cozy-labs/cozy-test';
       configHelpers.addApp(app, manifest);
       var config = require(CONFIG_PATH);
       assert.equal(manifest.name, config.apps[app].name);
@@ -58,7 +58,7 @@ describe('Config Helpers', function () {
 
   describe('removeApp', function(){
     it('should remove app manifest from the config file', function () {
-      var app = 'cozy-labs/cozy-test'
+      var app = 'cozy-labs/cozy-test';
       configHelpers.removeApp(app);
       var config = require(CONFIG_PATH);
       assert.equal(undefined, config.apps[app]);
@@ -71,9 +71,9 @@ describe('Config Helpers', function () {
         "name": "cozy-test-plugin",
         "displayName": "Cozy Test Plugin",
         "version": "1.1.13",
-        "description": "Test plugin.",
+        "description": "Test plugin."
       };
-      var plugin = 'cozy-labs/cozy-test-plugin'
+      var plugin = 'cozy-labs/cozy-test-plugin';
       var config = require(CONFIG_PATH);
       configHelpers.addPlugin(plugin, manifest);
       assert.equal(manifest.name, config.plugins[plugin].name);
@@ -86,7 +86,7 @@ describe('Config Helpers', function () {
 
   describe('removePlugin', function(){
     it('should remove plugin manifest from the config file', function () {
-      var plugin = 'cozy-labs/cozy-test'
+      var plugin = 'cozy-labs/cozy-test';
       var config = require(CONFIG_PATH);
       configHelpers.removeApp(plugin);
       assert.equal(undefined, config.plugins[plugin]);
@@ -161,7 +161,7 @@ describe('Server Helpers', function () {
       var client = request.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
         assert(err === null, 'An error occured while accessing test app.');
-        assert(res.statusCode == 200, 'Wrong return code for test app.');
+        assert(res.statusCode === 200, 'Wrong return code for test app.');
         done();
       });
     });
@@ -188,7 +188,7 @@ describe('Server Helpers', function () {
       var client = request.newClient('http://localhost:18002');
       client.get('', function assertResponse (err, res, body) {
         assert(err === null, 'An error occured while accessing test app.');
-        assert(res.statusCode == 200, 'Wrong return code for test app.');
+        assert(res.statusCode === 200, 'Wrong return code for test app.');
         configHelpers.removeApp('test-app');
         serverHelpers.stopApplication(manifest, done);
       });
@@ -245,7 +245,7 @@ describe('actions', function () {
         }).on('error', function(e) {
           done(e);
         });
-      })
+      });
     });
   });
 
