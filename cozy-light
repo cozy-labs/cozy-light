@@ -42,7 +42,7 @@ var configHelpers = {
   CONFIG_PATH: '',
 
   /**
-   * List of function to run on when configuration file is changed.
+   * List of function to run when configuration file is changed.
    */
   watchers: [],
 
@@ -61,7 +61,7 @@ var configHelpers = {
    * @return {Object} config
    */
   loadConfigFile: function () {
-    return JSON.parse(fs.readFileSync(configHelpers.CONFIG_PATH,'utf-8'));
+    return JSON.parse(fs.readFileSync(configHelpers.CONFIG_PATH, 'utf-8'));
   },
 
 
@@ -995,6 +995,7 @@ if (!process.argv.slice(2).length) {
 // Manage errors
 
 process.on('uncaughtException', function (err) {
+  LOGGER.warn('An exception is unchaught');
   console.log(err);
 });
 
