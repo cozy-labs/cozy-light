@@ -115,14 +115,6 @@ var configHelpers = {
     delete config.plugins[plugin];
     fs.writeFileSync(configHelpers.CONFIG_PATH, JSON.stringify(config, null, 2));
   },
-
-  /**
-   * Go to the HOME folder ~/.cozy-light then start the command line tool.
-   */
-  createHome: function () {
-    fsExtra.mkdirsSync(configHelpers.HOME);
-    process.chdir(configHelpers.HOME);
-  },
  
   /**
    * Create config file if it doesn't exist
@@ -162,7 +154,9 @@ var configHelpers = {
   /**
    * Set configHelpers HOME and CONFIG_PATH
    * Create HOME folder
-   * Initialize a default config file if non exists
+   * Change CWD to HOME folder
+   * Initialize a default config file if none exists
+   * Manage config file watcher subscriptions
    * Load and return config file.
    *
    * @param {String} HOME The home path where .cozy-light folder belongs
@@ -171,21 +165,14 @@ var configHelpers = {
    */
   init: function (HOME) {
     HOME = HOME || pathExtra.join(pathExtra.homedir(), '.cozy-light');
-    configHelpers.setHome( HOME );
-    configHelpers.createHome();
-    configHelpers.createConfigFile();
-    return configHelpers.loadConfigFile();
-  },
 
-  /**
-   * Set configHelpers HOME and CONFIG_PATH
-   * Manage config file watcher subscriptions
-   *
-   * @param {String} HOME The home path where .cozy-light folder belongs
-   */
-  setHome: function (HOME) {
     configHelpers.HOME = HOME;
     configHelpers.CONFIG_PATH = pathExtra.join(HOME, 'config.json');
+
+    fsExtra.mkdirsSync(configHelpers.HOME);
+    process.chdir(configHelpers.HOME);
+
+    configHelpers.createConfigFile();
 
     if( configHelpers.watcher_ ){
       configHelpers.watcher_.stop();
@@ -197,6 +184,8 @@ var configHelpers = {
         if(configHelpers.watchers_) configHelpers.watchers_[n]();
       }
     });
+
+    return configHelpers.loadConfigFile();
   },
 
   watchers_:[],

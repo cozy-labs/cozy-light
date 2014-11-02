@@ -34,16 +34,21 @@ describe('Config Helpers', function () {
   });
 
   describe('createHome', function () {
-    it('should create Home directory', function () {
-      configHelpers.createHome();
-      assert.equal(true, fs.existsSync(HOME));
+    it('should initialize Home directory', function () {
+      fs.removeSync(working_dir);
+      fs.mkdirSync(working_dir);
+      configHelpers.init(HOME);
+      assert(fs.existsSync(HOME), 'HOME directory not created');
+      assert(fs.existsSync(pathExtra.join(HOME, 'config.json')),
+        'configuration file not created');
     });
   });
 
   describe('createConfigFile', function () {
     it('should create an empty config file', function () {
       configHelpers.createConfigFile();
-      assert.equal(true, fs.existsSync(pathExtra.join(HOME, 'config.json')));
+      assert(fs.existsSync(pathExtra.join(HOME, 'config.json')),
+        'configuration file not created');
     });
   });
 
