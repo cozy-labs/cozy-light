@@ -147,7 +147,7 @@ The configuration file is located at `~/.cozy-light/config.json` path. App and
 plugin configuration is set through the command line. Other settings must be
 filled directly in the configuration file. 
 
-*NB: The configuraiton file follows the JSON format.*
+*NB: The configuration file follows the JSON format.*
 
 **Port**
 
