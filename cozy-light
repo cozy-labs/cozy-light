@@ -42,6 +42,11 @@ var configHelpers = {
   CONFIG_PATH: '',
 
   /**
+   * List of function to run on when configuration file is changed.
+   */
+  watchers: [],
+
+  /**
    * Return installation path module.
    *
    * @param {String} npmModule The name of the cozy-light module
@@ -182,17 +187,13 @@ var configHelpers = {
 
     configHelpers.createConfigFile();
 
-    if (configHelpers.watcher_) {
-      configHelpers.watcher_.stop();
-    }
-
     var watchOptions = {persistent: false, interval: 1000};
-    var onConfigChanged = function  () {
-      for (var name in configHelpers.watchers_ ){
-        if (configHelpers.watchers_) configHelpers.watchers_[name]();
-      }
+    var onConfigChanged = function () {
+      configHelpers.watchers.forEach(function (watcher) {
+        watcher();
+      });
     };
-    configHelpers.watcher_ = fs.watchFile(
+    configHelpers.mainWatcher = fs.watchFile(
         configHelpers.CONFIG_PATH, 
         watchOptions, 
         onConfigChanged
@@ -201,8 +202,6 @@ var configHelpers = {
     return configHelpers.loadConfigFile();
   },
 
-  watchers_: [],
-  watcher_: null,
 
   /**
    * Subscribe an handler
@@ -210,18 +209,12 @@ var configHelpers = {
    *
    * @return {Object} config
    */
-  watchConfig: function (then) {
-    configHelpers.watchers_.push(then);
-    if(!configHelpers.watcher) {
-      var watchOptions = {persistent: false, interval: 1000};
-      var onConfigChanged = function  () {
-        for (var name in configHelpers.watchers_) {
-          if(configHelpers.watchers_) configHelpers.watchers_[name]();
-        }
-      };
-      configHelpers.watcher_ = fs.watchFile(
-        configHelpers.CONFIG_PATH, watchOptions, onConfigChanged);
+  watchConfig: function (newWatcher) {
+    var isSet = false;
+    for(var watcher in configHelpers.watchers) {
+      if (watcher == newWatcher) isSet = true;
     }
+    if (!isSet) configHelpers.watchers.push(newWatcher);
   }
 };
 
@@ -357,7 +350,9 @@ var serverHelpers = {
   },
 
   /**
-   * Start given classic application as a new listening server.
+   * Start given classic application as a new listening server. List of
+   * function to run on when configuration file is changed. List of function to
+   * run on when configuration file is changed.
    *
    * @param application The application to start.
    * @db The database to give as parameter to the application (they all share
@@ -413,7 +408,7 @@ var serverHelpers = {
   stopApplication: function (application, callback) {
     var name = application.name;
 
-    if(loadedApps[name]){
+    if(loadedApps[name] !== undefined) {
       var appModule = loadedApps[name].appModule;
 
       var closeServer = function(){
@@ -550,6 +545,13 @@ var serverHelpers = {
       LOGGER.info('Cozy Light exited properly.');
       process.exit(0);
     }
+  },
+
+  reload: function () {
+    LOGGER.info(
+      'Configuration file changed. Reloading configuration...');
+    config = configHelpers.loadConfigFile();
+    serverHelpers.reloadApps();
   }
 };
 
@@ -739,6 +741,7 @@ var actions = {
       serverHelpers.startApplication(application, db, callback);
     };
 
+    configHelpers.watchers = [];
     serverHelpers.createApplicationServer(function (app) {
       var startServer = function (err) {
         if (err) { LOGGER.error(err); }
@@ -767,13 +770,7 @@ var actions = {
           'Cozy Light Dashboard is running on port ' + port + '...');
 
         // Reload apps when file configuration is modified
-        configHelpers.watchConfig(function reloadConfigAndApps () {
-          LOGGER.info(
-            'Configuration file changed. Reloading configuration...');
-          config = configHelpers.loadConfigFile();
-          serverHelpers.reloadApps();
-        });
-
+        configHelpers.watchConfig(serverHelpers.reload);
         if (callback !== undefined && typeof(callback) === "function") {
           callback(null, app, server);
         };
