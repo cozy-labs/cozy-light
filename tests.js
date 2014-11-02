@@ -14,7 +14,6 @@ var serverHelpers = cozyLight.serverHelpers;
 
 var working_dir = __dirname+"/.test-working_dir/";
 var HOME = pathExtra.join(working_dir, '.cozy-light');
-var CONFIG_PATH = pathExtra.join(HOME, 'config.json');
 
 
 before(function(){
@@ -44,7 +43,7 @@ describe('Config Helpers', function () {
   describe('createConfigFile', function () {
     it('should create an empty config file', function () {
       configHelpers.createConfigFile();
-      assert.equal(true, fs.existsSync(CONFIG_PATH));
+      assert.equal(true, fs.existsSync(pathExtra.join(HOME, 'config.json')));
     });
   });
 
