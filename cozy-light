@@ -98,7 +98,6 @@ var configHelpers = {
   */
   removeApp: function (app) {
     delete config.apps[app];
-    console.log(config);
     configHelpers.saveConfig();
   },
 
