@@ -133,16 +133,10 @@ describe('NPM Helpers', function () {
 
 describe('Server Helpers', function () {
 
-  it('initializeProxy', function(){
-    //app = express();
-    //server = app.listen();
-    //serverHelpers.initializeProxy(server);
-
-    //server.emit('error', new Error('failure'));
-    //server.close();
+  it.skip('initializeProxy', function(){
   });
 
-  it('createApplicationServer', function(){
+  it.skip('createApplicationServer', function(){
   });
 
   it('startApplication', function (done) {
@@ -160,8 +154,8 @@ describe('Server Helpers', function () {
     serverHelpers.startApplication(manifest, db, function assertAccess () {
       var client = request.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
-        assert(err === null, 'An error occured while accessing test app.');
-        assert(res.statusCode == 200, 'Wrong return code for test app.');
+        assert.equal(err, null, 'An error occured while accessing test app.');
+        assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
         done();
       });
     });
@@ -171,10 +165,12 @@ describe('Server Helpers', function () {
     var appHome = pathExtra.join(HOME, 'node_modules', 'test-app');
     var manifest = require(pathExtra.join(appHome, 'package.json'));
     manifest.type = "classic";
+
     serverHelpers.stopApplication(manifest, function assertStop () {
       var client = request.newClient('http://localhost:18001');
       client.get('', function assertResponse(err, res, body) {
-        assert(err !== null, 'Application should not be accessible anymore.');
+        assert.notEqual(err, null,
+                        'Application should not be accessible anymore.');
         done();
       });
     });
@@ -184,21 +180,23 @@ describe('Server Helpers', function () {
     var appHome = pathExtra.join(HOME, 'node_modules', 'test-app');
     var manifest = require(pathExtra.join(appHome, 'package.json'));
     configHelpers.addApp('test-app', manifest);
+
     serverHelpers.reloadApps(function assertAppAccess () {
       var client = request.newClient('http://localhost:18002');
       client.get('', function assertResponse (err, res, body) {
-        assert(err === null, 'An error occured while accessing test app.');
-        assert(res.statusCode == 200, 'Wrong return code for test app.');
+        assert.equal(err, null, 'An error occured while accessing test app.');
+        assert.equal(res.statusCode, 200,
+                     'Wrong return code for test app.');
         configHelpers.removeApp('test-app');
         serverHelpers.stopApplication(manifest, done);
       });
     });
   });
 
-  it('loadPlugins', function(){
+  it.skip('loadPlugins', function(){
   });
 
-  it('exitHandler', function(){
+  it.skip('exitHandler', function(){
   });
 
 });
@@ -206,16 +204,16 @@ describe('Server Helpers', function () {
 
 describe('Controllers', function () {
 
-  it('index', function(){
+  it.skip('index', function(){
   });
 
-  it('proxyPrivate', function(){
+  it.skip('proxyPrivate', function(){
   });
 
-  it('proxyPublic', function(){
+  it.skip('proxyPublic', function(){
   });
 
-  it('automaticRedirect', function(){
+  it.skip('automaticRedirect', function(){
   });
 
 });
@@ -223,7 +221,7 @@ describe('Controllers', function () {
 
 describe('actions', function () {
 
-  it('start', function () {
+  describe('start', function () {
     it('should listen and respond to http requests.', function (done) {
       var opt = {port: 8090};
       actions.start(opt,function(){
@@ -249,23 +247,27 @@ describe('actions', function () {
     });
   });
 
-  //it('installApp', function (done) {
-    //var app = 'cozy-labs/hello';
-    //actions.installApp(app, function () {
-      //var config = require(CONFIG_PATH);
-      //assert.equal('hello', config.apps[app].name);
-      //done();
-    //});
-  //});
+  describe('installApp', function () {
+    it('should add app folders and update configuration.', function (done) {
+      var app = 'cozy-labs/hello';
+      actions.installApp(app, function () {
+        var config = require(CONFIG_PATH);
+        assert.equal('hello', config.apps[app].name);
+        done();
+      });
+    });
+  });
 
-  //it('uninstallApp', function () {
-    //var app = 'cozy-labs/hello';
-    //actions.uninstallApp(app, function () {
-      //var config = require(CONFIG_PATH);
-      //assert.equal('hello', config.apps[app].name);
-      //done();
-    //});
-  //});
+  describe('uninstallApp', function () {
+    it('should remove app folder and update configuration. ', function (done) {
+      var app = 'cozy-labs/hello';
+      actions.uninstallApp(app, function () {
+        var config = require(CONFIG_PATH);
+        assert.equal(config.apps[app], undefined);
+        done();
+      });
+    });
+  });
 
   //describe('addPlugin', function (done) {
     //actions.addPlugin('cozy-labs/cozy-light-html5-apps', done);
@@ -275,4 +277,25 @@ describe('actions', function () {
     //actions.removePlugin('cozy-labs/cozy-light-html5-apps', done);
   //});
 
+});
+
+
+describe('Functional tests', function () {
+  describe('Hot app install', function () {
+    it('start server.', function (done) {
+      done()
+    });
+    it('install fake app manually.', function (done) {
+      done()
+    });
+    it('change configuration file.', function (done) {
+      done()
+    });
+    it('wait 1s.', function (done) {
+      done()
+    });
+    it('fake app should be started.', function (done) {
+      done()
+    });
+  });
 });
