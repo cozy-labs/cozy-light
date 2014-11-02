@@ -180,7 +180,7 @@ describe('Server Helpers', function () {
   });
 
   it('stopApplication', function (done) {
-    var appHome = pathExtra.join(HOME, 'node_modules', 'test-app');
+    var appHome = configHelpers.modulePath("test-app");
     var manifest = require(pathExtra.join(appHome, 'package.json'));
     manifest.type = "classic";
     serverHelpers.stopApplication(manifest, function assertStop () {
