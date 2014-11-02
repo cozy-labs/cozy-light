@@ -46,7 +46,7 @@ var configHelpers = {
    *
    * @param {String} npmModule The name of the cozy-light module
    */
-  npmModulePath: function (npmModule) {
+  modulePath: function (npmModule) {
     return pathExtra.join(configHelpers.HOME, 'node_modules', npmModule);
   },
 
@@ -192,7 +192,7 @@ var configHelpers = {
       for (var name in configHelpers.watchers_ ){
         if (configHelpers.watchers_) configHelpers.watchers_[name]();
       }
-    })
+    };
     configHelpers.watcher_ = fs.watchFile(
         configHelpers.CONFIG_PATH, 
         watchOptions, 
@@ -398,7 +398,7 @@ var serverHelpers = {
           LOGGER.info(
             'Application ' + name + ' is now running on port ' + port + '...');
           port = port + 1;
-          callback();
+          callback(err, app, server);
         });
       };
     } else {
@@ -453,10 +453,11 @@ var serverHelpers = {
     var runApp = function (key, callback) {
       var application = config.apps[key];
       var modulePath = configHelpers.modulePath(key);
+
       // Clean require's cache, otherwise same code is loaded twice
-      for( var n in require.cache ){
-        if( n.match(new RegExp("^"+modulePath)) ){
-          delete require.cache[n];
+      for (var name in require.cache) {
+        if (name.match(new RegExp("^" + modulePath))) {
+          delete require.cache[name];
         }
       }
       serverHelpers.startApplication(application, db, callback);
@@ -767,7 +768,7 @@ var actions = {
           'Cozy Light Dashboard is running on port ' + port + '...');
 
         // Reload apps when file configuration is modified
-        configHelpers.watchConfig(function(){
+        configHelpers.watchConfig(function reloadConfigAndApps () {
           LOGGER.info(
             'Configuration file changed. Reloading configuration...');
           config = configHelpers.loadConfigFile();
@@ -775,7 +776,7 @@ var actions = {
         });
 
         if (callback !== undefined && typeof(callback) === "function") {
-          callback();
+          callback(null, app, server);
         };
       };
 
