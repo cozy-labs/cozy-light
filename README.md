@@ -9,7 +9,7 @@ Through its various plugins Cozy Light allows you to deal without effort with
 many self-hosting use cases like deploying your static website, managing
 dockerized web apps or use simple Node.js apps to store your calendars and
 your files. Because it's lightweight, it performs well on cheap hardwares like
-the Raspberry Pi or a small Digital Ocean VPS.
+the Raspberry Pi or small Digital Ocean VPS.
 
 As an illustration here is how you handle the Static Website use case. The goal is
 to publish a website made of static files that is updated every time you commit on
@@ -198,7 +198,7 @@ users.
 *Why did you write Cozy Light in JavaScript instead of Coffeescript?*
 
 We are Coffescript fanboys but many people complain that our language choice
-prevented them to contribute. We think that collaborative work matters the
+prevent them to contribute. We think that collaborative work matters the
 most. So we decided to write Cozy Light in JavaScript. 
 
 *How do I write my own application?*
