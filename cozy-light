@@ -284,23 +284,13 @@ var serverHelpers = {
 
         loadedApps[name] = {
           appModule: appModule,
-          server: null,
-          sockets: []
+          server: null
         };
-
 
         appModule.start(options, function (err, app, server) {
           if (err) { LOGGER.error(err); }
 
           loadedApps[name].server = server;
-          server.on('connection', function (socket) {
-            var socketId = loadedApps[name].sockets.length;
-            loadedApps[name].sockets.push(socket);
-            socket.on('close', function () {
-              delete loadedApps[name].sockets[socketId];
-            });
-          });
-
           routes[name] = port;
           LOGGER.info(
             'Application ' + name + ' is now running on port ' + port + '...');
@@ -327,16 +317,15 @@ var serverHelpers = {
 
       var closeServer = function(){
         var server = loadedApps[name].server;
-        var sockets = loadedApps[name].sockets;
-        for (var moduleName in require.cache){
-          if(moduleName.indexOf("/" + name) ) delete require.cache[moduleName];
+        try {
+          server.close(function logInfo (err) {
+            LOGGER.info('Application ' + name + ' is now stopped...');
+            callback();
+          });
+        } catch (err) {
+          LOGGER.warn(err);
+          callback();
         }
-        delete loadedApps[name];
-        sockets.forEach(function closeSocket(socket){
-          if(socket) socket.close();
-        });
-        server.close(callback);
-        LOGGER.info('Application ' + name + ' is now stopped...');
       };
 
       if (appModule.stop === undefined) {
