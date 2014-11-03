@@ -223,10 +223,10 @@ var npmHelpers = {
   },
 
   /**
-  * Remove application source and dependencies using NPM lib.
-  *
-  * @param {String} app App to fetch from NPM.
-  * @param {Function} manifest Callback to run once work is done.
+   * Remove application source and dependencies using NPM lib.
+   *
+   * @param {String} app App to fetch from NPM.
+   * @param {Function} manifest Callback to run once work is done.
    */
   uninstall: function (app, callback) {
     npm.load({}, function () {
