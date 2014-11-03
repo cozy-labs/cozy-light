@@ -745,7 +745,7 @@ var actions = {
           options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
           server = https.createServer(options, app).listen(port);
         } else  {
-          server = http.createServer(options, app).listen(port);
+          server = http.createServer(app).listen(port);
         }
         serverHelpers.initializeProxy(server);
         LOGGER.info(
