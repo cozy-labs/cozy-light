@@ -167,11 +167,10 @@ var configHelpers = {
   init: function (customHome) {
     home = customHome || pathExtra.join(pathExtra.homedir(), '.cozy-light');
 
-    configHelpers.HOME = home;
     configPath = pathExtra.join(home, 'config.json');
 
-    fsExtra.mkdirsSync(configHelpers.HOME);
-    process.chdir(configHelpers.HOME);
+    fsExtra.mkdirsSync(home);
+    process.chdir(home);
 
     configHelpers.createConfigFile();
 
@@ -219,7 +218,7 @@ var npmHelpers = {
   */
   install: function (app, callback) {
     npm.load({}, function () {
-      npm.commands.install(configHelpers.HOME, [app], callback);
+      npm.commands.install(home, [app], callback);
     });
   },
 
@@ -478,7 +477,7 @@ var serverHelpers = {
             version: pluginConfig.version,
             description: pluginConfig.description,
             config_path: configPath,
-            home: configHelpers.HOME,
+            home: home,
             npmHelpers: npmHelpers,
             proxy: proxy
           };
