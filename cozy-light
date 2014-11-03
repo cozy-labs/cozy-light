@@ -98,7 +98,7 @@ var configHelpers = {
   *
   * @param {String} plugin The plugin name as it's typed by the user.
    *                        It s in the form user/repo.
-  * @param {String} manifest Manifest containing plugin fields.
+  * @param {Object} manifest Manifest containing plugin fields.
   */
   addPlugin: function (plugin, manifest) {
     if(config.plugins === undefined) {
