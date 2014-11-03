@@ -62,7 +62,7 @@ var configHelpers = {
   * version and description are required.
   *
   * @param {String} app The app name as it's typed by the user (user/repo).
-  * @param {String} manifest Manifest containing application fields.
+  * @param {Object} manifest Manifest containing application fields.
   */
   addApp: function (app, manifest) {
     if(manifest.type === undefined) {
