@@ -155,6 +155,7 @@ describe('Server Helpers', function () {
 
   describe('startApplication', function () {
     it('should start a server for given application', function (done) {
+      this.timeout(10000);
       var source = pathExtra.join(__dirname, 'fixtures', 'test-app');
       var dest = configHelpers.modulePath("test-app");
       fs.copySync(source, dest);
