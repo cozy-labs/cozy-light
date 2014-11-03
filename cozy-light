@@ -214,7 +214,7 @@ var npmHelpers = {
   * Config file is ~/.cozy-light/.config
   *
   * @param {String} app App to fetch from NPM.
-  * @param {Function} manifest Callback to run once work is done.
+  * @param {Function} callback Callback to run once work is done.
   */
   install: function (app, callback) {
     npm.load({}, function () {
@@ -226,7 +226,7 @@ var npmHelpers = {
    * Remove application source and dependencies using NPM lib.
    *
    * @param {String} app App to fetch from NPM.
-   * @param {Function} manifest Callback to run once work is done.
+   * @param {Function} callback Callback to run once work is done.
    */
   uninstall: function (app, callback) {
     npm.load({}, function () {
@@ -791,7 +791,7 @@ var actions = {
   /**
   * App names correspond to Github repo. An app name is composed of a user name
   * and a repository name.
-  * Installation starts by fetching the manifest from the repostiory
+  * Installation starts by fetching the manifest from the repository
   * (package.json located at the root). Then it installs sources and
   * dependencies in the cozy-light folder.
   *
@@ -850,7 +850,7 @@ var actions = {
   /**
   * Plugin names correspond to Github repo. A plugin name is composed of a user
   * name and a repository name.
-  * Installation starts by fetching the manifest from the repostiory
+  * Installation starts by fetching the manifest from the repository
   * (package.json located at the root). Then it installs sources and
   * dependencies in the cozy-light folder.
   *
