@@ -32,6 +32,7 @@ var loadedPlugins = {};
 var port = 18001;
 var proxy = null;
 var config = null;
+var server = null;
 var db = new Pouchdb('cozy');
 
 
@@ -405,7 +406,6 @@ var controllers = {
 
 
 var npmHelpers = {
-
   /**
   * Fetch given app source and dependencies from NPM registry.
   *
@@ -709,7 +709,7 @@ var serverHelpers = {
    * Manage properly exit of the process when SIGINT signal is triggered.
    * It asks to every plugin to end properly.
    */
-  exitHandler: function (err) {
+  exitHandler: function (err, callback) {
     if(err) {
       LOGGER.error('An error occured on termination');
       console.log(err);
@@ -727,7 +727,7 @@ var serverHelpers = {
         } catch(err) {
           console.log(err);
           LOGGER.error('Plugin ' + pluginName +
-                       ' loading failed for termination.');
+                       ' loading failed to terminate.');
           cb();
         }
       };
@@ -735,9 +735,11 @@ var serverHelpers = {
       var endProcess = function (err) {
         if (err) {
           LOGGER.error('Cozy light was not properly terminated.');
-          throw err;
+          LOGGER.raw(err);
+          callback(err);
         } else {
           LOGGER.info('Cozy light was properly terminated.');
+          callback();
         }
       };
 
@@ -791,7 +793,6 @@ var actions = {
         }
 
         // Set SSL configuration if certificates path are properly set.
-        var server;
         var options = {};
         if (config.ssl !== undefined) {
           options.key = fs.readFileSync(config.ssl.key, 'utf8');
@@ -987,6 +988,11 @@ program
   .action(program.outputHelp);
 
 
+// Init Cozy Light
+
+configHelpers.init();
+
+
 // Process arguments
 
 if(module.parent === null) {
@@ -1003,22 +1009,27 @@ if (!process.argv.slice(2).length) {
 }
 
 
-// Init Cozy Light
-
-configHelpers.init();
-
-
 // Manage errors
 
 process.on('uncaughtException', function (err) {
   LOGGER.warn('An exception is uncaught');
-  console.log(err);
+  throw err;
 });
 
 
 // Manage termination
 
-process.on('SIGINT', serverHelpers.exitHandler);
+process.on('SIGINT', function handleExit (err) {
+  serverHelpers.exitHandler(err, function terminate (err) {
+    if (err) throw err;
+
+    if (server !== null) {
+      server.close();
+      actions.stop();
+    }
+    process.exit(0);
+  });
+});
 
 
 // Export module for testing purpose.
