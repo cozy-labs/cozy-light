@@ -304,12 +304,12 @@ var serverHelpers = {
     app.use(express.static(pathExtra.join(__dirname, 'assets'),
             { maxAge: 86400000 }));
 
+    config.pouchdb = Pouchdb;
+    config.appPort = port;
     var runPlugin = function (pluginName, cb) {
       var plugin = loadedPlugins[pluginName];
       if (plugin.configureAppServer !== undefined) {
         LOGGER.info('Configuring plugin ' + pluginName + '...');
-        config.pouchdb = Pouchdb;
-        config.appPort = port;
         plugin.configureAppServer(app, config, routes, function logResult() {
           LOGGER.info('Plugin ' + pluginName + ' configured.');
           cb();
