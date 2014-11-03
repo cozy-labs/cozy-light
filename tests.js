@@ -1,8 +1,7 @@
-var fs = require("fs-extra");
-var pathExtra = require("path-extra");
-var assert = require("assert");
-var express = require("express");
-var http = require("http");
+var fs = require('fs-extra');
+var pathExtra = require('path-extra');
+var assert = require('assert');
+var http = require('http');
 var request = require('request-json-light');
 var PouchDB = require('pouchdb');
 var cozyLight = require('./cozy-light');
@@ -12,18 +11,18 @@ var configHelpers = cozyLight.configHelpers;
 var npmHelpers = cozyLight.npmHelpers;
 var serverHelpers = cozyLight.serverHelpers;
 
-var working_dir = __dirname+"/.test-working_dir/";
-var HOME = pathExtra.join(working_dir, '.cozy-light');
+var workingDir = pathExtra.join( __dirname, '/.test-working_dir/');
+var HOME = pathExtra.join(workingDir, '.cozy-light');
 
 
 before(function(){
-  fs.removeSync(working_dir);
-  fs.mkdirSync(working_dir);
+  fs.removeSync(workingDir);
+  fs.mkdirSync(workingDir);
 });
 
 
 after(function(){
-  fs.removeSync(working_dir);
+  fs.removeSync(workingDir);
 });
 
 
@@ -53,11 +52,11 @@ describe('Config Helpers', function () {
   describe('addApp', function(){
     it('should add app manifest to the config file', function () {
       var manifest = {
-        "name": "cozy-test",
-        "displayName": "Cozy Test",
-        "version": "1.1.13",
-        "description": "Test app.",
-        "type": "classic"
+        'name': 'cozy-test',
+        'displayName': 'Cozy Test',
+        'version': '1.1.13',
+        'description': 'Test app.',
+        'type': 'classic'
       };
       var app = 'cozy-labs/cozy-test';
       configHelpers.addApp(app, manifest);
@@ -73,7 +72,7 @@ describe('Config Helpers', function () {
   describe('removeApp', function(){
     it('should remove app manifest from the config file', function () {
       var app = 'cozy-labs/cozy-test';
-      assert(configHelpers.removeApp(app), "did not remove app correctly.");
+      assert(configHelpers.removeApp(app), 'did not remove app correctly.');
       var config = configHelpers.loadConfigFile();
       assert.equal(undefined, config.apps[app]);
     });
@@ -82,10 +81,10 @@ describe('Config Helpers', function () {
   describe('addPlugin', function(){
     it('should add plugin manifest to the config file', function () {
       var manifest = {
-        "name": "cozy-test-plugin",
-        "displayName": "Cozy Test Plugin",
-        "version": "1.1.13",
-        "description": "Test plugin."
+        'name': 'cozy-test-plugin',
+        'displayName': 'Cozy Test Plugin',
+        'version': '1.1.13',
+        'description': 'Test plugin.'
       };
       var plugin = 'cozy-labs/cozy-test-plugin';
       var config = configHelpers.loadConfigFile();
@@ -100,8 +99,9 @@ describe('Config Helpers', function () {
 
   describe('removePlugin', function(){
     it('should remove plugin manifest from the config file', function () {
-      var plugin = 'cozy-labs/cozy-test';
-      assert(configHelpers.removePlugin(plugin), "did not remove plugin correctly.");
+      var plugin = 'cozy-labs/cozy-test-plugin';
+      assert(configHelpers.removePlugin(plugin),
+             'did not remove plugin correctly.');
       var config = configHelpers.loadConfigFile();
       assert.equal(undefined, config.plugins[plugin]);
     });
@@ -109,8 +109,8 @@ describe('Config Helpers', function () {
 
   describe('copyDependency', function(){
     it('should copy dependency in the cozy light folder.', function () {
-      var destPath = configHelpers.modulePath("path-extra");
-      configHelpers.copyDependency("path-extra");
+      var destPath = configHelpers.modulePath('path-extra');
+      configHelpers.copyDependency('path-extra');
       assert(fs.existsSync(destPath));
     });
   });
@@ -124,7 +124,7 @@ describe('NPM Helpers', function () {
     it('should install module in the cozy-light folder.', function (done) {
       this.timeout(10000);
       process.chdir(HOME);
-      var destPath = configHelpers.modulePath("hello");
+      var destPath = configHelpers.modulePath('hello');
       npmHelpers.install('cozy-labs/hello', function () {
         assert(fs.existsSync(destPath));
         done();
@@ -135,7 +135,7 @@ describe('NPM Helpers', function () {
   describe('uninstall', function(){
     it('should remove module from the cozy-light folder.', function (done) {
       process.chdir(HOME);
-      var destPath = configHelpers.modulePath("hello");
+      var destPath = configHelpers.modulePath('hello');
       npmHelpers.uninstall('hello', function () {
         assert(!fs.existsSync(destPath));
         done();
@@ -157,7 +157,7 @@ describe('Server Helpers', function () {
     it('should start a server for given application', function (done) {
       this.timeout(10000);
       var source = pathExtra.join(__dirname, 'fixtures', 'test-app');
-      var dest = configHelpers.modulePath("test-app");
+      var dest = configHelpers.modulePath('test-app');
       fs.copySync(source, dest);
 
       var sourceExpress = pathExtra.join(__dirname, 'node_modules', 'express');
@@ -165,11 +165,11 @@ describe('Server Helpers', function () {
       fs.copySync(sourceExpress, destExpress);
 
       var manifest = require(pathExtra.join(dest, 'package.json'));
-      manifest.type = "classic";
+      manifest.type = 'classic';
       var db = new PouchDB('test');
       serverHelpers.startApplication(manifest, db, function assertAccess () {
         var client = request.newClient('http://localhost:18001');
-        client.get('', function assertResponse (err, res, body) {
+        client.get('', function assertResponse (err, res) {
           assert.equal(err, null,
                        'An error occured while accessing test app.');
           assert.equal(res.statusCode, 200,
@@ -182,13 +182,13 @@ describe('Server Helpers', function () {
 
   describe('stopApplication', function () {
     it('should stop running server for given application', function (done) {
-      var appHome = configHelpers.modulePath("test-app");
+      var appHome = configHelpers.modulePath('test-app');
       var manifest = require(pathExtra.join(appHome, 'package.json'));
-      manifest.type = "classic";
+      manifest.type = 'classic';
 
       serverHelpers.stopApplication(manifest, function assertStop () {
         var client = request.newClient('http://localhost:18001');
-        client.get('', function assertResponse(err, res, body) {
+        client.get('', function assertResponse(err) {
           assert.notEqual(err, null,
                           'Application should not be accessible anymore.');
           done();
@@ -200,13 +200,13 @@ describe('Server Helpers', function () {
   describe('reloadApps', function() {
 
     it('should restart all apps', function(done) {
-      var appHome = configHelpers.modulePath("test-app");
+      var appHome = configHelpers.modulePath('test-app');
       var manifest = require(pathExtra.join(appHome, 'package.json'));
       configHelpers.addApp('test-app', manifest);
 
       serverHelpers.reloadApps(function assertAppAccess () {
         var client = request.newClient('http://localhost:18002');
-        client.get('', function assertResponse (err, res, body) {
+        client.get('', function assertResponse (err, res) {
           assert.equal(err, null,
                       'An error occured while accessing test app.');
           assert.equal(res.statusCode, 200,
@@ -218,9 +218,9 @@ describe('Server Helpers', function () {
       });
 
     it('should reload app source code', function(done) {
-      var appHome = configHelpers.modulePath("test-app");
+      var appHome = configHelpers.modulePath('test-app');
       var manifest = require(pathExtra.join(appHome, 'package.json'));
-      manifest.type = "classic";
+      manifest.type = 'classic';
       configHelpers.addApp('test-app', manifest);
 
       var db = new PouchDB('test');
@@ -232,13 +232,13 @@ describe('Server Helpers', function () {
           assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
           assert(body.ok, 'Wrong initial response body for test app.');
 
-          var serverFile = appHome+'/server.js';
+          var serverFile = appHome + '/server.js';
           var content = fs.readFileSync(serverFile,'utf-8');
-          content = content.replace("send({ok: true})","send({ok: false})");
+          content = content.replace('send({ok: true})','send({ok: false})');
           fs.writeFileSync(serverFile, content);
 
           serverHelpers.reloadApps(function assertAppAccess () {
-            var client = request.newClient('http://localhost:18004');
+            client = request.newClient('http://localhost:18004');
 
             client.get('', function assertResponse (err, res, body) {
               assert.equal(err, null,
@@ -248,7 +248,7 @@ describe('Server Helpers', function () {
               assert.equal(body.ok, false,
                            'Wrong reloaded response body for test app.');
               content = content.replace(
-                "send({ok: false})", "send({ok: true})");
+                'send({ok: false})', 'send({ok: true})');
               fs.writeFileSync(serverFile,content);
               configHelpers.removeApp('test-app');
               serverHelpers.stopApplication(manifest, done);
@@ -291,6 +291,7 @@ describe('actions', function () {
     it('should listen and respond to http requests.', function (done) {
       var opt = {port: 8090};
       actions.start(opt, function(err, app, server) {
+       assert.equal(err, null, 'Cannot start server');
         var options = {
           host: 'localhost',
           port: opt.port
@@ -336,8 +337,8 @@ describe('actions', function () {
     });
   });
 
-  it.skip('addPlugin', function (done) {});
-  it.skip('removePlugin', function (done) {});
+  it.skip('addPlugin', function () {});
+  it.skip('removePlugin', function () {});
 
 });
 
@@ -353,7 +354,7 @@ describe('Functional tests', function () {
       done();
     });
     it('change configuration file.', function (done) {
-      var appHome = configHelpers.modulePath("test-app");
+      var appHome = configHelpers.modulePath('test-app');
       var manifest = require(pathExtra.join(appHome, 'package.json'));
       configHelpers.addApp('test-app', manifest);
       done();
@@ -363,7 +364,7 @@ describe('Functional tests', function () {
     });
     it('fake app should be started.', function (done) {
       var client = request.newClient('http://localhost:18005');
-      client.get('', function assertResponse (err, res, body) {
+      client.get('', function assertResponse (err, res) {
         assert.equal(err, null, 'An error occured while accessing test app.');
         assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
         done();

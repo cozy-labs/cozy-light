@@ -20,7 +20,7 @@
     "express"
   ],
   "bin": {
-    "cozy-light": "cozy-light"
+    "cozy-light": "cozy-light.js"
   },
   "bugs": {
     "url": "https://github.com/cozy-labs/cozy-light/issues"
@@ -54,8 +54,8 @@
   },
   "scripts": {
     "test": "mocha --globals s --reporter spec tests.js",
-    "lint": "jshint cozy-light tests.js",
-    "start": "node cozy-light"
+    "lint": "eslint cozy-light.js tests.js",
+    "start": "node cozy-light.js"
   },
   "repository": {
     "type": "git",

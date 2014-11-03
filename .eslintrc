@@ -1,0 +1,22 @@
+{
+  "env": {
+    "node": true,
+    "mocha": true
+  },
+  "rules": {
+    "curly": true,
+    "eqeqeq": true,
+    "immed": true,
+    "multistr": true,
+    "esnext": true,
+    "newcap": true,
+    "noarg": true,
+    "sub": true,
+    "boss": true,
+    "eqnull": true,
+    "strict": false,
+    "no-multi-str": false,
+    "quotes": [2, "single"],
+    "max-len": 80
+  }
+}
