@@ -24,24 +24,6 @@ var pkg = require('./package.json');
 var configHelpers = {
 
   /**
-   * The path where is installed and stored modules and configuration files
-   * of cozy-light.
-   * Default is : {HOMEDIR}/.cozy-light/
-   *
-   * @var {String}
-   */
-  HOME: '',
-
-  /**
-   * The cozy-light configuration file path.
-   * File is type of JSON.
-   * Default is : {HOMEDIR}/.cozy-light/config.json
-   *
-   * @var {String}
-   */
-  CONFIG_PATH: '',
-
-  /**
    * List of function to run when configuration file is changed.
    */
   watchers: [],
@@ -52,7 +34,7 @@ var configHelpers = {
    * @param {String} npmModule The name of the cozy-light module
    */
   modulePath: function (npmModule) {
-    return pathExtra.join(configHelpers.HOME, 'node_modules', npmModule);
+    return pathExtra.join(home, 'node_modules', npmModule);
   },
 
   /**
@@ -61,7 +43,7 @@ var configHelpers = {
    * @return {Object} config
    */
   loadConfigFile: function () {
-    return JSON.parse(fs.readFileSync(configHelpers.CONFIG_PATH, 'utf-8'));
+    return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
   },
 
 
@@ -70,7 +52,7 @@ var configHelpers = {
    */
   saveConfig: function () {
     var configString = JSON.stringify(config, null, 2);
-    fs.writeFileSync(configHelpers.CONFIG_PATH, configString);
+    fs.writeFileSync(configPath, configString);
   },
 
   /**
@@ -143,7 +125,7 @@ var configHelpers = {
    * Create config file if it doesn't exist
    */
   createConfigFile: function () {
-    var exists = fs.existsSync(configHelpers.CONFIG_PATH);
+    var exists = fs.existsSync(configPath);
     if (!exists) {
       var config = { apps: {} };
       configHelpers.saveConfig();
@@ -176,11 +158,11 @@ var configHelpers = {
    *
    * @return {Object} config
    */
-  init: function (home) {
-    home = home || pathExtra.join(pathExtra.homedir(), '.cozy-light');
+  init: function (customHome) {
+    home = customHome || pathExtra.join(pathExtra.homedir(), '.cozy-light');
 
     configHelpers.HOME = home;
-    configHelpers.CONFIG_PATH = pathExtra.join(home, 'config.json');
+    configPath = pathExtra.join(home, 'config.json');
 
     fsExtra.mkdirsSync(configHelpers.HOME);
     process.chdir(configHelpers.HOME);
@@ -194,7 +176,7 @@ var configHelpers = {
       });
     };
     configHelpers.mainWatcher = fs.watchFile(
-        configHelpers.CONFIG_PATH, 
+        configPath, 
         watchOptions, 
         onConfigChanged
     );
@@ -488,7 +470,7 @@ var serverHelpers = {
             displayName: pluginConfig.displayName,
             version: pluginConfig.version,
             description: pluginConfig.description,
-            config_path: configHelpers.CONFIG_PATH,
+            config_path: configPath,
             home: configHelpers.HOME,
             npmHelpers: npmHelpers,
             proxy: proxy
@@ -918,6 +900,10 @@ const DEFAULT_PORT = 19104;
 
 
 // Create config file and folders and prepare PouchDB dependency.
+// default home dir is ~/.cozy-light
+// default config path is ~/.cozy-light/package.json
+var home = '';
+var configPath = '';
 configHelpers.init();
 configHelpers.copyDependency('pouchdb');
 
@@ -995,7 +981,7 @@ if (!process.argv.slice(2).length) {
 // Manage errors
 
 process.on('uncaughtException', function (err) {
-  LOGGER.warn('An exception is unchaught');
+  LOGGER.warn('An exception is uncaught');
   console.log(err);
 });
 
