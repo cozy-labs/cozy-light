@@ -12,18 +12,19 @@ var configHelpers = cozyLight.configHelpers;
 var npmHelpers = cozyLight.npmHelpers;
 var serverHelpers = cozyLight.serverHelpers;
 
-var working_dir = __dirname+"/.test-working_dir/";
-var HOME = pathExtra.join(working_dir, '.cozy-light');
+var fixturesDir = __dirname+"/fixtures/";
+var workingDir = __dirname+"/.test-working_dir/";
+var HOME = pathExtra.join(workingDir, '.cozy-light');
 
 
 before(function(){
-  fs.removeSync(working_dir);
-  fs.mkdirSync(working_dir);
+  fs.removeSync(workingDir);
+  fs.mkdirSync(workingDir);
 });
 
 
 after(function(){
-  fs.removeSync(working_dir);
+  fs.removeSync(workingDir);
 });
 
 
@@ -52,14 +53,8 @@ describe('Config Helpers', function () {
 
   describe('addApp', function(){
     it('should add app manifest to the config file', function () {
-      var manifest = {
-        "name": "cozy-test",
-        "displayName": "Cozy Test",
-        "version": "1.1.13",
-        "description": "Test app.",
-        "type": "classic"
-      };
-      var app = 'cozy-labs/cozy-test';
+      var app = 'cozy-test';
+      var manifest =  require(pathExtra.join(fixturesDir,app,'package.json'));
       configHelpers.addApp(app, manifest);
       var config = configHelpers.loadConfigFile();
       assert.equal(manifest.name, config.apps[app].name);
@@ -72,7 +67,7 @@ describe('Config Helpers', function () {
 
   describe('removeApp', function(){
     it('should remove app manifest from the config file', function () {
-      var app = 'cozy-labs/cozy-test';
+      var app = 'cozy-test';
       assert(configHelpers.removeApp(app), "did not remove app correctly.");
       var config = configHelpers.loadConfigFile();
       assert.equal(undefined, config.apps[app]);
@@ -81,15 +76,10 @@ describe('Config Helpers', function () {
 
   describe('addPlugin', function(){
     it('should add plugin manifest to the config file', function () {
-      var manifest = {
-        "name": "cozy-test-plugin",
-        "displayName": "Cozy Test Plugin",
-        "version": "1.1.13",
-        "description": "Test plugin."
-      };
-      var plugin = 'cozy-labs/cozy-test-plugin';
-      var config = configHelpers.loadConfigFile();
+      var plugin = 'test-plugin';
+      var manifest =  require(pathExtra.join(fixturesDir, plugin,'package.json'));
       configHelpers.addPlugin(plugin, manifest);
+      var config = configHelpers.loadConfigFile();
       assert.equal(manifest.name, config.plugins[plugin].name);
       assert.equal(manifest.displayName, config.plugins[plugin].displayName);
       assert.equal(manifest.version, config.plugins[plugin].version);
@@ -100,7 +90,7 @@ describe('Config Helpers', function () {
 
   describe('removePlugin', function(){
     it('should remove plugin manifest from the config file', function () {
-      var plugin = 'cozy-labs/cozy-test';
+      var plugin = 'test-plugin';
       assert(configHelpers.removePlugin(plugin), "did not remove plugin correctly.");
       var config = configHelpers.loadConfigFile();
       assert.equal(undefined, config.plugins[plugin]);
