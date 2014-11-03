@@ -85,8 +85,10 @@ var configHelpers = {
   * @param {String} app The app name as it's typed by the user (user/repo).
   */
   removeApp: function (app) {
+    if( config.apps[app] == undefined ) return false;
     delete config.apps[app];
     configHelpers.saveConfig();
+    return true;
   },
 
   /**
@@ -119,8 +121,10 @@ var configHelpers = {
   * (user/repo).
   */
   removePlugin: function (plugin, manifest) {
+    if( config.apps[app] == undefined ) return false;
     delete config.plugins[plugin];
     configHelpers.saveConfig();
+    return true;
   },
  
   /**
