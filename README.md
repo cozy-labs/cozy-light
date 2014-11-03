@@ -184,7 +184,7 @@ Checkout and install the project
 Before you push your PR
 
     npm test
-    npm run jshint
+    npm run lint
 
 
 
