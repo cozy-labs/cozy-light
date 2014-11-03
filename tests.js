@@ -38,7 +38,7 @@ describe('Config Helpers', function () {
       configHelpers.init(HOME);
       assert(fs.existsSync(HOME), 'HOME directory not created');
       assert(fs.existsSync(pathExtra.join(HOME, 'config.json')),
-        'configuration file not created');
+             'configuration file not created');
     });
   });
 
@@ -59,7 +59,7 @@ describe('Config Helpers', function () {
         "description": "Test app.",
         "type": "classic"
       };
-      var app = 'cozy-labs/cozy-test'
+      var app = 'cozy-labs/cozy-test';
       configHelpers.addApp(app, manifest);
       var config = configHelpers.loadConfigFile();
       assert.equal(manifest.name, config.apps[app].name);
@@ -72,7 +72,7 @@ describe('Config Helpers', function () {
 
   describe('removeApp', function(){
     it('should remove app manifest from the config file', function () {
-      var app = 'cozy-labs/cozy-test'
+      var app = 'cozy-labs/cozy-test';
       configHelpers.removeApp(app);
       var config = configHelpers.loadConfigFile();
       assert.equal(undefined, config.apps[app]);
@@ -85,9 +85,9 @@ describe('Config Helpers', function () {
         "name": "cozy-test-plugin",
         "displayName": "Cozy Test Plugin",
         "version": "1.1.13",
-        "description": "Test plugin.",
+        "description": "Test plugin."
       };
-      var plugin = 'cozy-labs/cozy-test-plugin'
+      var plugin = 'cozy-labs/cozy-test-plugin';
       var config = configHelpers.loadConfigFile();
       configHelpers.addPlugin(plugin, manifest);
       assert.equal(manifest.name, config.plugins[plugin].name);
@@ -100,7 +100,7 @@ describe('Config Helpers', function () {
 
   describe('removePlugin', function(){
     it('should remove plugin manifest from the config file', function () {
-      var plugin = 'cozy-labs/cozy-test'
+      var plugin = 'cozy-labs/cozy-test';
       var config = configHelpers.loadConfigFile();
       configHelpers.removeApp(plugin);
       assert.equal(undefined, config.plugins[plugin]);
@@ -229,7 +229,7 @@ describe('Server Helpers', function () {
 
         client.get('', function assertResponse (err, res, body) {
           assert.equal(err, null, 'An error occured while accessing test app.');
-          assert(res.statusCode == 200, 'Wrong return code for test app.');
+          assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
           assert(body.ok, 'Wrong initial response body for test app.');
 
           var serverFile = appHome+'/server.js';
@@ -310,7 +310,7 @@ describe('actions', function () {
         }).on('error', function(e) {
           done(e);
         });
-      })
+      });
     });
   });
 
@@ -350,7 +350,7 @@ describe('Functional tests', function () {
     });
     it('install fake app manually.', function (done) {
       // Nothing to do test app is still in the cozy-light folder.
-      done()
+      done();
     });
     it('change configuration file.', function (done) {
       var appHome = configHelpers.modulePath("test-app");

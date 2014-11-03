@@ -1,0 +1,13 @@
+{
+  "curly": true,
+  "eqeqeq": true,
+  "immed": true,
+  "multistr": true,
+  "esnext": true,
+  "newcap": true,
+  "noarg": true,
+  "sub": true,
+  "boss": true,
+  "eqnull": true,
+  "maxlen": 80
+}

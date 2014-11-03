@@ -53,7 +53,9 @@
   "devDependencies": {
   },
   "scripts": {
-    "test": "mocha --globals s --reporter spec tests.js"
+    "test": "mocha --globals s --reporter spec tests.js",
+    "lint": "jshint cozy-light tests.js",
+    "start": "node cozy-light"
   },
   "repository": {
     "type": "git",
