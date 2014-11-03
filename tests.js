@@ -73,7 +73,7 @@ describe('Config Helpers', function () {
   describe('removeApp', function(){
     it('should remove app manifest from the config file', function () {
       var app = 'cozy-labs/cozy-test';
-      configHelpers.removeApp(app);
+      assert(configHelpers.removeApp(app), "did not remove app correctly.");
       var config = configHelpers.loadConfigFile();
       assert.equal(undefined, config.apps[app]);
     });
@@ -101,8 +101,8 @@ describe('Config Helpers', function () {
   describe('removePlugin', function(){
     it('should remove plugin manifest from the config file', function () {
       var plugin = 'cozy-labs/cozy-test';
+      assert(configHelpers.removePlugin(plugin), "did not remove plugin correctly.");
       var config = configHelpers.loadConfigFile();
-      configHelpers.removeApp(plugin);
       assert.equal(undefined, config.plugins[plugin]);
     });
   });
