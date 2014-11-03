@@ -160,7 +160,7 @@ var configHelpers = {
    * Manage config file watcher subscriptions
    * Load and return config file.
    *
-   * @param {String} HOME The home path where .cozy-light folder belongs
+   * @param {String} customHome The home path where .cozy-light folder belongs
    *
    * @return {Object} config
    */
