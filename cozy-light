@@ -215,22 +215,72 @@ var npmHelpers = {
   *
   * @param {String} app App to fetch from NPM.
   * @param {Function} callback Callback to run once work is done.
+  * @param {Boolean} link Proceed to link or install.
   */
-  install: function (app, callback) {
+  install: function (app, callback, link) {
     npm.load({}, function () {
-      npm.commands.install(home, [app], callback);
+      if( ! link ){
+        npm.commands.install(home, [app], callback);
+      }else{
+        npm.commands.link(home, [app], callback);
+      }
     });
   },
 
   /**
-   * Remove application source and dependencies using NPM lib.
-   *
-   * @param {String} app App to fetch from NPM.
-   * @param {Function} callback Callback to run once work is done.
+  * Remove application source and dependencies using NPM lib.
+  *
+  * @param {String} app App to fetch from NPM.
+  * @param {Function} callback Callback to run once work is done.
    */
   uninstall: function (app, callback) {
     npm.load({}, function () {
       npm.commands.uninstall([app], callback);
+    });
+  },
+
+  /**
+   * Fetch application or plugin manifest from an url or a path
+   *
+   * @param {String} app App or Plugin name to fetch from url or path.
+   * @param {Function} callback Termination.
+   */
+  fetchManifest: function (app, callback) {
+    if( fs.existsSync(app) && fs.existsSync(path.join(app,'package.json')) ){
+      fs.readFile(path.join(app,'package.json'),function(err, manifest){
+        if (err) {
+          LOGGER.error(err);
+        }else{
+          callback(err, JSON.parse(manifest), "file");
+        }
+      });
+    }else{
+      var client = request.newClient( 'https://raw.githubusercontent.com/');
+      var manifestUrl = app + '/master/package.json';
+
+      LOGGER.info('Installing application ' + app + '...');
+      client.get(manifestUrl, function (err, res, manifest) {
+        if (res.statusCode !== 200) {
+          LOGGER.error(err);
+        }else if (err) {
+          LOGGER.error(err);
+        }else{
+          callback(err,manifest, "url");
+        }
+      });
+    }
+  },
+
+  /**
+   * Fetch and install application or plugin from an url or a path
+   *
+   * @param {String} app App or Plugin name to fetch from url or path.
+   * @param {Function} callback Termination.
+   */
+  fetchInstall: function (app, callback) {
+    npmHelpers.fetchManifest(app,function(err,manifest,type){
+      if( err ){ return callback(err); }
+      npmHelpers.install(app, callback, type=='file');
     });
   }
 };
@@ -799,29 +849,18 @@ var actions = {
   * @param {Function} callback Termination.
   */
   installApp: function (app, callback) {
-    var client = request.newClient( 'https://raw.githubusercontent.com/');
-    var manifestUrl = app + '/master/package.json';
-
-    LOGGER.info('Installing application ' + app + '...');
-    client.get(manifestUrl, function (err, res, manifest) {
-      if (err) {
-        LOGGER.error(err);
-        LOGGER.error('Cannot find given app manifest. Make sure it lives on ' +
-                 'Github');
+    LOGGER.info('Installing app ' + app + '...');
+    npmHelpers.fetchInstall(app,function(err,manifest){
+      if(err){
+        LOGGER.error('Cannot find given app manifest.');
+        LOGGER.error('Make sure it lives on Github.');
+        LOGGER.error(app + ' installation failed.');
       } else {
-        npmHelpers.install(app, function (err) {
-          if (err) {
-            LOGGER.raw(err);
-            LOGGER.error(app + ' installation failed.');
-
-          } else {
-            configHelpers.addApp(app, manifest);
-            LOGGER.info(app + ' installed. Enjoy!');
-          }
-          if (callback !== undefined && typeof(callback) === "function") { 
-            callback(); 
-          }
-        });
+        configHelpers.addApp(app, manifest);
+        LOGGER.info(app + ' installed. Enjoy!');
+      }
+      if (callback !== undefined && typeof(callback) === "function") {
+        callback(err);
       }
     });
   },
@@ -830,6 +869,7 @@ var actions = {
   * Remove app from config and its source from node module folder.
   *
   * @param {String} app App to uninstall.
+   * @param {Function} callback Termination.
   */
   uninstallApp: function (app, callback) {
     LOGGER.info('Uninstalling ' + app + '...');
@@ -855,29 +895,21 @@ var actions = {
   * dependencies in the cozy-light folder.
   *
   * @param {String} plugin Plugin to install (ex: cozy-labs/cozy-light-docker).
+   * @param {Function} callback Termination.
   */
-  installPlugin: function (plugin){
-    var client = request.newClient( 'https://raw.githubusercontent.com/');
-    var manifestUrl = plugin + '/master/package.json';
-
+  installPlugin: function (plugin, callback){
     LOGGER.info('Installing plugin ' + plugin + '...');
-    client.get(manifestUrl, function (err, res, manifest) {
-      if (res.statusCode !== 200) {
-        LOGGER.error(err);
+    npmHelpers.fetchInstall(plugin,function(err,manifest){
+      if(err){
         LOGGER.error('Cannot find given plugin manifest.');
         LOGGER.error('Make sure it lives on Github.');
         LOGGER.error(plugin + ' installation failed.');
       } else {
         configHelpers.addPlugin(plugin, manifest);
-        npmHelpers.install(plugin, function (err) {
-          if (err) {
-            LOGGER.raw(err);
-            LOGGER.error(plugin + ' installation failed.');
-
-          } else {
-            LOGGER.info(plugin + ' installed. Enjoy!');
-          }
-        });
+        LOGGER.info(plugin + ' installed. Enjoy!');
+      }
+      if (callback !== undefined && typeof(callback) === "function") {
+        callback(err);
       }
     });
   },
@@ -887,15 +919,19 @@ var actions = {
   * Remove plugin from config and its source from node module folder.
   *
   * @param {String} plugin Plugin to remove.
+   * @param {Function} callback Termination.
   */
-  uninstallPlugin: function (plugin){
+  uninstallPlugin: function (plugin, callback){
     LOGGER.info('Removing ' + plugin + '...');
     if(config.plugins[plugin] === undefined) {
       LOGGER.error(plugin + ' is not installed.');
     } else {
-      npmHelpers.uninstall(plugin, function () {
+      npmHelpers.uninstall(plugin, function (err) {
         LOGGER.info(plugin + ' successfully uninstalled.');
         configHelpers.removePlugin(plugin);
+        if (callback !== undefined && typeof(callback) === "function") {
+          callback(err);
+        }
       });
     }
   },
