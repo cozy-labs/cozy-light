@@ -300,7 +300,7 @@ var serverHelpers = {
             { maxAge: 86400000 }));
 
     var runPlugin = function (pluginName, cb) {
-      plugin = loadedPlugins[pluginName];
+      var plugin = loadedPlugins[pluginName];
       if (plugin.configureAppServer !== undefined) {
         LOGGER.info('Configuring plugin ' + pluginName + '...');
         config.pouchdb = Pouchdb;
@@ -497,7 +497,7 @@ var serverHelpers = {
       var exitPlugin = function (pluginName, cb) {
         var options = config.plugins[pluginName];
         try {
-          plugin = require( configHelpers.modulePath(options.name) );
+          var plugin = require( configHelpers.modulePath(options.name) );
           if (plugin.onExit !== undefined) {
             plugin.onExit(options, config, cb);
           } else {
