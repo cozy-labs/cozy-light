@@ -93,7 +93,8 @@ var configHelpers = {
   * written in JSON. It adds an entry to the plugins field. Name, display name,
   * version and description are required.
   *
-  * @param {String} plugin The plugin name as it's typed by the user (user/repo).
+  * @param {String} plugin The plugin name as it's typed by the user.
+   *                        It s in the form user/repo.
   * @param {String} manifest Manifest containing plugin fields.
   */
   addPlugin: function (plugin, manifest) {
@@ -129,7 +130,7 @@ var configHelpers = {
     if (!exists) {
       var config = { apps: {} };
       configHelpers.saveConfig();
-    };
+    }
   },
 
   /**
@@ -143,7 +144,7 @@ var configHelpers = {
 
     if(!fs.existsSync(destPath)) {
       fsExtra.copySync(sourcePath, destPath);
-    };
+    }
   },
 
   /**
@@ -194,9 +195,9 @@ var configHelpers = {
   watchConfig: function (newWatcher) {
     var isSet = false;
     configHelpers.watchers.forEach(function (watcher) {
-      if (watcher == newWatcher) isSet = true;
+      if (watcher == newWatcher){ isSet = true; }
     });
-    if (!isSet) configHelpers.watchers.push(newWatcher);
+    if (!isSet){ configHelpers.watchers.push(newWatcher); }
   }
 };
 
@@ -346,8 +347,9 @@ var serverHelpers = {
 
       var name = application.name;
 
+      var appModule;
       try {
-        var appModule = require( configHelpers.modulePath(name) );
+        appModule = require( configHelpers.modulePath(name) );
       } catch(err) {
         console.log(err);
       }
@@ -409,7 +411,7 @@ var serverHelpers = {
         closeServer();
       } else {
         appModule.stop(closeServer);
-      };
+      }
       delete loadedApps[name];
 
     }else{
@@ -755,7 +757,7 @@ var actions = {
         configHelpers.watchConfig(serverHelpers.reload);
         if (callback !== undefined && typeof(callback) === "function") {
           callback(null, app, server);
-        };
+        }
       };
 
       async.eachSeries(Object.keys(config.apps), runApp, startServer);
@@ -826,7 +828,7 @@ var actions = {
         LOGGER.info(app + ' successfully uninstalled.');
         if (callback !== undefined && typeof(callback) === "function") { 
           callback(); 
-        };
+        }
       });
     }
   },
@@ -848,8 +850,8 @@ var actions = {
     client.get(manifestUrl, function (err, res, manifest) {
       if (res.statusCode !== 200) {
         LOGGER.error(err);
-        LOGGER.error('Cannot find given plugin manifest. Make sure it lives on '
-          + 'Github');
+        LOGGER.error('Cannot find given plugin manifest.');
+        LOGGER.error('Make sure it lives on Github.');
         LOGGER.error(plugin + ' installation failed.');
       } else {
         configHelpers.addPlugin(plugin, manifest);
@@ -909,9 +911,9 @@ configHelpers.copyDependency('pouchdb');
 
 // "Global" variables
 
-var routes = {}
-var loadedApps = {}
-var loadedPlugins = {}
+var routes = {};
+var loadedApps = {};
+var loadedPlugins = {};
 var port = 18001;
 var proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
 var config = configHelpers.loadConfigFile();
