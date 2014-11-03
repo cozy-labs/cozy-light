@@ -128,7 +128,7 @@ var configHelpers = {
   createConfigFile: function () {
     var exists = fs.existsSync(configPath);
     if (!exists) {
-      var config = { apps: {} };
+      config = { apps: {} };
       configHelpers.saveConfig();
     }
   },
