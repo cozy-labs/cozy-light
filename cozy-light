@@ -725,6 +725,9 @@ var actions = {
    * Apply plugin customatisation on server. Then get all installed app
    * modules. Expect that a start function is available, then run the app
    * server on given port. Ports are expected to be available.
+   *
+   * @param {Object} program The command line options.
+   * @param {Function} callback Termination.
    */
   start: function (program, callback) {
 
@@ -774,6 +777,8 @@ var actions = {
 
   /**
    * Stop all running applications.
+   *
+   * @param {Function} callback Termination.
    */
   stop: function (callback) {
     var stopApp = function (key, callback) {
@@ -791,6 +796,7 @@ var actions = {
   * dependencies in the cozy-light folder.
   *
   * @param {String} app App to install (ex: cozy-labs/calendar).
+  * @param {Function} callback Termination.
   */
   installApp: function (app, callback) {
     var client = request.newClient( 'https://raw.githubusercontent.com/');
@@ -878,7 +884,7 @@ var actions = {
 
 
   /**
-  * Remove plguin from config and its source from node module folder.
+  * Remove plugin from config and its source from node module folder.
   *
   * @param {String} plugin Plugin to remove.
   */
