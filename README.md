@@ -170,6 +170,24 @@ a single file. So, currently, it's super easy to understand and to propose new
 capabilities. Make us proposal on what you want to do in the issue page then
 send us your PR!
 
+# Developer guide
+
+Checkout and install the project
+
+    git checkout https://github.com/cozy-labs/cozy-light.git
+    cd cozy-light
+    git remote add upstream https://github.com/cozy-labs/cozy-light
+    npm i
+    npm i jshint -g
+    npm i mocha -g
+
+Before you push your PR
+
+    npm test
+    npm run lint
+
+
+
 # FAQ
 
 *What's the main difference with Cozy?*
