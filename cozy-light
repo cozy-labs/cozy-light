@@ -341,9 +341,10 @@ var serverHelpers = {
    * function to run on when configuration file is changed. List of function to
    * run on when configuration file is changed.
    *
-   * @param application The application to start.
-   * @db The database to give as parameter to the application (they all share
-   *     the same datastore).
+   * @param {Object} application The application to start.
+   * @param {Object} db The database to give as parameter to the application
+ *                      (they all share the same datastore).
+   * @param {Function} callback Termination.
    */
   startApplication: function (application, db, callback) {
 
@@ -392,6 +393,7 @@ var serverHelpers = {
    * Stop given classic application.
    *
    * @param application The application to stop.
+   * @param {Function} callback Termination.
    */
   stopApplication: function (application, callback) {
     var name = application.name;
@@ -429,6 +431,8 @@ var serverHelpers = {
    * refresh config from config file
    * and restart all apps described by the config.
    * It's aimed to be loaded after a configuration change.
+   *
+   * @param {Function} callback Termination.
    */
   reloadApps: function(callback) {
 
