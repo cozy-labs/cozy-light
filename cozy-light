@@ -43,7 +43,8 @@ var configHelpers = {
    * @return {Object} config
    */
   loadConfigFile: function () {
-    return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    return config;
   },
 
 
