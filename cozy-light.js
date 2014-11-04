@@ -33,7 +33,7 @@ var port = 18001;
 var proxy = null;
 var config = null;
 var server = null;
-var db = new Pouchdb('cozy');
+var db = null;
 
 
 // Helpers
@@ -195,8 +195,11 @@ var configHelpers = {
     // default config path is ~/.cozy-light/package.json
     home = customHome || pathExtra.join(pathExtra.homedir(), '.cozy-light');
     configPath = pathExtra.join(home, 'config.json');
+    console.log(home);
     fsExtra.mkdirsSync(home);
     process.chdir(home);
+    db = new Pouchdb('cozy');
+
 
     configHelpers.createConfigFile();
     configHelpers.copyDependency('pouchdb');
@@ -499,7 +502,7 @@ var serverHelpers = {
       var plugin = loadedPlugins[pluginName];
       if (plugin.configureAppServer !== undefined) {
         LOGGER.info('Configuring plugin ' + pluginName + '...');
-        plugin.configureAppServer(app, config, routes, function logResult() {
+        plugin.configureAppServer(app, config, routes, function logResult () {
           LOGGER.info('Plugin ' + pluginName + ' configured.');
           cb();
         });
@@ -508,9 +511,7 @@ var serverHelpers = {
       }
     };
 
-    async.eachSeries(Object.keys(loadedPlugins), runPlugin, function (err) {
-      if(err) { LOGGER.error(err); }
-
+    async.eachSeries(Object.keys(loadedPlugins), runPlugin, function () {
       app.all('/', controllers.index);
 
       app.all('/apps/:name/*', controllers.proxyPrivate);
@@ -521,7 +522,7 @@ var serverHelpers = {
 
       app.all('/*', controllers.automaticRedirect);
 
-      callback(app);
+      callback(null, app);
     });
   },
 
@@ -590,17 +591,16 @@ var serverHelpers = {
     if(loadedApps[name] !== undefined) {
       var appModule = loadedApps[name].appModule;
 
-      var closeServer = function(){
+      function closeServer () {
         try {
           loadedApps[name].server.close(function logInfo (err) {
             if (err) {
-              LOGGER.warn('An error occured while stopping ' + name);
               LOGGER.raw(err);
-              callback();
+              LOGGER.warn('An error occured while stopping ' + name);
             } else {
               LOGGER.info('Application ' + name + ' is now stopped.');
-              callback();
             }
+            callback();
           });
         } catch (err) {
           LOGGER.warn(err);
@@ -711,8 +711,8 @@ var serverHelpers = {
    */
   exitHandler: function (err, callback) {
     if(err) {
-      LOGGER.error('An error occured on termination');
       console.log(err);
+      LOGGER.error('An error occured on termination');
     } else if(config.plugins !== undefined) {
 
       var exitPlugin = function (pluginName, cb) {
@@ -734,12 +734,9 @@ var serverHelpers = {
 
       var endProcess = function (err) {
         if (err) {
-          LOGGER.error('Cozy light was not properly terminated.');
-          LOGGER.raw(err);
           callback(err);
         } else {
-          LOGGER.info('Cozy light was properly terminated.');
-          callback();
+          actions.stop(callback);
         }
       };
 
@@ -773,44 +770,54 @@ var actions = {
    */
   start: function (program, callback) {
 
-    var runApp = function (key, callback) {
+    function runApp (key, cb) {
       var application = config.apps[key];
-      serverHelpers.startApplication(application, db, callback);
+      serverHelpers.startApplication(application, db, cb);
     };
 
     configHelpers.watchers = [];
-    serverHelpers.createApplicationServer(function (app) {
-      var startServer = function (err) {
-        if (err) { LOGGER.error(err); }
+    serverHelpers.createApplicationServer(function (err, app) {
 
-        // Take port from command line args, or config, fallback to default one
-        // if none set.
-        var mainPort = DEFAULT_PORT;
-        if (program.port !== undefined) {
-          mainPort = program.port;
-        } else if (config.port !== undefined) {
-          mainPort = config.port;
-        }
+      if (err) {
+        LOGGER.raw(err);
+        LOGGER.error('An error occured while creating server');
+      } else {
+        var startServer = function (err) {
+          if (err) {
+            LOGGER.raw(err);
+            LOGGER.error('An error occured while creating server');
+          } else {
 
-        // Set SSL configuration if certificates path are properly set.
-        var options = {};
-        if (config.ssl !== undefined) {
-          options.key = fs.readFileSync(config.ssl.key, 'utf8');
-          options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
-          server = https.createServer(options, app).listen(mainPort);
-        } else  {
-          server = http.createServer(app).listen(mainPort);
-        }
-        serverHelpers.initializeProxy(server);
-        LOGGER.info(
-          'Cozy Light Dashboard is running on port ' + mainPort + '...');
+            // Take port from command line args, or config, fallback to default one
+            // if none set.
+            var mainPort = DEFAULT_PORT;
+            if (program.port !== undefined) {
+              mainPort = program.port;
+            } else if (config.port !== undefined) {
+              mainPort = config.port;
+            }
 
-        // Reload apps when file configuration is modified
-        configHelpers.watchConfig(serverHelpers.reload);
-        if (callback !== undefined && typeof(callback) === 'function') {
-          callback(null, app, server);
+            // Set SSL configuration if certificates path are properly set.
+            var options = {};
+            if (config.ssl !== undefined) {
+              options.key = fs.readFileSync(config.ssl.key, 'utf8');
+              options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
+              server = https.createServer(options, app).listen(mainPort);
+            } else  {
+              server = http.createServer(app).listen(mainPort);
+            }
+            serverHelpers.initializeProxy(server);
+            LOGGER.info(
+              'Cozy Light Dashboard is running on port ' + mainPort + '...');
+
+            // Reload apps when file configuration is modified
+            configHelpers.watchConfig(serverHelpers.reload);
+            if (callback !== undefined && typeof(callback) === 'function') {
+              callback(null, app, server);
+            }
+          };
         }
-      };
+      }
 
       async.eachSeries(Object.keys(config.apps), runApp, startServer);
     });
@@ -822,7 +829,13 @@ var actions = {
    * @param {Function} callback Termination.
    */
   stop: function (callback) {
-    serverHelpers.stopAllApps(callback);
+    serverHelpers.stopAllApps(function (err) {
+      if (err) {
+        callback(err);
+      } else {
+        server.close(callback);
+      }
+    });
   },
 
   /**
@@ -1012,8 +1025,10 @@ if (!process.argv.slice(2).length) {
 // Manage errors
 
 process.on('uncaughtException', function (err) {
-  LOGGER.warn('An exception is uncaught');
-  throw err;
+  if (err) {
+    LOGGER.warn('An exception is uncaught');
+    LOGGER.raw(err);
+  }
 });
 
 
@@ -1021,13 +1036,14 @@ process.on('uncaughtException', function (err) {
 
 process.on('SIGINT', function handleExit (err) {
   serverHelpers.exitHandler(err, function terminate (err) {
-    if (err) throw err;
-
-    if (server !== null) {
-      server.close();
-      actions.stop();
+    if (err) {
+      LOGGER.raw(err);
+      LOGGER.error('Cozy light was not properly terminated.');
+      process.exit(1);
+    } else {
+      LOGGER.info('Cozy light was properly terminated.');
+      process.exit(0);
     }
-    process.exit(0);
   });
 });
 
