@@ -4,3 +4,4 @@
 * Reload apps when the configuration file changes.
 * Add a callback termination to the start function.
 * more tests
+* lint code via ESLint

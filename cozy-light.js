@@ -17,6 +17,24 @@ var Pouchdb = require('pouchdb');
 var httpProxy = require('http-proxy');
 var pkg = require('./package.json');
 
+// Constants
+const LOGGER = printit({ prefix: 'Cozy Light' });
+const DEFAULT_PORT = 19104;
+
+// 'Global' variables
+//
+// Create config file and folders and prepare PouchDB dependency.
+var home = '';
+var configPath = '';
+var routes = {};
+var loadedApps = {};
+var loadedPlugins = {};
+var port = 18001;
+var proxy = null;
+var config = null;
+var server = null;
+var db = null;
+
 
 // Helpers
 
@@ -65,8 +83,8 @@ var configHelpers = {
   * @param {Object} manifest Manifest containing application fields.
   */
   addApp: function (app, manifest) {
-    if(manifest.type === undefined) {
-      manifest.type = "classic";
+    if (manifest.type === undefined) {
+      manifest.type = 'classic';
     }
     config.apps[app] = {
       name: manifest.name,
@@ -85,10 +103,13 @@ var configHelpers = {
   * @param {String} app The app name as it's typed by the user (user/repo).
   */
   removeApp: function (app) {
-    if( config.apps[app] == undefined ) return false;
-    delete config.apps[app];
-    configHelpers.saveConfig();
-    return true;
+    var ret = false;
+    if (config.apps[app] !== undefined) {
+      delete config.apps[app];
+      configHelpers.saveConfig();
+      ret = true;
+    }
+    return ret;
   },
 
   /**
@@ -101,7 +122,7 @@ var configHelpers = {
   * @param {Object} manifest Manifest containing plugin fields.
   */
   addPlugin: function (plugin, manifest) {
-    if(config.plugins === undefined) {
+    if (config.plugins === undefined) {
       config.plugins = {};
     }
 
@@ -120,13 +141,16 @@ var configHelpers = {
   * @param {String} plugin The plugin name as it's typed by the user
   * (user/repo).
   */
-  removePlugin: function (plugin, manifest) {
-    if( config.apps[app] == undefined ) return false;
-    delete config.plugins[plugin];
-    configHelpers.saveConfig();
-    return true;
+  removePlugin: function (plugin) {
+    var ret = false;
+    if (config.plugins[plugin] !== undefined) {
+      delete config.plugins[plugin];
+      configHelpers.saveConfig();
+      ret = true;
+    }
+    return ret;
   },
- 
+
   /**
    * Create config file if it doesn't exist
    */
@@ -135,6 +159,8 @@ var configHelpers = {
     if (!exists) {
       config = { apps: {} };
       configHelpers.saveConfig();
+    } else {
+      config = configHelpers.loadConfigFile();
     }
   },
 
@@ -147,7 +173,7 @@ var configHelpers = {
     var destPath = configHelpers.modulePath(name);
     var sourcePath = pathExtra.join(__dirname, 'node_modules', name);
 
-    if(!fs.existsSync(destPath)) {
+    if (!fs.existsSync(destPath)) {
       fsExtra.copySync(sourcePath, destPath);
     }
   },
@@ -165,14 +191,19 @@ var configHelpers = {
    * @return {Object} config
    */
   init: function (customHome) {
+    // default home dir is ~/.cozy-light
+    // default config path is ~/.cozy-light/package.json
     home = customHome || pathExtra.join(pathExtra.homedir(), '.cozy-light');
-
     configPath = pathExtra.join(home, 'config.json');
 
     fsExtra.mkdirsSync(home);
     process.chdir(home);
+    db = new Pouchdb('cozy');
+
 
     configHelpers.createConfigFile();
+    configHelpers.copyDependency('pouchdb');
+    proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
 
     var watchOptions = {persistent: false, interval: 1000};
     var onConfigChanged = function () {
@@ -181,8 +212,8 @@ var configHelpers = {
       });
     };
     configHelpers.mainWatcher = fs.watchFile(
-        configPath, 
-        watchOptions, 
+        configPath,
+        watchOptions,
         onConfigChanged
     );
 
@@ -201,9 +232,180 @@ var configHelpers = {
     configHelpers.watchers.forEach(function (watcher) {
       if (watcher == newWatcher){ isSet = true; }
     });
-    if (!isSet){ configHelpers.watchers.push(newWatcher); }
+    if (!isSet) { configHelpers.watchers.push(newWatcher); }
   }
 };
+
+
+// Express app controllers
+
+var controllers = {
+
+  /**
+   * Render front page and list available applications.
+   */
+  index: function (req, res) {
+
+    config = configHelpers.loadConfigFile();
+    var memoryUsage = process.memoryUsage();
+    memoryUsage = Math.ceil(memoryUsage.heapUsed / 1000000);
+
+    var template = " \
+    <html> \
+    <head> \
+        <meta http-equiv='content-type' content='text/html; charset=utf-8'> \
+        <title>Cozy Light: Your Personal Cloud at Home</title> \
+        <style type='text/css' media='screen'> \
+          @font-face { \
+            font-family: mavenpro; \
+            src: url(maven-pro-light-200.otf); \
+          } \
+ \
+          @font-face { \
+            font-family: signika; \
+            src: url(soure-sans-pro.ttf); \
+          } \
+ \
+          body { \
+            font-family: mavenpro; \
+            padding: 20px; \
+          } \
+ \
+          h1 { \
+            margin-top: 0; \
+            font-weight: normal; \
+            font-size: 36px; \
+          } \
+          h2 { \
+            font-weight: normal; \
+            margin-top: 60px; \
+          } \
+ \
+          .logo { \
+            float: left;  \
+            margin-right: 20px; \
+          } \
+ \
+          .app-line { \
+            text-transform: uppercase; \
+            font-size: 16px; \
+          } \
+ \
+          a { \
+            font-weight: bold; \
+            Text-decoration: none; \
+            color: black; \
+          } \
+          a:hover { \
+            color: orange; \
+          } \
+          a:visited { \
+            color: black; \
+          } \
+ \
+          } \
+          .app-line span { \
+            font-family: signika \
+            text-transform: normal; \
+            font-size: 14px; \
+          } \
+        </style> \
+    </head> \
+    <body> \
+    <a href='http://cozy.io' target='_blank'> \
+    <img class='logo' src='happycloud.png' /> \
+    </a>  \
+    <h1>Cozy Light</h1> \
+    <h2>Your applications</h2> \
+    ";
+
+    if (Object.keys(config.apps).length > 0) {
+      Object.keys(config.apps).forEach(function (key) {
+        var app = config.apps[key];
+        var name = app.name;
+        template += "<p class='app-line'><a href='apps/" +
+        name + "/' target='_blank'>";
+        template += app.displayName + '</a><span>&nbsp;(' +
+        app.version + ')</span></p>';
+      });
+    } else {
+      template += '<em>no application installed.</em>';
+    }
+
+    Object.keys(loadedPlugins).forEach(function (pluginName) {
+      var plugin = loadedPlugins[pluginName];
+      if (plugin.getTemplate !== undefined) {
+        template += plugin.getTemplate(config);
+      }
+    });
+
+    template += '<h2>Resources</h2><p>Occupied memory:&nbsp;' +
+    memoryUsage + 'MB</p>';
+
+    template += ' \
+    </body> \
+    </html> \
+      ';
+    res.send(template);
+  },
+
+  /**
+   * Proxy requests targeting apps.
+   */
+  proxyPrivate: function (req, res) {
+    var appName = req.params.name;
+    var appPort = routes[appName];
+    req.url = req.url.substring(('/apps/' + appName).length);
+    if (port !== null) {
+      proxy.web(req, res, { target: 'http://localhost:' + appPort });
+    } else {
+      res.send(404);
+    }
+  },
+
+  /**
+   * Proxy requests targeting apps public path.
+   */
+  proxyPublic: function (req, res) {
+    var appName = req.params.name;
+    var appPort = routes[appName];
+    req.url = '/public' + req.url.substring(('/public/' + appName).length);
+    if (port !== null) {
+      proxy.web(req, res, { target: 'http://localhost:' + appPort });
+    } else {
+      res.send(404);
+    }
+  },
+
+  /**
+   * If request path don't match any existing route, it's redirected to
+   */
+  automaticRedirect: function (req, res) {
+    if (req.headers.referer !== undefined) {
+      var referer = url.parse(req.headers.referer);
+      var app = referer.path.split('/')[2];
+      if (app !== undefined && app !== '') {
+        var link = url.parse(encodeURI(req.url));
+        link.path = link.path.split('?')[0];
+        link.path = '/apps/' + app + link.path;
+        link.pathname = link.path;
+        if (link.path.indexOf(link.query) > 0) {
+          link.query = '';
+          link.search = '';
+        }
+        if (link.search === null) {
+          link.search = '';
+        }
+        res.redirect(link.format(), 307);
+      } else {
+        res.redirect('/', 307);
+      }
+    } else {
+      res.send(404);
+    }
+  }
+};
+
 
 
 var npmHelpers = {
@@ -304,18 +506,9 @@ var serverHelpers = {
 
       function proxyWS(port) {
         proxy.ws(req, socket, head, {
-          target: "ws://localhost:" + port,
+          target: 'ws://localhost:' + port,
           ws: true
         });
-      }
-
-      function fail(err) {
-        if (err !== null) {
-          LOGGER.error(err);
-        }
-        LOGGER.error("Socket unauthorized");
-        socket.end("HTTP/1.1 400 Connection Refused \r\n" + 
-                   "Connection: close\r\n\r\n", 'ascii');
       }
 
       req.originalUrl = req.url;
@@ -330,11 +523,11 @@ var serverHelpers = {
       }
 
       if (publicOrPrivate === 'public') {
-        req.url = req.url.replace("/public/" + slug, '/public');
+        req.url = req.url.replace('/public/' + slug, '/public');
         proxyWS(routes[slug]);
 
       } else if (publicOrPrivate === 'apps') {
-        req.url = req.url.replace("/apps/" + slug, '');
+        req.url = req.url.replace('/apps/' + slug, '');
         proxyWS(routes[slug]);
 
       } else {
@@ -346,7 +539,7 @@ var serverHelpers = {
   },
 
   /**
-   * Create dashboard application server. 
+   * Create dashboard application server.
    */
   createApplicationServer: function (callback) {
     var app = express();
@@ -360,7 +553,7 @@ var serverHelpers = {
       var plugin = loadedPlugins[pluginName];
       if (plugin.configureAppServer !== undefined) {
         LOGGER.info('Configuring plugin ' + pluginName + '...');
-        plugin.configureAppServer(app, config, routes, function logResult() {
+        plugin.configureAppServer(app, config, routes, function logResult () {
           LOGGER.info('Plugin ' + pluginName + ' configured.');
           cb();
         });
@@ -369,9 +562,7 @@ var serverHelpers = {
       }
     };
 
-    async.eachSeries(Object.keys(loadedPlugins), runPlugin, function (err) {
-      if(err) { LOGGER.error(err); }
-
+    async.eachSeries(Object.keys(loadedPlugins), runPlugin, function () {
       app.all('/', controllers.index);
 
       app.all('/apps/:name/*', controllers.proxyPrivate);
@@ -382,7 +573,7 @@ var serverHelpers = {
 
       app.all('/*', controllers.automaticRedirect);
 
-      callback(app);
+      callback(null, app);
     });
   },
 
@@ -398,7 +589,7 @@ var serverHelpers = {
    */
   startApplication: function (application, db, callback) {
 
-    if (application.type === undefined || application.type === "classic") {
+    if (application.type === undefined || application.type === 'classic') {
 
       var name = application.name;
 
@@ -410,10 +601,10 @@ var serverHelpers = {
       }
 
       if (appModule === undefined) {
-        LOGGER.error("Can't load application " + name + ".");
+        LOGGER.error('Can\'t load application ' + name + '.');
         callback();
       } else if (appModule.start === undefined) {
-        LOGGER.error("Can't start application " + name + ".");
+        LOGGER.error('Can\'t start application ' + name + '.');
         callback();
       } else {
 
@@ -451,10 +642,15 @@ var serverHelpers = {
     if(loadedApps[name] !== undefined) {
       var appModule = loadedApps[name].appModule;
 
-      var closeServer = function(){
+      function closeServer () {
         try {
           loadedApps[name].server.close(function logInfo (err) {
-            LOGGER.info('Application ' + name + ' is now stopped...');
+            if (err) {
+              LOGGER.raw(err);
+              LOGGER.warn('An error occured while stopping ' + name);
+            } else {
+              LOGGER.info('Application ' + name + ' is now stopped.');
+            }
             callback();
           });
         } catch (err) {
@@ -470,7 +666,7 @@ var serverHelpers = {
       }
       delete loadedApps[name];
 
-    }else{
+    } else {
       callback();
     }
   },
@@ -492,7 +688,7 @@ var serverHelpers = {
 
       // Clean require's cache, otherwise same code is loaded twice
       for (var name in require.cache) {
-        if (name.match(new RegExp("^" + modulePath))) {
+        if (name.match(new RegExp('^' + modulePath))) {
           delete require.cache[name];
         }
       }
@@ -500,15 +696,15 @@ var serverHelpers = {
     };
 
     LOGGER.info('Stopping apps...');
-    actions.stop(function() {
+    serverHelpers.stopAllApps(function() {
       LOGGER.info('Apps stopped.');
       loadedApps = {};
       routes = {};
       LOGGER.info('Restarting all apps...');
       async.eachSeries(Object.keys(config.apps), runApp, function() {
         LOGGER.info('Apps started.');
-        if (callback !== undefined && typeof(callback) === "function") { 
-          callback(); 
+        if (callback !== undefined && typeof(callback) === 'function') {
+          callback();
         }
       });
     });
@@ -530,7 +726,7 @@ var serverHelpers = {
             displayName: pluginConfig.displayName,
             version: pluginConfig.version,
             description: pluginConfig.description,
-            config_path: configPath,
+            configPath: configPath,
             home: home,
             npmHelpers: npmHelpers,
             proxy: proxy
@@ -550,9 +746,11 @@ var serverHelpers = {
    * Manage properly exit of the process when SIGINT signal is triggered.
    * It asks to every plugin to end properly.
    */
-  exitHandler: function (err) {
-
-    if(config.plugins !== undefined) {
+  exitHandler: function (err, callback) {
+    if(err) {
+      console.log(err);
+      LOGGER.error('An error occured on termination');
+    } else if(config.plugins !== undefined) {
 
       var exitPlugin = function (pluginName, cb) {
         var options = config.plugins[pluginName];
@@ -565,19 +763,17 @@ var serverHelpers = {
           }
         } catch(err) {
           console.log(err);
-          LOGGER.error('Plugin ' + pluginName + 
-                       ' loading failed for termination.');
+          LOGGER.error('Plugin ' + pluginName +
+                       ' loading failed to terminate.');
           cb();
         }
       };
 
       var endProcess = function (err) {
         if (err) {
-          LOGGER.error('Cozy light was not properly terminated.');
-          process.exit(1);
+          callback(err);
         } else {
-          LOGGER.info('Cozy light was properly terminated.');
-          process.exit(0);
+          actions.stop(callback);
         }
       };
 
@@ -598,179 +794,10 @@ var serverHelpers = {
 };
 
 
-// Express app controllers
-
-var controllers = {
-  
-  /**
-   * Render front page and list available applications.
-   */
-  index: function (req, res, next) {
-
-    var config = configHelpers.loadConfigFile();
-    var memoryUsage = process.memoryUsage();
-    memoryUsage = Math.ceil(memoryUsage.heapUsed / 1000000);
-
-    var template = ' \
-    <html> \
-    <head> \
-        <meta http-equiv="content-type" content="text/html; charset=utf-8"> \
-        <title>Cozy Light: Your Personal Cloud at Home</title> \
-        <style type="text/css" media="screen"> \
-          @font-face { \
-            font-family: mavenpro; \
-            src: url(maven-pro-light-200.otf); \
-          } \
- \
-          @font-face { \
-            font-family: signika; \
-            src: url(soure-sans-pro.ttf); \
-          } \
- \
-          body { \
-            font-family: mavenpro; \
-            padding: 20px; \
-          } \
- \
-          h1 { \
-            margin-top: 0; \
-            font-weight: normal; \
-            font-size: 36px; \
-          } \
-          h2 { \
-            font-weight: normal; \
-            margin-top: 60px; \
-          } \
- \
-          .logo { \
-            float: left;  \
-            margin-right: 20px; \
-          } \
- \
-          .app-line { \
-            text-transform: uppercase; \
-            font-size: 16px; \
-          } \
- \
-          a { \
-            font-weight: bold; \
-            Text-decoration: none; \
-            color: black; \
-          } \
-          a:hover { \
-            color: orange; \
-          } \
-          a:visited { \
-            color: black; \
-          } \
- \
-          } \
-          .app-line span { \
-            font-family: signika \
-            text-transform: normal; \
-            font-size: 14px; \
-          } \
-        </style> \
-    </head> \
-    <body> \
-    <a href="http://cozy.io" target="_blank"> \
-    <img class="logo" src="happycloud.png" /> \
-    </a>  \
-    <h1>Cozy Light</h1> \
-    <h2>Your applications</h2> \
-    ';
-
-    if (Object.keys(config.apps).length > 0) {
-      Object.keys(config.apps).forEach(function (key) {
-        var app = config.apps[key];
-        var name = app.name;
-        template += '<p class="app-line"><a href="apps/' + 
-                    name + '/" target="_blank">';
-        template += app.displayName + '</a><span>&nbsp;(' + 
-                    app.version + ')</span></p>';
-      });
-    } else {
-      template += '<em>no application installed.</em>';
-    }
-
-    Object.keys(loadedPlugins).forEach(function (pluginName) {
-      if (plugin.getTemplate !== undefined) {
-        template += plugin.getTemplate(config);
-      }
-    });
-
-    template += '<h2>Resources</h2><p>Occupied memory:&nbsp;' + 
-                memoryUsage +  'MB</p>';
-
-    template += ' \
-    </body> \
-    </html> \
-      ';
-    res.send(template);
-  },
-
-  /**
-   * Proxy requests targeting apps.
-   */
-  proxyPrivate: function (req, res, next) {
-    var appName = req.params.name;
-    var port = routes[appName];
-    req.url = req.url.substring(("/apps/" + appName).length);
-    if (port !== null) {
-      proxy.web(req, res, { target: "http://localhost:" + port });
-    } else {
-      res.send(404);
-    }
-  },
-  
-  /**
-   * Proxy requests targeting apps public path.
-   */
-  proxyPublic: function (req, res, next) {
-    var appName = req.params.name;
-    var port = routes[appName];
-    req.url = "/public" + req.url.substring(("/public/" + appName).length);
-    if (port !== null) {
-      proxy.web(req, res, { target: "http://localhost:" + port });
-    } else {
-      res.send(404);
-    }
-  },
-
-  /**
-   * If request path don't match any existing route, it's redirected to 
-   */
-  automaticRedirect: function (req, res, next) {
-    if (req.headers.referer !== undefined) {
-      var referer = url.parse(req.headers.referer);
-      var app = referer.path.split('/')[2];
-      if (app !== undefined && app !== '') {
-        var link = url.parse(encodeURI(req.url));
-        link.path = link.path.split('?')[0];
-        link.path = '/apps/' + app + link.path;
-        link.pathname = link.path;
-        if (link.path.indexOf(link.query) > 0) {
-          link.query = '';
-          link.search = '';
-        }
-        if (link.search === null) {
-          link.search = '';
-        }
-        res.redirect(link.format(), 307);
-      } else {
-        res.redirect('/', 307);
-      }
-    } else {
-        res.send(404);
-    }
-  }
-};
-
-
 // Actions
 
 var actions = {
-  
+
   /**
    * Apply plugin customatisation on server. Then get all installed app
    * modules. Expect that a start function is available, then run the app
@@ -781,45 +808,55 @@ var actions = {
    */
   start: function (program, callback) {
 
-    var runApp = function (key, callback) {
+    function runApp (key, cb) {
       var application = config.apps[key];
-      serverHelpers.startApplication(application, db, callback);
+      serverHelpers.startApplication(application, db, cb);
     };
 
     configHelpers.watchers = [];
-    serverHelpers.createApplicationServer(function (app) {
-      var startServer = function (err) {
-        if (err) { LOGGER.error(err); }
+    serverHelpers.createApplicationServer(function (err, app) {
 
-        // Take port from command line args, or config, fallback to default one
-        // if none set.
-        var port = DEFAULT_PORT;
-        if (program.port !== undefined) {
-          port = program.port;
-        } else if (config.port !== undefined) {
-          port = config.port;
-        }
+        if (err) {
+          LOGGER.raw(err);
+          LOGGER.error('An error occured while creating server');
+        } else {
 
-        // Set SSL configuration if certificates path are properly set.
-        var server;
-        var options = {};
-        if (config.ssl !== undefined) {
-          options.key = fs.readFileSync(config.ssl.key, 'utf8');
-          options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
-          server = https.createServer(options, app).listen(port);
-        } else  {
-          server = http.createServer(app).listen(port);
-        }
-        serverHelpers.initializeProxy(server);
-        LOGGER.info(
-          'Cozy Light Dashboard is running on port ' + port + '...');
+          var startServer = function (err) {
+            if (err) {
+              LOGGER.raw(err);
+              LOGGER.error('An error occured while creating server');
+            } else {
+              
+              // Take port from command line args, or config, fallback to default one
+              // if none set.
+              var mainPort = DEFAULT_PORT;
+              if (program.port !== undefined) {
+                mainPort = program.port;
+              } else if (config.port !== undefined) {
+                mainPort = config.port;
+              }
 
-        // Reload apps when file configuration is modified
-        configHelpers.watchConfig(serverHelpers.reload);
-        if (callback !== undefined && typeof(callback) === "function") {
-          callback(null, app, server);
+              // Set SSL configuration if certificates path are properly set.
+              var options = {};
+              if (config.ssl !== undefined) {
+                options.key = fs.readFileSync(config.ssl.key, 'utf8');
+                options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
+                server = https.createServer(options, app).listen(port);
+              } else  {
+                server = http.createServer(app).listen(port);
+              }
+              serverHelpers.initializeProxy(server);
+              LOGGER.info(
+                'Cozy Light Dashboard is running on port ' + port + '...');
+
+              // Reload apps when file configuration is modified
+              configHelpers.watchConfig(serverHelpers.reload);
+              if (callback !== undefined && typeof(callback) === "function") {
+                callback(null, app, server);
+              }
+            }
+          };
         }
-      };
 
       async.eachSeries(Object.keys(config.apps), runApp, startServer);
     });
@@ -880,8 +917,8 @@ var actions = {
       npmHelpers.uninstall(module, function () {
         configHelpers.removeApp(app);
         LOGGER.info(app + ' successfully uninstalled.');
-        if (callback !== undefined && typeof(callback) === "function") { 
-          callback(); 
+        if (callback !== undefined && typeof(callback) === 'function') {
+          callback();
         }
       });
     }
@@ -945,31 +982,6 @@ var actions = {
 };
 
 
-// Constants
-const LOGGER = printit({ prefix: 'Cozy Light' });
-const DEFAULT_PORT = 19104;
-
-
-// Create config file and folders and prepare PouchDB dependency.
-// default home dir is ~/.cozy-light
-// default config path is ~/.cozy-light/package.json
-var home = '';
-var configPath = '';
-configHelpers.init();
-configHelpers.copyDependency('pouchdb');
-
-
-// "Global" variables
-
-var routes = {};
-var loadedApps = {};
-var loadedPlugins = {};
-var port = 18001;
-var proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
-var config = configHelpers.loadConfigFile();
-var db = new Pouchdb('cozy');
-
-
 // CLI
 
 program
@@ -1012,6 +1024,11 @@ program
   .action(program.outputHelp);
 
 
+// Init Cozy Light
+
+configHelpers.init();
+
+
 // Process arguments
 
 if(module.parent === null) {
@@ -1028,18 +1045,30 @@ if (!process.argv.slice(2).length) {
 }
 
 
-
 // Manage errors
 
 process.on('uncaughtException', function (err) {
-  LOGGER.warn('An exception is uncaught');
-  console.log(err);
+  if (err) {
+    LOGGER.warn('An exception is uncaught');
+    LOGGER.raw(err);
+  }
 });
 
 
 // Manage termination
 
-process.on('SIGINT', serverHelpers.exitHandler);
+process.on('SIGINT', function handleExit (err) {
+  serverHelpers.exitHandler(err, function terminate (err) {
+    if (err) {
+      LOGGER.raw(err);
+      LOGGER.error('Cozy light was not properly terminated.');
+      process.exit(1);
+    } else {
+      LOGGER.info('Cozy light was properly terminated.');
+      process.exit(0);
+    }
+  });
+});
 
 
 // Export module for testing purpose.

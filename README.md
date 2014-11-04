@@ -177,16 +177,14 @@ Checkout and install the project
     git checkout https://github.com/cozy-labs/cozy-light.git
     cd cozy-light
     git remote add upstream https://github.com/cozy-labs/cozy-light
-    npm i
-    npm i jshint -g
-    npm i mocha -g
+    npm install
+    npm install eslint -g
+    npm install mocha -g
 
 Before you push your PR
 
     npm test
     npm run lint
-
-
 
 # FAQ
 
