@@ -453,6 +453,7 @@ var npmHelpers = {
       fs.readFile(pathExtra.join(app,'package.json'),function(err, manifest){
         if (err) {
           LOGGER.error(err);
+          callback(err);
         }else{
           callback(err, JSON.parse(manifest), 'file');
         }
@@ -465,8 +466,10 @@ var npmHelpers = {
       client.get(manifestUrl, function (err, res, manifest) {
         if (res.statusCode !== 200) {
           LOGGER.error(err);
+          callback(err);
         }else if (err) {
           LOGGER.error(err);
+          callback(err);
         }else{
           callback(err,manifest, 'url');
         }
@@ -483,7 +486,10 @@ var npmHelpers = {
   fetchInstall: function (app, callback) {
     npmHelpers.fetchManifest(app, function(err, manifest, type){
       if( err ){ return callback(err); }
-      npmHelpers.install(app, callback, type == 'file');
+      var cb = function(err){
+        callback(err, manifest, type);
+      };
+      npmHelpers.install(app, cb, type == 'file');
     });
   }
 };
