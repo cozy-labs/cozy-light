@@ -938,11 +938,16 @@ var actions = {
       LOGGER.error(app + ' is not installed.');
     } else {
       var module = config.apps[app].name;
-      npmHelpers.uninstall(module, function () {
-        configHelpers.removeApp(app);
-        LOGGER.info(app + ' successfully uninstalled.');
+      npmHelpers.uninstall(module, function (err) {
+        if( err ){
+          LOGGER.error('npm did not uninstall '+app + ' correctly.');
+          LOGGER.error(err);
+        }else{
+          configHelpers.removeApp(app);
+          LOGGER.info(app + ' successfully uninstalled.');
+        }
         if (callback !== undefined && typeof(callback) === 'function') {
-          callback();
+          callback(err);
         }
       });
     }
