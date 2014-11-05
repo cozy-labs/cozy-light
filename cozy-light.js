@@ -22,8 +22,7 @@ const LOGGER = printit({ prefix: 'Cozy Light' });
 const DEFAULT_PORT = 19104;
 
 // 'Global' variables
-//
-// Create config file and folders and prepare PouchDB dependency.
+
 var home = '';
 var configPath = '';
 var routes = {};
@@ -407,8 +406,8 @@ var controllers = {
 };
 
 
-
 var npmHelpers = {
+
   /**
   * Fetch given app source and dependencies from NPM registry.
   *
@@ -603,7 +602,8 @@ var serverHelpers = {
             callback();
           });
         } catch (err) {
-          LOGGER.warn(err);
+          LOGGER.raw(err);
+          LOGGER.warn('An error occured while stopping ' + name);
           callback();
         }
       };
@@ -690,6 +690,7 @@ var serverHelpers = {
             version: pluginConfig.version,
             description: pluginConfig.description,
             configPath: configPath,
+            config_path: configPath, // for backward compatibility
             home: home,
             npmHelpers: npmHelpers,
             proxy: proxy
@@ -718,7 +719,7 @@ var serverHelpers = {
       var exitPlugin = function (pluginName, cb) {
         var options = config.plugins[pluginName];
         try {
-          var plugin = require( configHelpers.modulePath(options.name) );
+          var plugin = require(configHelpers.modulePath(options.name));
           if (plugin.onExit !== undefined) {
             plugin.onExit(options, config, cb);
           } else {
@@ -741,7 +742,6 @@ var serverHelpers = {
       };
 
       async.eachSeries(Object.keys(config.plugins), exitPlugin, endProcess);
-
     } else {
       LOGGER.info('Cozy Light exited properly.');
     }
@@ -833,7 +833,11 @@ var actions = {
       if (err) {
         callback(err);
       } else {
-        server.close(callback);
+        if (server !== null) {
+          server.close(callback);
+        } else {
+          callback();
+        }
       }
     });
   },
@@ -1028,6 +1032,9 @@ process.on('uncaughtException', function (err) {
   if (err) {
     LOGGER.warn('An exception is uncaught');
     LOGGER.raw(err);
+    serverHelpers.exitHandler(err, function terminate (err) {
+      process.exit(1);
+    });
   }
 });
 
