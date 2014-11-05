@@ -186,7 +186,7 @@ Before you push your PR
     npm test
     npm run lint
 
-**Tests status**: ![https://travis-ci.org/cozy-labs/cozy-light.svg]
+**Tests status**: ![Travis Badge](https://travis-ci.org/cozy-labs/cozy-light.svg)
 
 # FAQ
 
