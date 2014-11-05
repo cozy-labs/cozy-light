@@ -194,7 +194,6 @@ var configHelpers = {
     // default config path is ~/.cozy-light/package.json
     home = customHome || pathExtra.join(pathExtra.homedir(), '.cozy-light');
     configPath = pathExtra.join(home, 'config.json');
-    console.log(home);
     fsExtra.mkdirsSync(home);
     process.chdir(home);
     db = new Pouchdb('cozy');
@@ -446,7 +445,7 @@ var serverHelpers = {
   initializeProxy: function (server) {
 
     proxy.on('error', function onProxyError(err, req, res) {
-      console.log(err);
+      LOGGER.raw(err);
       res.send(err, 500);
     });
 
@@ -545,7 +544,7 @@ var serverHelpers = {
       try {
         appModule = require( configHelpers.modulePath(name) );
       } catch(err) {
-        console.log(err);
+        LOGGER.raw(err);
       }
 
       if (appModule === undefined) {
@@ -699,7 +698,7 @@ var serverHelpers = {
 
           loadedPlugins[pluginName] = plugin;
         } catch(err) {
-          console.log(err);
+          LOGGER.raw(err);
           LOGGER.error('Plugin ' + pluginName + ' loading failed.');
         }
       });
@@ -712,7 +711,7 @@ var serverHelpers = {
    */
   exitHandler: function (err, callback) {
     if(err) {
-      console.log(err);
+      LOGGER.raw(err);
       LOGGER.error('An error occured on termination');
     } else if(config.plugins !== undefined) {
 
@@ -726,7 +725,7 @@ var serverHelpers = {
             cb();
           }
         } catch(err) {
-          console.log(err);
+          LOGGER.raw(err);
           LOGGER.error('Plugin ' + pluginName +
                        ' loading failed to terminate.');
           cb();
@@ -958,7 +957,7 @@ var actions = {
   * Display configuration file contents: apps configuration and user settings.
   */
   displayConfig: function () {
-    console.log(JSON.stringify(configHelpers.loadConfigFile(), null, 2));
+    LOGGER.raw(JSON.stringify(configHelpers.loadConfigFile(), null, 2));
   }
 };
 
