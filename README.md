@@ -186,6 +186,8 @@ Before you push your PR
     npm test
     npm run lint
 
+**Tests status**: ![https://travis-ci.org/cozy-labs/cozy-light.svg]
+
 # FAQ
 
 *What's the main difference with Cozy?*
