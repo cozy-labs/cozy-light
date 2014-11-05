@@ -1,4 +1,7 @@
 language: node_js
+before_install:
+ - sudo apt-get install build-essential
+ - npm i mocha -g
 node_js:
     - "0.10"
     - "0.8"
