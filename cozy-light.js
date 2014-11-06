@@ -556,7 +556,11 @@ var serverHelpers = {
     };
     serverHelpers.stopAllApps(function(){
       stopPlugins(function(){
-        server.close(callback);
+        if( server !== null ) {
+          server.close(callback);
+        } else {
+          callback();
+        }
       });
     });
   },
@@ -827,6 +831,7 @@ var actions = {
   * Remove app from config and its source from node module folder.
   *
   * @param {String} app App to uninstall.
+   * @param {Function} callback Termination.
   */
   uninstallApp: function (app, callback) {
     LOGGER.info('Uninstalling ' + app + '...');
@@ -878,7 +883,6 @@ var actions = {
       }
     });
   },
-
 
   /**
   * Remove plugin from config and its source from node module folder.
@@ -973,9 +977,7 @@ process.on('uncaughtException', function (err) {
   if (err) {
     LOGGER.warn('An exception is uncaught');
     LOGGER.raw(err);
-    serverHelpers.exitHandler(err, function terminate (err) {
-      process.exit(1);
-    });
+    actions.stop();
     process.exit(1);
   }
 });
@@ -983,18 +985,7 @@ process.on('uncaughtException', function (err) {
 
 // Manage termination
 
-process.on('SIGINT', function handleExit (err) {
-  actions.exit(err, function terminate (err) {
-    if (err) {
-      LOGGER.raw(err);
-      LOGGER.error('Cozy light was not properly terminated.');
-      process.exit(1);
-    } else {
-      LOGGER.info('Cozy light was properly terminated.');
-      process.exit(0);
-    }
-  });
-});
+process.on('SIGINT', actions.exit);
 
 
 // Export module for testing purpose.

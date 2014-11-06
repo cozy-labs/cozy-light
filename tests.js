@@ -197,68 +197,6 @@ describe('Server Helpers', function () {
     });
   });
 
-  describe('reloadApps', function() {
-
-    it('should restart all apps', function(done) {
-      var appHome = configHelpers.modulePath('test-app');
-      var manifest = require(pathExtra.join(appHome, 'package.json'));
-      configHelpers.addApp('test-app', manifest);
-
-      serverHelpers.reloadApps(function assertAppAccess () {
-        var client = request.newClient('http://localhost:18002');
-        client.get('', function assertResponse (err, res) {
-          assert.equal(err, null,
-                      'An error occured while accessing test app.');
-          assert.equal(res.statusCode, 200,
-                       'Wrong return code for test app.');
-          configHelpers.removeApp('test-app');
-          serverHelpers.stopApplication(manifest, done);
-        });
-      });
-      });
-
-    it('should reload app source code', function(done) {
-      var appHome = configHelpers.modulePath('test-app');
-      var manifest = require(pathExtra.join(appHome, 'package.json'));
-      manifest.type = 'classic';
-      configHelpers.addApp('test-app', manifest);
-
-      var db = new PouchDB('test');
-      serverHelpers.startApplication(manifest, db, function assertAccess () {
-        var client = request.newClient('http://localhost:18003');
-
-        client.get('', function assertResponse (err, res, body) {
-          assert.equal(err, null, 'An error occured while accessing test app.');
-          assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
-          assert(body.ok, 'Wrong initial response body for test app.');
-
-          var serverFile = appHome + '/server.js';
-          var content = fs.readFileSync(serverFile,'utf-8');
-          content = content.replace('send({ok: true})','send({ok: false})');
-          fs.writeFileSync(serverFile, content);
-
-          serverHelpers.reloadApps(function assertAppAccess () {
-            client = request.newClient('http://localhost:18004');
-
-            client.get('', function assertResponse (err, res, body) {
-              assert.equal(err, null,
-                           'An error occured while accessing test app.');
-              assert.equal(res.statusCode, 200,
-                           'Wrong return code for test app.');
-              assert.equal(body.ok, false,
-                           'Wrong reloaded response body for test app.');
-              content = content.replace(
-                'send({ok: false})', 'send({ok: true})');
-              fs.writeFileSync(serverFile,content);
-              configHelpers.removeApp('test-app');
-              serverHelpers.stopApplication(manifest, done);
-            });
-          });
-        });
-      });
-    });
-  });
-
   it.skip('loadPlugins', function(){
   });
 
@@ -333,6 +271,69 @@ describe('actions', function () {
         var config = configHelpers.loadConfigFile();
         assert.equal(config.apps[app], undefined);
         done();
+      });
+    });
+  });
+
+
+  describe('reloadApps', function() {
+
+    it('should restart all apps', function(done) {
+      var appHome = configHelpers.modulePath('test-app');
+      var manifest = require(pathExtra.join(appHome, 'package.json'));
+      configHelpers.addApp('test-app', manifest);
+
+      actions.restart(function assertAppAccess () {
+        var client = request.newClient('http://localhost:18002');
+        client.get('', function assertResponse (err, res) {
+          assert.equal(err, null,
+            'An error occured while accessing test app.');
+          assert.equal(res.statusCode, 200,
+            'Wrong return code for test app.');
+          configHelpers.removeApp('test-app');
+          serverHelpers.stopApplication(manifest, done);
+        });
+      });
+    });
+
+    it('should reload app source code', function(done) {
+      var appHome = configHelpers.modulePath('test-app');
+      var manifest = require(pathExtra.join(appHome, 'package.json'));
+      manifest.type = 'classic';
+      configHelpers.addApp('test-app', manifest);
+
+      var db = new PouchDB('test');
+      serverHelpers.startApplication(manifest, db, function assertAccess () {
+        var client = request.newClient('http://localhost:18003');
+
+        client.get('', function assertResponse (err, res, body) {
+          assert.equal(err, null, 'An error occured while accessing test app.');
+          assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
+          assert(body.ok, 'Wrong initial response body for test app.');
+
+          var serverFile = appHome + '/server.js';
+          var content = fs.readFileSync(serverFile,'utf-8');
+          content = content.replace('send({ok: true})','send({ok: false})');
+          fs.writeFileSync(serverFile, content);
+
+          actions.restart(function assertAppAccess () {
+            client = request.newClient('http://localhost:18004');
+
+            client.get('', function assertResponse (err, res, body) {
+              assert.equal(err, null,
+                'An error occured while accessing test app.');
+              assert.equal(res.statusCode, 200,
+                'Wrong return code for test app.');
+              assert.equal(body.ok, false,
+                'Wrong reloaded response body for test app.');
+              content = content.replace(
+                'send({ok: false})', 'send({ok: true})');
+              fs.writeFileSync(serverFile,content);
+              configHelpers.removeApp('test-app');
+              serverHelpers.stopApplication(manifest, done);
+            });
+          });
+        });
       });
     });
   });
