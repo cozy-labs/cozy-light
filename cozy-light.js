@@ -194,11 +194,10 @@ var configHelpers = {
     // default config path is ~/.cozy-light/package.json
     home = customHome || pathExtra.join(pathExtra.homedir(), '.cozy-light');
     configPath = pathExtra.join(home, 'config.json');
-    console.log(home);
+
     fsExtra.mkdirsSync(home);
     process.chdir(home);
     db = new Pouchdb('cozy');
-
 
     configHelpers.createConfigFile();
     configHelpers.copyDependency('pouchdb');
@@ -229,7 +228,7 @@ var configHelpers = {
   watchConfig: function (newWatcher) {
     var isSet = false;
     configHelpers.watchers.forEach(function (watcher) {
-      if (watcher == newWatcher){ isSet = true; }
+      if (watcher == newWatcher) { isSet = true; }
     });
     if (!isSet) { configHelpers.watchers.push(newWatcher); }
   }
@@ -241,7 +240,7 @@ var configHelpers = {
 var controllers = {
 
   /**
-   * Render front page and list available applications.
+   * Returns application list, plugin data to show and resource consumption.
    */
   index: function (req, res) {
 
@@ -251,6 +250,7 @@ var controllers = {
 
     var applications = [];
     var plugins = [];
+    
     if (Object.keys(config.apps).length > 0) {
       Object.keys(config.apps).forEach(function (key) {
         applications.push(config.apps[key]);
