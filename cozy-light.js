@@ -255,8 +255,6 @@ var controllers = {
       Object.keys(config.apps).forEach(function (key) {
         applications.push(config.apps[key]);
       });
-    } else {
-      template += '<em>no application installed.</em>';
     }
 
     Object.keys(loadedPlugins).forEach(function (pluginName) {
@@ -686,7 +684,9 @@ var serverHelpers = {
             version: pluginConfig.version,
             description: pluginConfig.description,
             configPath: configPath,
+            /*eslint-disable */
             config_path: configPath, // for backward compatibility
+            /*eslint-enable */
             home: home,
             npmHelpers: npmHelpers,
             proxy: proxy
@@ -884,7 +884,7 @@ var actions = {
       npmHelpers.uninstall(module, function (err) {
         if( err ){
           LOGGER.raw(err);
-          LOGGER.error('npm did not uninstall '+app + ' correctly.');
+          LOGGER.error('npm did not uninstall ' + app + ' correctly.');
           LOGGER.error(err);
         }else{
           configHelpers.removeApp(app);
@@ -1025,7 +1025,7 @@ process.on('uncaughtException', function (err) {
   if (err) {
     LOGGER.warn('An exception is uncaught');
     LOGGER.raw(err);
-    serverHelpers.exitHandler(err, function terminate (err) {
+    serverHelpers.exitHandler(err, function terminate () {
       process.exit(1);
     });
     process.exit(1);
