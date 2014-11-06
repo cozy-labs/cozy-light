@@ -537,7 +537,8 @@ var serverHelpers = {
       callback(err,app);
     };
 
-    async.eachSeries(Object.keys(config.plugins || {}), attachPlugin,
+    async.eachSeries(Object.keys(config.plugins || {}),
+      attachPlugin,
       setupApplicationServer);
   },
 
@@ -549,9 +550,9 @@ var serverHelpers = {
    * @param {Function} callback Termination.
    */
   stopApplicationServer: function (callback) {
-    var stopPlugins = function(callback){
+    var stopPlugins = function(cb){
       var plugins = Object.keys(loadedPlugins || {});
-      async.eachSeries(plugins, pluginHelpers.stop, callback);
+      async.eachSeries(plugins, pluginHelpers.stop, cb);
     };
     serverHelpers.stopAllApps(function(){
       stopPlugins(function(){
@@ -745,17 +746,7 @@ var actions = {
    * @param {Function} callback Termination.
    */
   stop: function (callback) {
-    serverHelpers.stopApplicationServer(function (err) {
-      if (err) {
-        callback(err);
-      } else {
-        if (server !== null) {
-          server.close(callback);
-        } else {
-          callback();
-        }
-      }
-    });
+    serverHelpers.stopApplicationServer(callback);
   },
 
   /**
