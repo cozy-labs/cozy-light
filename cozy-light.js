@@ -814,8 +814,8 @@ var actions = {
             if (callback !== undefined && typeof(callback) === 'function') {
               callback(null, app, server);
             }
-          };
-        }
+          }
+        };
       }
 
       async.eachSeries(Object.keys(config.apps), runApp, startServer);
