@@ -198,7 +198,6 @@ var configHelpers = {
     process.chdir(home);
     db = new Pouchdb('cozy');
 
-
     configHelpers.createConfigFile();
     configHelpers.copyDependency('pouchdb');
     proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
@@ -248,103 +247,29 @@ var controllers = {
     var memoryUsage = process.memoryUsage();
     memoryUsage = Math.ceil(memoryUsage.heapUsed / 1000000);
 
-    var template = " \
-    <html> \
-    <head> \
-        <meta http-equiv='content-type' content='text/html; charset=utf-8'> \
-        <title>Cozy Light: Your Personal Cloud at Home</title> \
-        <style type='text/css' media='screen'> \
-          @font-face { \
-            font-family: mavenpro; \
-            src: url(maven-pro-light-200.otf); \
-          } \
- \
-          @font-face { \
-            font-family: signika; \
-            src: url(soure-sans-pro.ttf); \
-          } \
- \
-          body { \
-            font-family: mavenpro; \
-            padding: 20px; \
-          } \
- \
-          h1 { \
-            margin-top: 0; \
-            font-weight: normal; \
-            font-size: 36px; \
-          } \
-          h2 { \
-            font-weight: normal; \
-            margin-top: 60px; \
-          } \
- \
-          .logo { \
-            float: left;  \
-            margin-right: 20px; \
-          } \
- \
-          .app-line { \
-            text-transform: uppercase; \
-            font-size: 16px; \
-          } \
- \
-          a { \
-            font-weight: bold; \
-            Text-decoration: none; \
-            color: black; \
-          } \
-          a:hover { \
-            color: orange; \
-          } \
-          a:visited { \
-            color: black; \
-          } \
- \
-          } \
-          .app-line span { \
-            font-family: signika \
-            text-transform: normal; \
-            font-size: 14px; \
-          } \
-        </style> \
-    </head> \
-    <body> \
-    <a href='http://cozy.io' target='_blank'> \
-    <img class='logo' src='happycloud.png' /> \
-    </a>  \
-    <h1>Cozy Light</h1> \
-    <h2>Your applications</h2> \
-    ";
-
+    var applications = [];
+    var plugins = [];
     if (Object.keys(config.apps).length > 0) {
       Object.keys(config.apps).forEach(function (key) {
-        var app = config.apps[key];
-        var name = app.name;
-        template += "<p class='app-line'><a href='apps/" +
-                    name + "/' target='_blank'>";
-        template += app.displayName + '</a><span>&nbsp;(' +
-                    app.version + ')</span></p>';
+        applications.push(config.apps[key]);
       });
-    } else {
-      template += '<em>no application installed.</em>';
     }
 
     Object.keys(loadedPlugins).forEach(function (pluginName) {
       var plugin = loadedPlugins[pluginName];
       if (plugin.getTemplate !== undefined) {
-        template += plugin.getTemplate(config);
+        var template = plugin.getTemplate(config);
+        plugins.push(template);
       }
     });
 
-    template += '<h2>Resources</h2><p>Occupied memory:&nbsp;' +
-                memoryUsage + 'MB</p>';
-
-    template += ' \
-    </body> \
-    </html> \
-      ';
-    res.send(template);
+    res.send({
+      apps: applications,
+      plugins: plugins,
+      resources: {
+        memoryUsage: memoryUsage
+      }
+    });
   },
 
   /**
@@ -510,7 +435,7 @@ var serverHelpers = {
     };
 
     async.eachSeries(Object.keys(loadedPlugins), runPlugin, function () {
-      app.all('/', controllers.index);
+      app.all('/home', controllers.index);
 
       app.all('/apps/:name/*', controllers.proxyPrivate);
       app.all('/apps/:name*', controllers.proxyPrivate);
@@ -1034,6 +959,7 @@ process.on('uncaughtException', function (err) {
     serverHelpers.exitHandler(err, function terminate (err) {
       process.exit(1);
     });
+    process.exit(1);
   }
 });
 
