@@ -22,8 +22,7 @@ const LOGGER = printit({ prefix: 'Cozy Light' });
 const DEFAULT_PORT = 19104;
 
 // 'Global' variables
-//
-// Create config file and folders and prepare PouchDB dependency.
+
 var home = '';
 var configPath = '';
 var routes = {};
@@ -195,7 +194,7 @@ var configHelpers = {
     // default config path is ~/.cozy-light/package.json
     home = customHome || pathExtra.join(pathExtra.homedir(), '.cozy-light');
     configPath = pathExtra.join(home, 'config.json');
-
+    console.log(home);
     fsExtra.mkdirsSync(home);
     process.chdir(home);
     db = new Pouchdb('cozy');
@@ -250,83 +249,11 @@ var controllers = {
     var memoryUsage = process.memoryUsage();
     memoryUsage = Math.ceil(memoryUsage.heapUsed / 1000000);
 
-    var template = " \
-    <html> \
-    <head> \
-        <meta http-equiv='content-type' content='text/html; charset=utf-8'> \
-        <title>Cozy Light: Your Personal Cloud at Home</title> \
-        <style type='text/css' media='screen'> \
-          @font-face { \
-            font-family: mavenpro; \
-            src: url(maven-pro-light-200.otf); \
-          } \
- \
-          @font-face { \
-            font-family: signika; \
-            src: url(soure-sans-pro.ttf); \
-          } \
- \
-          body { \
-            font-family: mavenpro; \
-            padding: 20px; \
-          } \
- \
-          h1 { \
-            margin-top: 0; \
-            font-weight: normal; \
-            font-size: 36px; \
-          } \
-          h2 { \
-            font-weight: normal; \
-            margin-top: 60px; \
-          } \
- \
-          .logo { \
-            float: left;  \
-            margin-right: 20px; \
-          } \
- \
-          .app-line { \
-            text-transform: uppercase; \
-            font-size: 16px; \
-          } \
- \
-          a { \
-            font-weight: bold; \
-            Text-decoration: none; \
-            color: black; \
-          } \
-          a:hover { \
-            color: orange; \
-          } \
-          a:visited { \
-            color: black; \
-          } \
- \
-          } \
-          .app-line span { \
-            font-family: signika \
-            text-transform: normal; \
-            font-size: 14px; \
-          } \
-        </style> \
-    </head> \
-    <body> \
-    <a href='http://cozy.io' target='_blank'> \
-    <img class='logo' src='happycloud.png' /> \
-    </a>  \
-    <h1>Cozy Light</h1> \
-    <h2>Your applications</h2> \
-    ";
-
+    var applications = [];
+    var plugins = [];
     if (Object.keys(config.apps).length > 0) {
       Object.keys(config.apps).forEach(function (key) {
-        var app = config.apps[key];
-        var name = app.name;
-        template += "<p class='app-line'><a href='apps/" +
-        name + "/' target='_blank'>";
-        template += app.displayName + '</a><span>&nbsp;(' +
-        app.version + ')</span></p>';
+        applications.push(config.apps[key]);
       });
     } else {
       template += '<em>no application installed.</em>';
@@ -335,18 +262,18 @@ var controllers = {
     Object.keys(loadedPlugins).forEach(function (pluginName) {
       var plugin = loadedPlugins[pluginName];
       if (plugin.getTemplate !== undefined) {
-        template += plugin.getTemplate(config);
+        var template = plugin.getTemplate(config);
+        plugins.push(template);
       }
     });
 
-    template += '<h2>Resources</h2><p>Occupied memory:&nbsp;' +
-    memoryUsage + 'MB</p>';
-
-    template += ' \
-    </body> \
-    </html> \
-      ';
-    res.send(template);
+    res.send({
+      apps: applications,
+      plugins: plugins,
+      resources: {
+        memoryUsage: memoryUsage
+      }
+    });
   },
 
   /**
@@ -411,13 +338,13 @@ var controllers = {
 var npmHelpers = {
 
   /**
-   * Install given app source and dependencies from NPM registry.
-   *
-   * Config file is ~/.cozy-light/.config
-   *
-   * @param {String} app App to fetch from NPM.
-   * @param {Function} callback Callback to run once work is done.
-   */
+  * Fetch given app source and dependencies from NPM registry.
+  *
+  * Config file is ~/.cozy-light/.config
+  *
+  * @param {String} app App to fetch from NPM.
+  * @param {Function} callback Callback to run once work is done.
+  */
   install: function (app, callback) {
     npm.load({}, function () {
       npm.commands.install(home, [app], callback);
@@ -516,7 +443,7 @@ var serverHelpers = {
   initializeProxy: function (server) {
 
     proxy.on('error', function onProxyError(err, req, res) {
-      console.log(err);
+      LOGGER.raw(err);
       res.send(err, 500);
     });
 
@@ -581,7 +508,7 @@ var serverHelpers = {
     };
 
     async.eachSeries(Object.keys(loadedPlugins), runPlugin, function () {
-      app.all('/', controllers.index);
+      app.all('/home', controllers.index);
 
       app.all('/apps/:name/*', controllers.proxyPrivate);
       app.all('/apps/:name*', controllers.proxyPrivate);
@@ -615,7 +542,7 @@ var serverHelpers = {
       try {
         appModule = require( configHelpers.modulePath(name) );
       } catch(err) {
-        console.log(err);
+        LOGGER.raw(err);
       }
 
       if (appModule === undefined) {
@@ -672,7 +599,8 @@ var serverHelpers = {
             callback();
           });
         } catch (err) {
-          LOGGER.warn(err);
+          LOGGER.raw(err);
+          LOGGER.warn('An error occured while stopping ' + name);
           callback();
         }
       };
@@ -758,6 +686,7 @@ var serverHelpers = {
             version: pluginConfig.version,
             description: pluginConfig.description,
             configPath: configPath,
+            config_path: configPath, // for backward compatibility
             home: home,
             npmHelpers: npmHelpers,
             proxy: proxy
@@ -766,7 +695,7 @@ var serverHelpers = {
 
           loadedPlugins[pluginName] = plugin;
         } catch(err) {
-          console.log(err);
+          LOGGER.raw(err);
           LOGGER.error('Plugin ' + pluginName + ' loading failed.');
         }
       });
@@ -779,21 +708,21 @@ var serverHelpers = {
    */
   exitHandler: function (err, callback) {
     if(err) {
-      console.log(err);
+      LOGGER.raw(err);
       LOGGER.error('An error occured on termination');
     } else if(config.plugins !== undefined) {
 
       var exitPlugin = function (pluginName, cb) {
         var options = config.plugins[pluginName];
         try {
-          var plugin = require( configHelpers.modulePath(options.name) );
+          var plugin = require(configHelpers.modulePath(options.name));
           if (plugin.onExit !== undefined) {
             plugin.onExit(options, config, cb);
           } else {
             cb();
           }
         } catch(err) {
-          console.log(err);
+          LOGGER.raw(err);
           LOGGER.error('Plugin ' + pluginName +
                        ' loading failed to terminate.');
           cb();
@@ -809,10 +738,8 @@ var serverHelpers = {
       };
 
       async.eachSeries(Object.keys(config.plugins), exitPlugin, endProcess);
-
     } else {
       LOGGER.info('Cozy Light exited properly.');
-      process.exit(0);
     }
   },
 
@@ -880,15 +807,15 @@ var actions = {
             server.listen(mainPort);
             serverHelpers.initializeProxy(server);
             LOGGER.info(
-              'Cozy Light Dashboard is running on port ' + port + '...');
+              'Cozy Light Dashboard is running on port ' + mainPort + '...');
 
             // Reload apps when file configuration is modified
             configHelpers.watchConfig(serverHelpers.reload);
             if (callback !== undefined && typeof(callback) === 'function') {
               callback(null, app, server);
             }
-          }
-        };
+          };
+        }
       }
 
       async.eachSeries(Object.keys(config.apps), runApp, startServer);
@@ -905,7 +832,11 @@ var actions = {
       if (err) {
         callback(err);
       } else {
-        server.close(callback);
+        if (server !== null) {
+          server.close(callback);
+        } else {
+          callback();
+        }
       }
     });
   },
@@ -924,6 +855,7 @@ var actions = {
     LOGGER.info('Installing app ' + app + '...');
     npmHelpers.fetchInstall(app, function(err, manifest){
       if(err){
+        LOGGER.raw(err);
         LOGGER.error('Cannot find given app manifest.');
         LOGGER.error('Make sure it lives on Github.');
         LOGGER.error(app + ' installation failed.');
@@ -951,6 +883,7 @@ var actions = {
       var module = config.apps[app].name;
       npmHelpers.uninstall(module, function (err) {
         if( err ){
+          LOGGER.raw(err);
           LOGGER.error('npm did not uninstall '+app + ' correctly.');
           LOGGER.error(err);
         }else{
@@ -978,6 +911,7 @@ var actions = {
     LOGGER.info('Installing plugin ' + plugin + '...');
     npmHelpers.fetchInstall(plugin, function(err, manifest){
       if(err){
+        LOGGER.raw(err);
         LOGGER.error('Cannot find given plugin manifest.');
         LOGGER.error('Make sure it lives on Github.');
         LOGGER.error(plugin + ' installation failed.');
@@ -1017,7 +951,7 @@ var actions = {
    * Display configuration file contents: apps configuration and user settings.
    */
   displayConfig: function () {
-    console.log(JSON.stringify(configHelpers.loadConfigFile(), null, 2));
+    LOGGER.raw(JSON.stringify(configHelpers.loadConfigFile(), null, 2));
   }
 };
 
@@ -1091,6 +1025,10 @@ process.on('uncaughtException', function (err) {
   if (err) {
     LOGGER.warn('An exception is uncaught');
     LOGGER.raw(err);
+    serverHelpers.exitHandler(err, function terminate (err) {
+      process.exit(1);
+    });
+    process.exit(1);
   }
 });
 
