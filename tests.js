@@ -12,6 +12,7 @@ var npmHelpers = cozyLight.npmHelpers;
 var serverHelpers = cozyLight.serverHelpers;
 
 var workingDir = pathExtra.join( __dirname, '/.test-working_dir/');
+var fixturesDir = pathExtra.join( __dirname, '/fixtures/');
 var HOME = pathExtra.join(workingDir, '.cozy-light');
 
 
@@ -34,6 +35,7 @@ describe('Config Helpers', function () {
 
   describe('init', function () {
     it('should initialize Home directory', function () {
+      this.timeout(10000);
       configHelpers.init(HOME);
       assert(fs.existsSync(HOME), 'HOME directory not created');
       assert(fs.existsSync(pathExtra.join(HOME, 'config.json')),
@@ -121,23 +123,92 @@ describe('Config Helpers', function () {
 describe('NPM Helpers', function () {
 
   describe('install', function () {
-    it('should install module in the cozy-light folder.', function (done) {
-      this.timeout(10000);
+    it('should install a module.', function (done) {
+      this.timeout(60000);
       process.chdir(HOME);
       var destPath = configHelpers.modulePath('hello');
-      npmHelpers.install('cozy-labs/hello', function () {
-        assert(fs.existsSync(destPath));
+      npmHelpers.install('cozy-labs/hello', function (err) {
+        assert.equal(err, null, 'Cannot install module.');
+        assert(fs.existsSync(destPath),
+          'Module is not installed in the cozy-light folder.');
+        done();
+      });
+    });
+    it('should link a  module.', function (done) {
+      process.chdir(HOME);
+      var testapp = pathExtra.join(fixturesDir, 'test-app');
+      var destPath = configHelpers.modulePath('hello');
+      npmHelpers.link(testapp, function (err) {
+        assert.equal(err, null, 'Cannot link module.');
+        assert(fs.existsSync(destPath),
+          'Module is not linked in the cozy-light folder.');
         done();
       });
     });
   });
 
   describe('uninstall', function(){
-    it('should remove module from the cozy-light folder.', function (done) {
+    it('should remove a remote module.', function (done) {
       process.chdir(HOME);
       var destPath = configHelpers.modulePath('hello');
-      npmHelpers.uninstall('hello', function () {
-        assert(!fs.existsSync(destPath));
+      npmHelpers.uninstall('hello', function (err) {
+        assert.equal(err, null, 'Cannot uninstall module.');
+        assert(!fs.existsSync(destPath),
+          'Module is not removed from the cozy-light folder.');
+        done();
+      });
+    });
+    it('should remove a local module.', function (done) {
+      process.chdir(HOME);
+      var destPath = configHelpers.modulePath('test-app');
+      npmHelpers.uninstall('test-app', function (err) {
+        assert.equal(err, null, 'Cannot uninstall module.');
+        assert(!fs.existsSync(destPath),
+          'Module is not removed from the cozy-light folder.');
+        done();
+      });
+    });
+  });
+
+  describe('fetchManifest', function(){
+    it('should fetch manifest from a remote module', function (done) {
+      this.timeout(60000);
+      npmHelpers.fetchManifest('cozy-labs/hello',
+        function (err, manifest, type) {
+          assert.equal(err, null, 'Cannot fetch remote manifest.');
+          assert.equal('url', type);
+          assert.equal('hello', manifest.name);
+          done();
+        });
+    });
+    it('should fetch manifest from a local module.', function (done) {
+      var testapp = pathExtra.join(fixturesDir, 'test-app');
+      npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
+        assert.equal(err, null, 'Cannot fetch local manifest.');
+        assert.equal('file', type);
+        assert.equal('test-app', manifest.name);
+        done();
+      });
+    });
+  });
+
+  describe('fetchInstall', function(){
+    it('should fetch then install remote module.', function (done) {
+      this.timeout(60000);
+      npmHelpers.fetchInstall('cozy-labs/hello',
+        function (err, manifest, type) {
+        assert.equal(err, null, 'Cannot install remote module.');
+        assert.equal('url', type);
+        assert.equal('hello', manifest.name);
+        done();
+      });
+    });
+    it('should fetch then install local module.', function (done) {
+      var testapp = pathExtra.join(fixturesDir, 'test-app');
+      npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
+        assert.equal(err, null, 'Cannot install local module.');
+        assert.equal('file', type);
+        assert.equal('test-app', manifest.name);
         done();
       });
     });
@@ -255,8 +326,10 @@ describe('actions', function () {
 
   describe('installApp', function () {
     it('should add app folders and update configuration.', function (done) {
+      this.timeout(60000);
       var app = 'cozy-labs/hello';
-      actions.installApp(app, function () {
+      actions.installApp(app, function (err) {
+        assert.equal(err, null, 'Cannot install app.');
         var config = configHelpers.loadConfigFile();
         assert.equal('hello', config.apps[app].name);
         done();
@@ -267,7 +340,8 @@ describe('actions', function () {
   describe('uninstallApp', function () {
     it('should remove app folder and update configuration. ', function (done) {
       var app = 'cozy-labs/hello';
-      actions.uninstallApp(app, function () {
+      actions.uninstallApp(app, function (err) {
+        assert.equal(err, null, 'Cannot uninstallApp app.');
         var config = configHelpers.loadConfigFile();
         assert.equal(config.apps[app], undefined);
         done();

@@ -198,6 +198,7 @@ var configHelpers = {
     process.chdir(home);
     db = new Pouchdb('cozy');
 
+
     configHelpers.createConfigFile();
     configHelpers.copyDependency('pouchdb');
     proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
@@ -324,7 +325,7 @@ var controllers = {
         res.redirect('/', 307);
       }
     } else {
-        res.send(404);
+      res.send(404);
     }
   }
 };
@@ -425,6 +426,7 @@ var pluginHelpers = {
   }
 };
 
+
 var npmHelpers = {
 
   /**
@@ -442,14 +444,82 @@ var npmHelpers = {
   },
 
   /**
-   * Remove application source and dependencies using NPM lib.
+   * Link given app source and dependencies from local file system.
    *
-   * @param {String} app App to fetch from NPM.
+   * @param {String} app Path to the module to link.
    * @param {Function} callback Callback to run once work is done.
+   */
+  link: function (app, callback) {
+    npm.load({}, function () {
+      npm.commands.link([app], callback);
+    });
+  },
+
+  /**
+  * Remove application source and dependencies using NPM lib.
+  *
+  * @param {String} app App to fetch from NPM.
+  * @param {Function} callback Callback to run once work is done.
    */
   uninstall: function (app, callback) {
     npm.load({}, function () {
       npm.commands.uninstall([app], callback);
+    });
+  },
+
+  /**
+   * Fetch application or plugin manifest from an url or a path
+   *
+   * @param {String} app App or Plugin name to fetch from url or path.
+   * @param {Function} callback Termination.
+   */
+  fetchManifest: function (app, callback) {
+    if( fs.existsSync(app)
+      && fs.existsSync(pathExtra.join(app,'package.json')) ){
+      fs.readFile(pathExtra.join(app,'package.json'),function(err, manifest){
+        if (err) {
+          LOGGER.error(err);
+          callback(err);
+        }else{
+          callback(err, JSON.parse(manifest), 'file');
+        }
+      });
+    }else{
+      var client = request.newClient( 'https://raw.githubusercontent.com/');
+      var manifestUrl = app + '/master/package.json';
+
+      LOGGER.info('Installing application ' + app + '...');
+      client.get(manifestUrl, function (err, res, manifest) {
+        if (res.statusCode !== 200) {
+          LOGGER.error(err);
+          callback(err);
+        }else if (err) {
+          LOGGER.error(err);
+          callback(err);
+        }else{
+          callback(err,manifest, 'url');
+        }
+      });
+    }
+  },
+
+  /**
+   * Fetch and install application or plugin from an url or a path
+   *
+   * @param {String} app App or Plugin name to fetch from url or path.
+   * @param {Function} callback Termination.
+   */
+  fetchInstall: function (app, callback) {
+    npmHelpers.fetchManifest(app, function(err, manifest, type){
+      if( err ){ return callback(err); }
+      var cb = function(err){
+        callback(err, manifest, type);
+      };
+      if( type == 'file' ) {
+        npmHelpers.link(app, cb);
+      } else {
+        npmHelpers.install(app, cb);
+      }
     });
   }
 };
@@ -630,7 +700,7 @@ var serverHelpers = {
     if(loadedApps[name] !== undefined) {
       var appModule = loadedApps[name].appModule;
 
-      function closeServer () {
+      var closeServer = function () {
         try {
           loadedApps[name].server.close(function logInfo (err) {
             if (err) {
@@ -660,7 +730,6 @@ var serverHelpers = {
     }
   },
 
-
   /**
    * Stop all running apps,
    *
@@ -672,6 +741,128 @@ var serverHelpers = {
       serverHelpers.stopApplication(application, cb);
     }
     async.eachSeries(Object.keys(config.apps), stopApp, callback);
+  },
+
+  /**
+   * Stop currently running apps,
+   * clear require cache of each re started apps,
+   * refresh config from config file
+   * and restart all apps described by the config.
+   * It's aimed to be loaded after a configuration change.
+   *
+   * @param {Function} callback Termination.
+   */
+  reloadApps: function(callback) {
+
+    var runApp = function (key, callback) {
+      var application = config.apps[key];
+      var modulePath = configHelpers.modulePath(key);
+
+      // Clean require's cache, otherwise same code is loaded twice
+      for (var name in require.cache) {
+        if (name.match(new RegExp('^' + modulePath))) {
+          delete require.cache[name];
+        }
+      }
+      serverHelpers.startApplication(application, db, callback);
+    };
+
+    LOGGER.info('Stopping apps...');
+    serverHelpers.stopAllApps(function() {
+      LOGGER.info('Apps stopped.');
+      loadedApps = {};
+      routes = {};
+      LOGGER.info('Restarting all apps...');
+      async.eachSeries(Object.keys(config.apps), runApp, function() {
+        LOGGER.info('Apps started.');
+        if (callback !== undefined && typeof(callback) === 'function') {
+          callback();
+        }
+      });
+    });
+  },
+
+
+  /**
+   * Require and configure every plugins listed in the configuration file.
+   */
+  loadPlugins: function() {
+    if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
+      Object.keys(config.plugins).forEach(function loadPlugin (pluginName) {
+        try {
+          var pluginConfig = config.plugins[pluginName];
+          var pluginPath = configHelpers.modulePath(pluginConfig.name);
+          var plugin = require(pluginPath);
+          var options = {
+            name: pluginConfig.name,
+            displayName: pluginConfig.displayName,
+            version: pluginConfig.version,
+            description: pluginConfig.description,
+            configPath: configPath,
+            /*eslint-disable */
+            config_path: configPath, // for backward compatibility
+            /*eslint-enable */
+            home: home,
+            npmHelpers: npmHelpers,
+            proxy: proxy
+          };
+          plugin.configure(options, config, program);
+
+          loadedPlugins[pluginName] = plugin;
+        } catch(err) {
+          LOGGER.raw(err);
+          LOGGER.error('Plugin ' + pluginName + ' loading failed.');
+        }
+      });
+    }
+  },
+
+  /**
+   * Manage properly exit of the process when SIGINT signal is triggered.
+   * It asks to every plugin to end properly.
+   */
+  exitHandler: function (err, callback) {
+    if(err) {
+      LOGGER.raw(err);
+      LOGGER.error('An error occured on termination');
+    } else if(config.plugins !== undefined) {
+
+      var exitPlugin = function (pluginName, cb) {
+        var options = config.plugins[pluginName];
+        try {
+          var plugin = require(configHelpers.modulePath(options.name));
+          if (plugin.onExit !== undefined) {
+            plugin.onExit(options, config, cb);
+          } else {
+            cb();
+          }
+        } catch(err) {
+          LOGGER.raw(err);
+          LOGGER.error('Plugin ' + pluginName +
+                       ' loading failed to terminate.');
+          cb();
+        }
+      };
+
+      var endProcess = function (err) {
+        if (err) {
+          callback(err);
+        } else {
+          actions.stop(callback);
+        }
+      };
+
+      async.eachSeries(Object.keys(config.plugins), exitPlugin, endProcess);
+    } else {
+      LOGGER.info('Cozy Light exited properly.');
+    }
+  },
+
+  reload: function () {
+    LOGGER.info(
+      'Configuration file changed. Reloading configuration...');
+    config = configHelpers.loadConfigFile();
+    serverHelpers.reloadApps();
   }
 };
 
@@ -702,6 +893,7 @@ var actions = {
         LOGGER.raw(err);
         LOGGER.error('An error occured while creating server');
       } else {
+
         var startServer = function (err) {
           if (err) {
             LOGGER.raw(err);
@@ -723,10 +915,11 @@ var actions = {
             if (config.ssl !== undefined) {
               options.key = fs.readFileSync(config.ssl.key, 'utf8');
               options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
-              server = https.createServer(options, app).listen(mainPort);
+              server = https.createServer(options, app);
             } else  {
-              server = http.createServer(app).listen(mainPort);
+              server = http.createServer(app);
             }
+            server.listen(mainPort);
             serverHelpers.initializeProxy(server);
             LOGGER.info(
               'Cozy Light Dashboard is running on port ' + mainPort + '...');
@@ -790,120 +983,114 @@ var actions = {
   },
 
   /**
-  * App names correspond to Github repo. An app name is composed of a user name
-  * and a repository name.
-  * Installation starts by fetching the manifest from the repository
-  * (package.json located at the root). Then it installs sources and
-  * dependencies in the cozy-light folder.
-  *
-  * @param {String} app App to install (ex: cozy-labs/calendar).
-  * @param {Function} callback Termination.
-  */
+   * App names correspond to Github repo. An app name is composed of a user name
+   * and a repository name.
+   * Installation starts by fetching the manifest from the repository
+   * (package.json located at the root). Then it installs sources and
+   * dependencies in the cozy-light folder.
+   *
+   * @param {String} app App to install (ex: cozy-labs/calendar).
+   * @param {Function} callback Termination.
+   */
   installApp: function (app, callback) {
-    var client = request.newClient( 'https://raw.githubusercontent.com/');
-    var manifestUrl = app + '/master/package.json';
-
-    LOGGER.info('Installing application ' + app + '...');
-    client.get(manifestUrl, function (err, res, manifest) {
-      if (err) {
-        LOGGER.error(err);
-        LOGGER.error('Cannot find given app manifest. Make sure it lives on ' +
-                 'Github');
+    LOGGER.info('Installing app ' + app + '...');
+    npmHelpers.fetchInstall(app, function(err, manifest){
+      if(err){
+        LOGGER.raw(err);
+        LOGGER.error('Cannot find given app manifest.');
+        LOGGER.error('Make sure it lives on Github.');
+        LOGGER.error(app + ' installation failed.');
       } else {
-        npmHelpers.install(app, function (err) {
-          if (err) {
-            LOGGER.raw(err);
-            LOGGER.error(app + ' installation failed.');
-
-          } else {
-            configHelpers.addApp(app, manifest);
-            LOGGER.info(app + ' installed. Enjoy!');
-          }
-          if (callback !== undefined && typeof(callback) === 'function') {
-            callback();
-          }
-        });
+        configHelpers.addApp(app, manifest);
+        LOGGER.info(app + ' installed. Enjoy!');
+      }
+      if (callback !== undefined && typeof(callback) === 'function') {
+        callback(err);
       }
     });
   },
 
   /**
-  * Remove app from config and its source from node module folder.
-  *
-  * @param {String} app App to uninstall.
+   * Remove app from config and its source from node module folder.
+   *
+   * @param {String} app App to uninstall.
    * @param {Function} callback Termination.
-  */
+   */
   uninstallApp: function (app, callback) {
     LOGGER.info('Uninstalling ' + app + '...');
     if(config.apps[app] === undefined) {
       LOGGER.error(app + ' is not installed.');
     } else {
       var module = config.apps[app].name;
-      npmHelpers.uninstall(module, function () {
-        configHelpers.removeApp(app);
-        LOGGER.info(app + ' successfully uninstalled.');
+      npmHelpers.uninstall(module, function (err) {
+        if( err ){
+          LOGGER.raw(err);
+          LOGGER.error('npm did not uninstall ' + app + ' correctly.');
+          LOGGER.error(err);
+        }else{
+          configHelpers.removeApp(app);
+          LOGGER.info(app + ' successfully uninstalled.');
+        }
         if (callback !== undefined && typeof(callback) === 'function') {
-          callback();
+          callback(err);
         }
       });
     }
   },
 
   /**
-  * Plugin names correspond to Github repo. A plugin name is composed of a user
-  * name and a repository name.
-  * Installation starts by fetching the manifest from the repository
-  * (package.json located at the root). Then it installs sources and
-  * dependencies in the cozy-light folder.
-  *
-  * @param {String} plugin Plugin to install (ex: cozy-labs/cozy-light-docker).
-  */
-  installPlugin: function (plugin){
-    var client = request.newClient( 'https://raw.githubusercontent.com/');
-    var manifestUrl = plugin + '/master/package.json';
-
+   * Plugin names correspond to Github repo. A plugin name is composed of a user
+   * name and a repository name.
+   * Installation starts by fetching the manifest from the repository
+   * (package.json located at the root). Then it installs sources and
+   * dependencies in the cozy-light folder.
+   *
+   * @param {String} plugin Plugin to install (ex: cozy-labs/cozy-light-docker).
+   * @param {Function} callback Termination.
+   */
+  installPlugin: function (plugin, callback){
     LOGGER.info('Installing plugin ' + plugin + '...');
-    client.get(manifestUrl, function (err, res, manifest) {
-      if (res.statusCode !== 200) {
-        LOGGER.error(err);
+    npmHelpers.fetchInstall(plugin, function(err, manifest){
+      if(err){
+        LOGGER.raw(err);
         LOGGER.error('Cannot find given plugin manifest.');
         LOGGER.error('Make sure it lives on Github.');
         LOGGER.error(plugin + ' installation failed.');
       } else {
         configHelpers.addPlugin(plugin, manifest);
-        npmHelpers.install(plugin, function (err) {
-          if (err) {
-            LOGGER.raw(err);
-            LOGGER.error(plugin + ' installation failed.');
-
-          } else {
-            LOGGER.info(plugin + ' installed. Enjoy!');
-          }
-        });
+        LOGGER.info(plugin + ' installed. Enjoy!');
+      }
+      if (callback !== undefined && typeof(callback) === 'function') {
+        callback(err);
       }
     });
   },
 
+
   /**
-  * Remove plugin from config and its source from node module folder.
-  *
-  * @param {String} plugin Plugin to remove.
-  */
-  uninstallPlugin: function (plugin){
+   * Remove plugin from config and its source from node module folder.
+   *
+   * @param {String} plugin Plugin to remove.
+   * @param {Function} callback Termination.
+   */
+  uninstallPlugin: function (plugin, callback){
     LOGGER.info('Removing ' + plugin + '...');
     if(config.plugins[plugin] === undefined) {
       LOGGER.error(plugin + ' is not installed.');
     } else {
-      npmHelpers.uninstall(plugin, function () {
+      npmHelpers.uninstall(plugin, function (err) {
         LOGGER.info(plugin + ' successfully uninstalled.');
         configHelpers.removePlugin(plugin);
+        if (callback !== undefined && typeof(callback) === 'function') {
+          callback(err);
+        }
       });
     }
   },
 
   /**
-  * Display configuration file contents: apps configuration and user settings.
-  */
+   * Display configuration file contents: apps configuration and user settings.
+   */
   displayConfig: function () {
     LOGGER.raw(JSON.stringify(configHelpers.loadConfigFile(), null, 2));
   }
