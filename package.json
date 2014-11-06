@@ -1,7 +1,7 @@
 {
   "name": "cozy-light",
   "description": "Micro PaaS that makes self-hosting easy",
-  "version": "0.2.19",
+  "version": "0.3.0",
   "author": "Cozy Cloud <contact@cozycloud.cc> (http://cozycloud.cc)",
   "licenses": [
     {
@@ -50,8 +50,7 @@
     "fs-extra": "0.10.0",
     "request-json-light": "0.5.6"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "mocha --globals s --reporter spec tests.js",
     "lint": "eslint cozy-light.js tests.js",
