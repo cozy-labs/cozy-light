@@ -853,11 +853,11 @@ var actions = {
    */
   installApp: function (app, callback) {
     LOGGER.info('Installing app ' + app + '...');
-    npmHelpers.fetchInstall(app, function(err, manifest){
-      if(err){
+    npmHelpers.fetchInstall(app, function addAppToConfig (err, manifest) {
+      if (err) {
         LOGGER.raw(err);
         LOGGER.error('Cannot find given app manifest.');
-        LOGGER.error('Make sure it lives on Github.');
+        LOGGER.error('Make sure it lives on Github or in the given directory.');
         LOGGER.error(app + ' installation failed.');
       } else {
         configHelpers.addApp(app, manifest);
@@ -877,16 +877,15 @@ var actions = {
    */
   uninstallApp: function (app, callback) {
     LOGGER.info('Uninstalling ' + app + '...');
-    if(config.apps[app] === undefined) {
+    if (config.apps[app] === undefined) {
       LOGGER.error(app + ' is not installed.');
     } else {
       var module = config.apps[app].name;
-      npmHelpers.uninstall(module, function (err) {
-        if( err ){
+      npmHelpers.uninstall(module, function removeAppFromConfig (err) {
+        if (err) {
           LOGGER.raw(err);
           LOGGER.error('npm did not uninstall ' + app + ' correctly.');
-          LOGGER.error(err);
-        }else{
+        } else {
           configHelpers.removeApp(app);
           LOGGER.info(app + ' successfully uninstalled.');
         }
@@ -907,13 +906,13 @@ var actions = {
    * @param {String} plugin Plugin to install (ex: cozy-labs/cozy-light-docker).
    * @param {Function} callback Termination.
    */
-  installPlugin: function (plugin, callback){
+  installPlugin: function (plugin, callback) {
     LOGGER.info('Installing plugin ' + plugin + '...');
-    npmHelpers.fetchInstall(plugin, function(err, manifest){
-      if(err){
+    npmHelpers.fetchInstall(plugin, function addPluginToConfig (err, manifest) {
+      if (err) {
         LOGGER.raw(err);
         LOGGER.error('Cannot find given plugin manifest.');
-        LOGGER.error('Make sure it lives on Github.');
+        LOGGER.error('Make sure it lives on Github or in the given directory.');
         LOGGER.error(plugin + ' installation failed.');
       } else {
         configHelpers.addPlugin(plugin, manifest);
@@ -934,12 +933,17 @@ var actions = {
    */
   uninstallPlugin: function (plugin, callback){
     LOGGER.info('Removing ' + plugin + '...');
-    if(config.plugins[plugin] === undefined) {
+    if (config.plugins[plugin] === undefined) {
       LOGGER.error(plugin + ' is not installed.');
     } else {
-      npmHelpers.uninstall(plugin, function (err) {
-        LOGGER.info(plugin + ' successfully uninstalled.');
-        configHelpers.removePlugin(plugin);
+      npmHelpers.uninstall(plugin, function remotePluginFromConfig (err) {
+        if (err) {
+          LOGGER.raw(err);
+          LOGGER.error('npm did not uninstall ' + plugin + ' correctly.');
+        } else {
+          LOGGER.info(plugin + ' successfully uninstalled.');
+          configHelpers.removePlugin(plugin);
+        }
         if (callback !== undefined && typeof(callback) === 'function') {
           callback(err);
         }
