@@ -411,21 +411,28 @@ var controllers = {
 var npmHelpers = {
 
   /**
-  * Fetch given app source and dependencies from NPM registry.
-  *
-  * Config file is ~/.cozy-light/.config
-  *
-  * @param {String} app App to fetch from NPM.
-  * @param {Function} callback Callback to run once work is done.
-  * @param {Boolean} link Proceed to link or install.
-  */
-  install: function (app, callback, link) {
+   * Install given app source and dependencies from NPM registry.
+   *
+   * Config file is ~/.cozy-light/.config
+   *
+   * @param {String} app App to fetch from NPM.
+   * @param {Function} callback Callback to run once work is done.
+   */
+  install: function (app, callback) {
     npm.load({}, function () {
-      if( ! link ){
-        npm.commands.install(home, [app], callback);
-      }else{
-        npm.commands.link(home, [app], callback);
-      }
+      npm.commands.install(home, [app], callback);
+    });
+  },
+
+  /**
+   * Link given app source and dependencies from local file system.
+   *
+   * @param {String} app Path to the module to link.
+   * @param {Function} callback Callback to run once work is done.
+   */
+  link: function (app, callback) {
+    npm.load({}, function () {
+      npm.commands.link([app], callback);
     });
   },
 
@@ -489,7 +496,11 @@ var npmHelpers = {
       var cb = function(err){
         callback(err, manifest, type);
       };
-      npmHelpers.install(app, cb, type == 'file');
+      if( type == 'file' ) {
+        npmHelpers.link(app, cb);
+      } else {
+        npmHelpers.install(app, cb);
+      }
     });
   }
 };

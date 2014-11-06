@@ -123,25 +123,25 @@ describe('Config Helpers', function () {
 describe('NPM Helpers', function () {
 
   describe('install', function () {
-    it('should install a remote module.', function (done) {
+    it('should install a module.', function (done) {
       this.timeout(60000);
       process.chdir(HOME);
       var destPath = configHelpers.modulePath('hello');
       npmHelpers.install('cozy-labs/hello', function (err) {
-        assert.equal(err, null, 'Cannot install remote module.');
+        assert.equal(err, null, 'Cannot install module.');
         assert(fs.existsSync(destPath),
           'Module is not installed in the cozy-light folder.');
         done();
       });
     });
-    it('should install a local module.', function (done) {
+    it('should link a  module.', function (done) {
       process.chdir(HOME);
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       var destPath = configHelpers.modulePath('hello');
-      npmHelpers.install(testapp, function (err) {
-        assert.equal(err, null, 'Cannot install local module.');
+      npmHelpers.link(testapp, function (err) {
+        assert.equal(err, null, 'Cannot link module.');
         assert(fs.existsSync(destPath),
-          'Module is not installed in the cozy-light folder.');
+          'Module is not linked in the cozy-light folder.');
         done();
       });
     });
