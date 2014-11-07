@@ -46,7 +46,7 @@
     "morgan": "1.2.2",
     "async": "0.9.0",
     "pouchdb": "3.0.5",
-    "http-proxy": "1.2.0",
+    "http-proxy": "1.*",
     "fs-extra": "0.10.0",
     "request-json-light": "0.5.6"
   },

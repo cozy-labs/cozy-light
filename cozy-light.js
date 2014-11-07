@@ -345,6 +345,28 @@ var nodeHelpers = {
         delete require.cache[name];
       }
     }
+  },
+
+  /**
+   * Clear close a node server by calling
+   * each socket.destroy on close event
+   *
+   * @param {Object} s Server to configure.
+   */
+  clearCloseServer: function (s) {
+    (function(server, sockets){
+      server.on('connection', function(socket) {
+        sockets.push(socket);
+        socket.once('close', function () {
+          sockets.splice(sockets.indexOf(socket), 1);
+        });
+        server.on('close', function () {
+          for (var socketId in sockets) {
+            sockets[socketId].destroy();
+          }
+        });
+      });
+    })(s,[]);
   }
 };
 
@@ -681,6 +703,7 @@ var serverHelpers = {
         appModule.start(options, function (err, app, server) {
           if (err) { LOGGER.error(err); }
 
+          nodeHelpers.clearCloseServer(server);
           loadedApps[name].server = server;
           routes[name] = port;
           LOGGER.info(
@@ -813,6 +836,7 @@ var actions = {
               server = http.createServer(app);
             }
             server.listen(mainPort);
+            nodeHelpers.clearCloseServer(server);
             serverHelpers.initializeProxy(server);
             LOGGER.info(
               'Cozy Light Dashboard is running on port ' + mainPort + '...');
@@ -837,18 +861,24 @@ var actions = {
   stop: function (callback) {
     serverHelpers.stopAllApps(function (err) {
       if (err) {
-        callback(err);
+        if( callback ) callback(err);
       } else {
         pluginHelpers.stopAll(function(err){
           if (err) {
-            callback(err);
+            if( callback ) callback(err);
           } else {
             if (server !== null) {
-              server.close(callback);
-              port = defaultAppsPort;
+              server.close(function(){
+                LOGGER.info('Cozy Light Dashboard is now stopped.');
+                server = null;
+                callback();
+              });
             } else {
-              callback();
+              if( callback ) callback();
             }
+            proxy.close();
+            proxy = null;
+            port = defaultAppsPort;
           }
         });
       }
