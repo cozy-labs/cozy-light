@@ -229,7 +229,7 @@ var configHelpers = {
   watchConfig: function (newWatcher) {
     var isSet = false;
     configHelpers.watchers.forEach(function (watcher) {
-      if (watcher == newWatcher) { isSet = true; }
+      if (watcher === newWatcher) { isSet = true; }
     });
     if (!isSet) { configHelpers.watchers.push(newWatcher); }
   }
@@ -417,17 +417,17 @@ var npmHelpers = {
    * @param {Function} callback Termination.
    */
   fetchManifest: function (app, callback) {
-    if( fs.existsSync(app)
+    if (fs.existsSync(app)
       && fs.existsSync(pathExtra.join(app,'package.json')) ){
       fs.readFile(pathExtra.join(app,'package.json'),function(err, manifest){
         if (err) {
           LOGGER.error(err);
           callback(err);
-        }else{
+        } else {
           callback(err, JSON.parse(manifest), 'file');
         }
       });
-    }else{
+    } else {
       var client = request.newClient( 'https://raw.githubusercontent.com/');
       var manifestUrl = app + '/master/package.json';
 
@@ -436,10 +436,10 @@ var npmHelpers = {
         if (res.statusCode !== 200) {
           LOGGER.error(err);
           callback(err);
-        }else if (err) {
+        } else if (err) {
           LOGGER.error(err);
           callback(err);
-        }else{
+        } else {
           callback(err,manifest, 'url');
         }
       });
@@ -454,11 +454,11 @@ var npmHelpers = {
    */
   fetchInstall: function (app, callback) {
     npmHelpers.fetchManifest(app, function(err, manifest, type){
-      if( err ){ return callback(err); }
+      if (err){ return callback(err); }
       var cb = function(err){
         callback(err, manifest, type);
       };
-      if( type == 'file' ) {
+      if (type === 'file') {
         npmHelpers.link(app, cb);
       } else {
         npmHelpers.install(app, cb);
@@ -477,13 +477,13 @@ var pluginHelpers = {
    * @param callback Termination.
    */
   start: function (pluginName, applicationServer, callback) {
-    if( config.plugins[pluginName] == undefined ){
+    if (config.plugins[pluginName] === undefined){
       LOGGER.error(
         'Plugin ' + pluginName + ' not installed !');
-    }else if( loadedPlugins[pluginName] !== undefined ){
+    } else if (loadedPlugins[pluginName] !== undefined){
       LOGGER.error(
         'Plugin ' + pluginName + ' already started !');
-    }else{
+    } else {
       try {
         var pluginConfig = config.plugins[pluginName];
         var pluginPath = configHelpers.modulePath(pluginConfig.name);
@@ -528,13 +528,13 @@ var pluginHelpers = {
    * @param callback Termination.
    */
   stop: function (pluginName, callback) {
-    if( config.plugins[pluginName] == undefined ){
+    if (config.plugins[pluginName] === undefined){
       LOGGER.error(
         'Plugin ' + pluginName + ' not installed !');
-    }else if( loadedPlugins[pluginName] == undefined ){
+    } else if (loadedPlugins[pluginName] === undefined){
       LOGGER.error(
         'Plugin ' + pluginName + ' not started !');
-    }else{
+    } else {
       var options = config.plugins[pluginName];
       delete loadedPlugins[pluginName];
       try {
@@ -611,7 +611,7 @@ var serverHelpers = {
       var slug = '';
 
       var urlParts = req.url.split('/');
-      if(urlParts.length >= 3) {
+      if (urlParts.length >= 3) {
         publicOrPrivate = urlParts[1];
         slug = urlParts[2];
       }
@@ -645,7 +645,7 @@ var serverHelpers = {
     config.appPort = port;
 
     var setupApplicationServer = function (err) {
-      if(err) { LOGGER.error(err); }
+      if (err) { LOGGER.error(err); }
 
       app.all('/home', controllers.index);
 
@@ -726,7 +726,7 @@ var serverHelpers = {
   stopApplication: function (application, callback) {
     var name = application.name;
 
-    if(loadedApps[name] !== undefined) {
+    if (loadedApps[name] !== undefined) {
       var appModule = loadedApps[name].appModule;
 
       var closeServer = function () {
@@ -861,11 +861,11 @@ var actions = {
   stop: function (callback) {
     serverHelpers.stopAllApps(function (err) {
       if (err) {
-        if( callback ) callback(err);
+        if (callback) { callback(err); }
       } else {
         pluginHelpers.stopAll(function(err){
           if (err) {
-            if( callback ) callback(err);
+            if (callback) { callback(err); }
           } else {
             if (server !== null) {
               server.close(function(){
@@ -874,7 +874,7 @@ var actions = {
                 callback();
               });
             } else {
-              if( callback ) callback();
+              if (callback) { callback(err); }
             }
             proxy.close();
             proxy = null;
@@ -899,7 +899,7 @@ var actions = {
       LOGGER.info('Restarting all apps...');
       actions.start(program,function(){
         LOGGER.info('Cozy light was properly restarted.');
-        if( callback ){ callback(); }
+        if (callback){ callback(); }
       });
     });
   },
@@ -1091,7 +1091,7 @@ configHelpers.init();
 
 // Process arguments
 
-if(module.parent === null) {
+if (module.parent === null) {
   program.parse(process.argv);
 
 // Manage errors
