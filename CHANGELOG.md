@@ -1,3 +1,8 @@
+### 0.3.1
+
+* Allow to install folders as app or plugins.
+* Extract html for index route into a dedicated file.
+
 ### 0.3.0
 
 * Add option to set port from the command line.

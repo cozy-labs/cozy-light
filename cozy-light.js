@@ -195,6 +195,7 @@ var configHelpers = {
     // default config path is ~/.cozy-light/package.json
     home = customHome || pathExtra.join(pathExtra.homedir(), '.cozy-light');
     configPath = pathExtra.join(home, 'config.json');
+
     fsExtra.mkdirsSync(home);
     process.chdir(home);
     db = new Pouchdb('cozy');
@@ -228,7 +229,7 @@ var configHelpers = {
   watchConfig: function (newWatcher) {
     var isSet = false;
     configHelpers.watchers.forEach(function (watcher) {
-      if (watcher == newWatcher){ isSet = true; }
+      if (watcher == newWatcher) { isSet = true; }
     });
     if (!isSet) { configHelpers.watchers.push(newWatcher); }
   }
@@ -240,7 +241,7 @@ var configHelpers = {
 var controllers = {
 
   /**
-   * Render front page and list available applications.
+   * Returns application list, plugin data to show and resource consumption.
    */
   index: function (req, res) {
 
@@ -250,6 +251,7 @@ var controllers = {
 
     var applications = [];
     var plugins = [];
+    
     if (Object.keys(config.apps).length > 0) {
       Object.keys(config.apps).forEach(function (key) {
         applications.push(config.apps[key]);
@@ -589,7 +591,7 @@ var serverHelpers = {
       var slug = '';
 
       var urlParts = req.url.split('/');
-      if(urlParts.length >= 3) {
+      if(urlParts.length === 3) {
         publicOrPrivate = urlParts[1];
         slug = urlParts[2];
       }
@@ -621,10 +623,20 @@ var serverHelpers = {
 
     config.pouchdb = Pouchdb;
     config.appPort = port;
+    var runPlugin = function (pluginName, cb) {
+      var plugin = loadedPlugins[pluginName];
+      if (plugin.configureAppServer !== undefined) {
+        LOGGER.info('Configuring plugin ' + pluginName + '...');
+        plugin.configureAppServer(app, config, routes, function logResult () {
+          LOGGER.info('Plugin ' + pluginName + ' configured.');
+          cb();
+        });
+      } else {
+        cb();
+      }
+    };
 
-    var setupApplicationServer = function (err) {
-      if(err) { LOGGER.error(err); }
-
+    async.eachSeries(Object.keys(loadedPlugins), runPlugin, function () {
       app.all('/home', controllers.index);
 
       app.all('/apps/:name/*', controllers.proxyPrivate);
@@ -635,10 +647,8 @@ var serverHelpers = {
 
       app.all('/*', controllers.automaticRedirect);
 
-      callback(err,app);
-    };
-
-    pluginHelpers.startAll(app, setupApplicationServer);
+      callback(null, app);
+    });
   },
 
   /**
@@ -648,7 +658,7 @@ var serverHelpers = {
    *
    * @param {Object} application The application to start.
    * @param {Object} db The database to give as parameter to the application
-   *                      (they all share the same datastore).
+ *                      (they all share the same datastore).
    * @param {Function} callback Termination.
    */
   startApplication: function (application, db, callback) {
@@ -729,7 +739,6 @@ var serverHelpers = {
       } else {
         appModule.stop(closeServer);
       }
-      nodeHelpers.clearRequireCache(name);
       delete loadedApps[name];
 
     } else {
@@ -751,18 +760,125 @@ var serverHelpers = {
   },
 
   /**
-   * Start all running apps,
+   * Stop currently running apps,
+   * clear require cache of each re started apps,
+   * refresh config from config file
+   * and restart all apps described by the config.
+   * It's aimed to be loaded after a configuration change.
    *
-   * @param application The starting express application.
-   * @param db The datastore.
    * @param {Function} callback Termination.
    */
-  startAllApps: function (application,db,callback) {
-    function startApp (app, cb) {
-      var application = config.apps[app];
-      serverHelpers.startApplication(application,db, cb);
+  reloadApps: function(callback) {
+
+    var runApp = function (key, callback) {
+      var application = config.apps[key];
+      var modulePath = configHelpers.modulePath(key);
+
+      // Clean require's cache, otherwise same code is loaded twice
+      for (var name in require.cache) {
+        if (name.match(new RegExp('^' + modulePath))) {
+          delete require.cache[name];
+        }
+      }
+      serverHelpers.startApplication(application, db, callback);
+    };
+
+    LOGGER.info('Stopping apps...');
+    serverHelpers.stopAllApps(function() {
+      LOGGER.info('Apps stopped.');
+      loadedApps = {};
+      routes = {};
+      LOGGER.info('Restarting all apps...');
+      async.eachSeries(Object.keys(config.apps), runApp, function() {
+        LOGGER.info('Apps started.');
+        if (callback !== undefined && typeof(callback) === 'function') {
+          callback();
+        }
+      });
+    });
+  },
+
+
+  /**
+   * Require and configure every plugins listed in the configuration file.
+   */
+  loadPlugins: function() {
+    if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
+      Object.keys(config.plugins).forEach(function loadPlugin (pluginName) {
+        try {
+          var pluginConfig = config.plugins[pluginName];
+          var pluginPath = configHelpers.modulePath(pluginConfig.name);
+          var plugin = require(pluginPath);
+          var options = {
+            name: pluginConfig.name,
+            displayName: pluginConfig.displayName,
+            version: pluginConfig.version,
+            description: pluginConfig.description,
+            configPath: configPath,
+            /*eslint-disable */
+            config_path: configPath, // for backward compatibility
+            /*eslint-enable */
+            home: home,
+            npmHelpers: npmHelpers,
+            proxy: proxy
+          };
+          plugin.configure(options, config, program);
+
+          loadedPlugins[pluginName] = plugin;
+        } catch(err) {
+          LOGGER.raw(err);
+          LOGGER.error('Plugin ' + pluginName + ' loading failed.');
+        }
+      });
     }
-    async.eachSeries(Object.keys(config.apps), startApp, callback);
+  },
+
+  /**
+   * Manage properly exit of the process when SIGINT signal is triggered.
+   * It asks to every plugin to end properly.
+   */
+  exitHandler: function (err, callback) {
+    if(err) {
+      LOGGER.raw(err);
+      LOGGER.error('An error occured on termination');
+    } else if(config.plugins !== undefined) {
+
+      var exitPlugin = function (pluginName, cb) {
+        var options = config.plugins[pluginName];
+        try {
+          var plugin = require(configHelpers.modulePath(options.name));
+          if (plugin.onExit !== undefined) {
+            plugin.onExit(options, config, cb);
+          } else {
+            cb();
+          }
+        } catch(err) {
+          LOGGER.raw(err);
+          LOGGER.error('Plugin ' + pluginName +
+                       ' loading failed to terminate.');
+          cb();
+        }
+      };
+
+      var endProcess = function (err) {
+        if (err) {
+          callback(err);
+        } else {
+          actions.stop(callback);
+        }
+      };
+
+      async.eachSeries(Object.keys(config.plugins), exitPlugin, endProcess);
+    } else {
+      LOGGER.info('Cozy Light exited properly.');
+    }
+  },
+
+  reload: function () {
+    LOGGER.info(
+      'Configuration file changed. Reloading configuration...');
+    config = configHelpers.loadConfigFile();
+    serverHelpers.reloadApps();
   }
 };
 
@@ -781,16 +897,23 @@ var actions = {
    */
   start: function (program, callback) {
 
+    function runApp (key, cb) {
+      var application = config.apps[key];
+      serverHelpers.startApplication(application, db, cb);
+    }
+
+    configHelpers.watchers = [];
     serverHelpers.createApplicationServer(function (err, app) {
 
       if (err) {
         LOGGER.raw(err);
-        LOGGER.error('An error occurred while creating server');
+        LOGGER.error('An error occured while creating server');
       } else {
+
         var startServer = function (err) {
           if (err) {
             LOGGER.raw(err);
-            LOGGER.error('An error occurred while creating server');
+            LOGGER.error('An error occured while creating server');
           } else {
 
             // Take port from command line args, or config,
@@ -818,14 +941,15 @@ var actions = {
               'Cozy Light Dashboard is running on port ' + mainPort + '...');
 
             // Reload apps when file configuration is modified
-            configHelpers.watchConfig(actions.restart);
+            configHelpers.watchConfig(serverHelpers.reload);
             if (callback !== undefined && typeof(callback) === 'function') {
               callback(null, app, server);
             }
           }
         };
-        serverHelpers.startAllApps(app,db,startServer);
       }
+
+      async.eachSeries(Object.keys(config.apps), runApp, startServer);
     });
   },
 
@@ -835,61 +959,17 @@ var actions = {
    * @param {Function} callback Termination.
    */
   stop: function (callback) {
-    serverHelpers.stopAllApps(function(){
-      pluginHelpers.stopAll(function(){
-        if( server !== null ) {
-          server.close(function(err){
-            LOGGER.error('Cozy Light Dashboard is stopped');
-            server = null;
-            // void err to not throw an error
-            // when the server is already,
-            // or not yet,
-            // stopped
-            callback();
-          });
+    serverHelpers.stopAllApps(function (err) {
+      if (err) {
+        callback(err);
+      } else {
+        if (server !== null) {
+          server.close(callback);
         } else {
           callback();
         }
-        port = defaultPort;
-        configHelpers.watchers = [];
-      });
-    });
-  },
-
-  /**
-   * Stops application server, its apps, and its plugins,
-   * reload everyone, then restart everyone
-   */
-  restart: function (callback) {
-    LOGGER.info('Stopping apps...');
-    actions.stop(function(){
-      LOGGER.info('Apps stopped.');
-      loadedPlugins = {};
-      loadedApps = {};
-      routes = {};
-      LOGGER.info('Restarting all apps...');
-      actions.start(program,function(){
-        LOGGER.info('Cozy light was properly restarted.');
-        if( callback ){ callback(); }
-      });
-    });
-  },
-
-  /**
-   * Manage properly exit of the process when SIGINT signal is triggered.
-   * It asks to every plugin to end properly.
-   */
-  exit: function () {
-    var endProcess = function (err) {
-      if (err) {
-        LOGGER.error('Cozy light was not properly terminated.');
-        process.exit(1);
-      } else {
-        LOGGER.info('Cozy light was properly terminated.');
-        process.exit(0);
       }
-    };
-    actions.stop(endProcess);
+    });
   },
 
   /**
@@ -904,11 +984,11 @@ var actions = {
    */
   installApp: function (app, callback) {
     LOGGER.info('Installing app ' + app + '...');
-    npmHelpers.fetchInstall(app, function(err, manifest){
-      if(err){
+    npmHelpers.fetchInstall(app, function addAppToConfig (err, manifest) {
+      if (err) {
         LOGGER.raw(err);
         LOGGER.error('Cannot find given app manifest.');
-        LOGGER.error('Make sure it lives on Github.');
+        LOGGER.error('Make sure it lives on Github or in the given directory.');
         LOGGER.error(app + ' installation failed.');
       } else {
         configHelpers.addApp(app, manifest);
@@ -928,16 +1008,15 @@ var actions = {
    */
   uninstallApp: function (app, callback) {
     LOGGER.info('Uninstalling ' + app + '...');
-    if(config.apps[app] === undefined) {
+    if (config.apps[app] === undefined) {
       LOGGER.error(app + ' is not installed.');
     } else {
       var module = config.apps[app].name;
-      npmHelpers.uninstall(module, function (err) {
-        if( err ){
+      npmHelpers.uninstall(module, function removeAppFromConfig (err) {
+        if (err) {
           LOGGER.raw(err);
           LOGGER.error('npm did not uninstall ' + app + ' correctly.');
-          LOGGER.error(err);
-        }else{
+        } else {
           configHelpers.removeApp(app);
           LOGGER.info(app + ' successfully uninstalled.');
         }
@@ -958,13 +1037,13 @@ var actions = {
    * @param {String} plugin Plugin to install (ex: cozy-labs/cozy-light-docker).
    * @param {Function} callback Termination.
    */
-  installPlugin: function (plugin, callback){
+  installPlugin: function (plugin, callback) {
     LOGGER.info('Installing plugin ' + plugin + '...');
-    npmHelpers.fetchInstall(plugin, function(err, manifest){
-      if(err){
+    npmHelpers.fetchInstall(plugin, function addPluginToConfig (err, manifest) {
+      if (err) {
         LOGGER.raw(err);
         LOGGER.error('Cannot find given plugin manifest.');
-        LOGGER.error('Make sure it lives on Github.');
+        LOGGER.error('Make sure it lives on Github or in the given directory.');
         LOGGER.error(plugin + ' installation failed.');
       } else {
         configHelpers.addPlugin(plugin, manifest);
@@ -985,12 +1064,17 @@ var actions = {
    */
   uninstallPlugin: function (plugin, callback){
     LOGGER.info('Removing ' + plugin + '...');
-    if(config.plugins[plugin] === undefined) {
+    if (config.plugins[plugin] === undefined) {
       LOGGER.error(plugin + ' is not installed.');
     } else {
-      npmHelpers.uninstall(plugin, function (err) {
-        LOGGER.info(plugin + ' successfully uninstalled.');
-        configHelpers.removePlugin(plugin);
+      npmHelpers.uninstall(plugin, function remotePluginFromConfig (err) {
+        if (err) {
+          LOGGER.raw(err);
+          LOGGER.error('npm did not uninstall ' + plugin + ' correctly.');
+        } else {
+          LOGGER.info(plugin + ' successfully uninstalled.');
+          configHelpers.removePlugin(plugin);
+        }
         if (callback !== undefined && typeof(callback) === 'function') {
           callback(err);
         }
@@ -1058,6 +1142,7 @@ configHelpers.init();
 
 if(module.parent === null) {
   program.parse(process.argv);
+}
 
 
 // Manage errors
