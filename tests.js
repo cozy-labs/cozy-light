@@ -401,6 +401,7 @@ describe('Functional tests', function () {
     it('ensure initial source code.', function (done) {
       var client = request.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
+        assert.equal(err, null, 'An error occurred while accessing test app.');
         assert.equal(body.ok, true,
           'Wrong reloaded response body for test app.');
         done();
