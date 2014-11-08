@@ -660,7 +660,7 @@ var serverHelpers = {
       callback(err,app);
     };
 
-    pluginHelpers.startAll(app, setupApplicationServer);
+    setupApplicationServer();
   },
 
   /**
@@ -804,56 +804,58 @@ var actions = {
   start: function (program, callback) {
 
     serverHelpers.createApplicationServer(function (err, app) {
+      pluginHelpers.startAll(app, function(err){
 
-      if (err) {
-        LOGGER.raw(err);
-        LOGGER.error('An error occurred while creating server');
-      } else {
+        if (err) {
+          LOGGER.raw(err);
+          LOGGER.error('An error occurred while creating server');
+        } else {
 
-        var startServer = function (err) {
-          if (err) {
-            LOGGER.raw(err);
-            LOGGER.error('An error occurred while creating server');
-          } else {
+          var startServer = function (err) {
+            if (err) {
+              LOGGER.raw(err);
+              LOGGER.error('An error occurred while creating server');
+            } else {
 
-            // Take port from command line args, or config,
-            // fallback to default one
-            // if none set.
-            var mainPort = DEFAULT_PORT;
-            if (program.port !== undefined) {
-              mainPort = program.port;
-            } else if (config.port !== undefined) {
-              mainPort = config.port;
+              // Take port from command line args, or config,
+              // fallback to default one
+              // if none set.
+              var mainPort = DEFAULT_PORT;
+              if (program.port !== undefined) {
+                mainPort = program.port;
+              } else if (config.port !== undefined) {
+                mainPort = config.port;
+              }
+
+              // Set SSL configuration if certificates path are properly set.
+              var options = {};
+              var scheme = "http";
+              if (config.ssl !== undefined) {
+                options.key = fs.readFileSync(config.ssl.key, 'utf8');
+                options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
+                server = https.createServer(options, app);
+                scheme = "https";
+              } else  {
+                server = http.createServer(app);
+              }
+              server.listen(mainPort);
+              nodeHelpers.clearCloseServer(server);
+              serverHelpers.initializeProxy(server);
+              LOGGER.info(
+                'Cozy Light Dashboard is running at ' +
+                scheme + '://localhost:' + mainPort + ' ...'
+              );
+
+              // Reload apps when file configuration is modified
+              configHelpers.watchConfig(actions.restart);
+              if (callback !== undefined && typeof(callback) === 'function') {
+                callback(null, app, server);
+              }
             }
-
-            // Set SSL configuration if certificates path are properly set.
-            var options = {};
-            var scheme = "http";
-            if (config.ssl !== undefined) {
-              options.key = fs.readFileSync(config.ssl.key, 'utf8');
-              options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
-              server = https.createServer(options, app);
-              scheme = "https";
-            } else  {
-              server = http.createServer(app);
-            }
-            server.listen(mainPort);
-            nodeHelpers.clearCloseServer(server);
-            serverHelpers.initializeProxy(server);
-            LOGGER.info(
-              'Cozy Light Dashboard is running at ' +
-              scheme + '://localhost:' + mainPort + ' ...'
-            );
-
-            // Reload apps when file configuration is modified
-            configHelpers.watchConfig(actions.restart);
-            if (callback !== undefined && typeof(callback) === 'function') {
-              callback(null, app, server);
-            }
-          }
-        };
-        serverHelpers.startAllApps(db,startServer);
-      }
+          };
+          serverHelpers.startAllApps(db,startServer);
+        }
+      });
     });
   },
 
