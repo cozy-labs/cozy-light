@@ -828,10 +828,12 @@ var actions = {
 
             // Set SSL configuration if certificates path are properly set.
             var options = {};
+            var scheme = "http";
             if (config.ssl !== undefined) {
               options.key = fs.readFileSync(config.ssl.key, 'utf8');
               options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
               server = https.createServer(options, app);
+              scheme = "https";
             } else  {
               server = http.createServer(app);
             }
@@ -839,7 +841,9 @@ var actions = {
             nodeHelpers.clearCloseServer(server);
             serverHelpers.initializeProxy(server);
             LOGGER.info(
-              'Cozy Light Dashboard is running on port ' + mainPort + '...');
+              'Cozy Light Dashboard is running at ' +
+              scheme + '://localhost:' + mainPort + ' ...'
+            );
 
             // Reload apps when file configuration is modified
             configHelpers.watchConfig(actions.restart);
@@ -1005,7 +1009,6 @@ var actions = {
       }
     });
   },
-
 
   /**
    * Remove plugin from config and its source from node module folder.
