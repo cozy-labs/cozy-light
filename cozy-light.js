@@ -1053,7 +1053,7 @@ program
 program
   .command('start')
   .option('-p, --port <port>', 'port number on which Cozy Light is available')
-  .description('run remote setup commands')
+  .description('start Cozy Light server')
   .action(actions.start);
 
 program
