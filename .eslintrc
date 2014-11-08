@@ -4,14 +4,5 @@
     "mocha": true
   },
   "rules": {
-    "eqeqeq": [2, "smart", "allow-null"],
-    "new-cap": true,
-    "no-caller": true,
-    "space-after-keywords": [1, "always", { "allowSingleLine": true }],
-    "curly": [2, "all"],
-    "strict": false,
-    "no-multi-str": true,
-    "quotes": [2, "single"],
-    "max-len": 80
   }
 }
