@@ -23,6 +23,7 @@ const DEFAULT_PORT = 19104;
 
 // 'Global' variables
 
+var initialWd = process.cwd();
 var home = '';
 var configPath = '';
 var routes = {};
@@ -33,6 +34,7 @@ var defaultAppsPort = port;
 var proxy = null;
 var config = null;
 var server = null;
+var sockets = [];
 var db = null;
 
 
@@ -202,7 +204,6 @@ var configHelpers = {
 
     configHelpers.createConfigFile();
     configHelpers.copyDependency('pouchdb');
-    proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
 
     var watchOptions = {persistent: false, interval: 1000};
     var onConfigChanged = function () {
@@ -232,6 +233,20 @@ var configHelpers = {
       if (watcher === newWatcher) { isSet = true; }
     });
     if (!isSet) { configHelpers.watchers.push(newWatcher); }
+  },
+
+  /**
+   * unSubscribe an handler
+   * to config file updates
+   *
+   * @return {Object} config
+   */
+  unwatchConfig: function (newWatcher) {
+    var index = false;
+    configHelpers.watchers.forEach(function (watcher, k) {
+      if (watcher === newWatcher) { index = k; }
+    });
+    if (index !== false) { configHelpers.watchers.splice(index,1); }
   }
 };
 
@@ -353,20 +368,13 @@ var nodeHelpers = {
    *
    * @param {Object} s Server to configure.
    */
-  clearCloseServer: function (s) {
-    (function(server, sockets){
-      server.on('connection', function(socket) {
-        sockets.push(socket);
-        socket.once('close', function () {
-          sockets.splice(sockets.indexOf(socket), 1);
-        });
-        server.on('close', function () {
-          for (var socketId in sockets) {
-            sockets[socketId].destroy();
-          }
-        });
+  clearCloseServer: function (server, sockets) {
+    server.on('connection', function(socket) {
+      sockets.push(socket);
+      socket.on('close', function () {
+        sockets.splice(sockets.indexOf(socket), 1);
       });
-    })(s,[]);
+    });
   }
 };
 
@@ -394,6 +402,7 @@ var npmHelpers = {
    */
   link: function (app, callback) {
     npm.load({}, function () {
+      app = pathExtra.resolve(initialWd, app);
       npm.commands.link([app], callback);
     });
   },
@@ -417,9 +426,11 @@ var npmHelpers = {
    * @param {Function} callback Termination.
    */
   fetchManifest: function (app, callback) {
-    if (fs.existsSync(app)
-      && fs.existsSync(pathExtra.join(app,'package.json')) ){
-      fs.readFile(pathExtra.join(app,'package.json'),function(err, manifest){
+    var appPath = pathExtra.resolve(initialWd, app);
+    if (fs.existsSync(appPath)
+      && fs.existsSync(pathExtra.join(appPath,'package.json')) ){
+      fs.readFile(pathExtra.join(appPath,'package.json'),
+        function(err, manifest){
         if (err) {
           LOGGER.error(err);
           callback(err);
@@ -591,6 +602,8 @@ var serverHelpers = {
    */
   initializeProxy: function (server) {
 
+    proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
+
     proxy.on('error', function onProxyError(err, req, res) {
       LOGGER.raw(err);
       res.send(err, 500);
@@ -644,9 +657,7 @@ var serverHelpers = {
     config.pouchdb = Pouchdb;
     config.appPort = port;
 
-    var setupApplicationServer = function (err) {
-      if (err) { LOGGER.error(err); }
-
+    var setupApplicationServer = function () {
       app.all('/home', controllers.index);
 
       app.all('/apps/:name/*', controllers.proxyPrivate);
@@ -657,10 +668,46 @@ var serverHelpers = {
 
       app.all('/*', controllers.automaticRedirect);
 
-      callback(err,app);
+      callback(app);
     };
 
     setupApplicationServer();
+  },
+
+  /**
+   * Get dashboard application port.
+   * Take port from command line args, or config,
+   * fallback to default one
+   * if none set.
+   *
+   * @return {int} Port to dashboard.
+   */
+  getApplicationServerPort: function (program) {
+
+    var mainPort = DEFAULT_PORT;
+    if (program.port !== undefined) {
+      mainPort = program.port;
+    } else if (config.port !== undefined) {
+      mainPort = config.port;
+    }
+
+    return mainPort;
+  },
+
+  /**
+   * Get dashboard application url.
+   *
+   * @return {String} Url to dashboard.
+   */
+  getApplicationServerUrl: function (program) {
+    var location = '://localhost:' + serverHelpers.getApplicationServerPort(program);
+    if (config.ssl !== undefined) {
+      location = 'https' + location;
+    } else  {
+      location = 'http' + location;
+    }
+
+    return location;
   },
 
   /**
@@ -696,15 +743,53 @@ var serverHelpers = {
 
         loadedApps[name] = {
           appModule: appModule,
-          server: null
+          server: null,
+          sockets: [],
+          watchers: []
         };
 
-        var options = {db: db, port: port, silent: true};
+        var options = {
+          db: db,
+          port: port,
+          getPort: function(){
+            return ++port;
+          },
+          configChanged: function(cb){
+            loadedApps[name].watchers.push(cb);
+            configHelpers.configChanged(cb);
+          },
+          getApps: function(){
+            var apps = [];
+            var base_url = serverHelpers.getApplicationServerUrl();
+            Object.keys(config.apps).forEach(function(name){
+              apps.push({
+                displayName:config.apps[name].displayName,
+                version:config.apps[name].version,
+                url:base_url + '/apps/' + config.apps[name].name + '/'
+              });
+            });
+            return apps;
+          },
+          getPlugins: function(){
+            var plugins = [];
+            Object.keys(config.plugins).forEach(function(name){
+              plugins.push({
+                displayName:config.plugins[name].displayName,
+                version:config.plugins[name].version,
+                template:loadedPlugins[name].getTemplate(config)
+              });
+            });
+            return plugins;
+          },
+          silent: true
+        };
         appModule.start(options, function (err, app, server) {
           if (err) { LOGGER.error(err); }
 
-          nodeHelpers.clearCloseServer(server);
-          loadedApps[name].server = server;
+          if (server !== undefined ){
+            nodeHelpers.clearCloseServer(server, loadedApps[name].sockets);
+            loadedApps[name].server = server;
+          }
           routes[name] = port;
           LOGGER.info(
             'Application ' + name + ' is now running on port ' + port + '...');
@@ -731,21 +816,33 @@ var serverHelpers = {
 
       var closeServer = function () {
         try {
-          loadedApps[name].server.close(function logInfo (err) {
-            if (err) {
-              LOGGER.raw(err);
-              LOGGER.warn('An error occured while stopping ' + name);
-            } else {
-              LOGGER.info('Application ' + name + ' is now stopped.');
-            }
+          if (loadedApps[name].server !== undefined ){
+            LOGGER.info('Application ' + name + ' is now stopping.');
+            loadedApps[name].sockets.forEach(function(socket){
+              socket.destroy();
+            });
+            loadedApps[name].server.close(function logInfo (err) {
+              if (err) {
+                LOGGER.raw(err);
+                LOGGER.warn('An error occurred while stopping ' + name);
+              } else {
+                LOGGER.info('Application ' + name + ' is now stopped.');
+              }
+              callback();
+            });
+          } else {
             callback();
-          });
+          }
         } catch (err) {
           LOGGER.raw(err);
           LOGGER.warn('An error occured while stopping ' + name);
           callback();
         }
       };
+
+      loadedApps[name].watchers.forEach(function(watch){
+        configHelpers.unwatchConfig(watch);
+      });
 
       if (appModule.stop === undefined) {
         closeServer();
@@ -782,7 +879,7 @@ var serverHelpers = {
   startAllApps: function (db, callback) {
     function startApp (app, cb) {
       var application = config.apps[app];
-      serverHelpers.startApplication(application,db, cb);
+      serverHelpers.startApplication(application, db, cb);
     }
     async.eachSeries(Object.keys(config.apps), startApp, callback);
   }
@@ -803,7 +900,7 @@ var actions = {
    */
   start: function (program, callback) {
 
-    serverHelpers.createApplicationServer(function (err, app) {
+    serverHelpers.createApplicationServer(function (app) {
       pluginHelpers.startAll(app, function(err){
 
         if (err) {
@@ -817,33 +914,23 @@ var actions = {
               LOGGER.error('An error occurred while creating server');
             } else {
 
-              // Take port from command line args, or config,
-              // fallback to default one
-              // if none set.
-              var mainPort = DEFAULT_PORT;
-              if (program.port !== undefined) {
-                mainPort = program.port;
-              } else if (config.port !== undefined) {
-                mainPort = config.port;
-              }
-
               // Set SSL configuration if certificates path are properly set.
               var options = {};
-              var scheme = "http";
               if (config.ssl !== undefined) {
                 options.key = fs.readFileSync(config.ssl.key, 'utf8');
                 options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
                 server = https.createServer(options, app);
-                scheme = "https";
               } else  {
                 server = http.createServer(app);
               }
+              var mainPort = serverHelpers.getApplicationServerPort(program);
+              var location = serverHelpers.getApplicationServerUrl(program);
               server.listen(mainPort);
-              nodeHelpers.clearCloseServer(server);
+              nodeHelpers.clearCloseServer(server, sockets);
               serverHelpers.initializeProxy(server);
               LOGGER.info(
                 'Cozy Light Dashboard is running at ' +
-                scheme + '://localhost:' + mainPort + ' ...'
+                location + ' ...'
               );
 
               // Reload apps when file configuration is modified
@@ -874,6 +961,9 @@ var actions = {
             if (callback) { callback(err); }
           } else {
             if (server !== null) {
+              sockets.forEach(function(socket){
+                socket.destroy();
+              });
               server.close(function(){
                 LOGGER.info('Cozy Light Dashboard is now stopped.');
                 server = null;

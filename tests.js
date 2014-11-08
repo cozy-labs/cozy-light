@@ -175,16 +175,25 @@ describe('NPM Helpers', function () {
       this.timeout(60000);
       npmHelpers.fetchManifest('cozy-labs/hello',
         function (err, manifest, type) {
-          assert.equal(err, null, 'Cannot fetch remote manifest.');
+          assert.equal(err, null, 'Cannot fetch manifest.');
           assert.equal('url', type);
           assert.equal('hello', manifest.name);
           done();
         });
     });
-    it('should fetch manifest from a local module.', function (done) {
+    it('should fetch manifest from an absolute module path.', function (done) {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
-        assert.equal(err, null, 'Cannot fetch local manifest.');
+        assert.equal(err, null, 'Cannot fetch from ' + testapp + '.');
+        assert.equal('file', type);
+        assert.equal('test-app', manifest.name);
+        done();
+      });
+    });
+    it('should fetch manifest from a relative module path.', function (done) {
+      var testapp = pathExtra.join('fixtures/', 'test-app/');
+      npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
+        assert.equal(err, null, 'Cannot fetch from ' + testapp + '.');
         assert.equal('file', type);
         assert.equal('test-app', manifest.name);
         done();
@@ -197,16 +206,25 @@ describe('NPM Helpers', function () {
       this.timeout(60000);
       npmHelpers.fetchInstall('cozy-labs/hello',
         function (err, manifest, type) {
-        assert.equal(err, null, 'Cannot install remote module.');
+          assert.equal(err, null, 'Cannot install module.');
         assert.equal('url', type);
         assert.equal('hello', manifest.name);
         done();
       });
     });
-    it('should fetch then install local module.', function (done) {
+    it('should fetch then install an absolute module path.', function (done) {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
-        assert.equal(err, null, 'Cannot install local module.');
+        assert.equal(err, null, 'Cannot install from ' + testapp + '.');
+        assert.equal('file', type);
+        assert.equal('test-app', manifest.name);
+        done();
+      });
+    });
+    it('should fetch then install a relative module path.', function (done) {
+      var testapp = pathExtra.join('fixtures/', 'test-app/');
+      npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
+        assert.equal(err, null, 'Cannot install from ' + testapp + '.');
         assert.equal('file', type);
         assert.equal('test-app', manifest.name);
         done();
