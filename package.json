@@ -1,7 +1,7 @@
 {
   "name": "cozy-light",
   "description": "Micro PaaS that makes self-hosting easy",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "Cozy Cloud <contact@cozycloud.cc> (http://cozycloud.cc)",
   "licenses": [
     {
