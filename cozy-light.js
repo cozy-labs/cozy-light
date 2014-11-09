@@ -682,11 +682,11 @@ var serverHelpers = {
    *
    * @return {int} Port to dashboard.
    */
-  getApplicationServerPort: function (program) {
-
+  getApplicationServerPort: function (options) {
     var mainPort = DEFAULT_PORT;
-    if (program.port !== undefined) {
-      mainPort = program.port;
+    var p = options || program;
+    if (p.port !== undefined) {
+      mainPort = p.port;
     } else if (config.port !== undefined) {
       mainPort = config.port;
     }
@@ -699,8 +699,8 @@ var serverHelpers = {
    *
    * @return {String} Url to dashboard.
    */
-  getApplicationServerUrl: function (program) {
-    var location = '://localhost:' + serverHelpers.getApplicationServerPort(program);
+  getApplicationServerUrl: function (options) {
+    var location = '://localhost:' + serverHelpers.getApplicationServerPort(options);
     if (config.ssl !== undefined) {
       location = 'https' + location;
     } else  {
@@ -1195,6 +1195,7 @@ if (module.parent === null) {
     if (err) {
       LOGGER.warn('An exception is uncaught');
       LOGGER.raw(err);
+      console.log(err.stack);
       actions.stop();
       process.exit(1);
     }
