@@ -23,6 +23,7 @@ const DEFAULT_PORT = 19104;
 
 // 'Global' variables
 
+var initialWd = process.cwd();
 var home = '';
 var configPath = '';
 var routes = {};
@@ -250,7 +251,7 @@ var controllers = {
 
     var applications = [];
     var plugins = [];
-    
+
     if (Object.keys(config.apps).length > 0) {
       Object.keys(config.apps).forEach(function (key) {
         applications.push(config.apps[key]);
@@ -357,6 +358,7 @@ var npmHelpers = {
    */
   link: function (app, callback) {
     npm.load({}, function () {
+      app = pathExtra.resolve(initialWd, app);
       npm.commands.link([app], callback);
     });
   },
@@ -380,9 +382,11 @@ var npmHelpers = {
    * @param {Function} callback Termination.
    */
   fetchManifest: function (app, callback) {
-    if( fs.existsSync(app)
-      && fs.existsSync(pathExtra.join(app,'package.json')) ){
-      fs.readFile(pathExtra.join(app,'package.json'),function(err, manifest){
+    var appPath = pathExtra.resolve(initialWd, app);
+    if( fs.existsSync(appPath)
+      && fs.existsSync(pathExtra.join(appPath,'package.json')) ){
+      fs.readFile(pathExtra.join(appPath,'package.json'),
+        function(err, manifest){
         if (err) {
           LOGGER.error(err);
           callback(err);
