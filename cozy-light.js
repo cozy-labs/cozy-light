@@ -1050,16 +1050,22 @@ process.on('uncaughtException', function (err) {
 // Manage termination
 
 process.on('SIGINT', function handleExit (err) {
-  serverHelpers.exitHandler(err, function terminate (err) {
-    if (err) {
-      LOGGER.raw(err);
-      LOGGER.error('Cozy light was not properly terminated.');
-      process.exit(1);
-    } else {
-      LOGGER.info('Cozy light was properly terminated.');
-      process.exit(0);
-    }
-  });
+  try {
+    serverHelpers.exitHandler(err, function terminate (err) {
+      if (err) {
+        LOGGER.raw(err);
+        LOGGER.error('Cozy light was not properly terminated.');
+        process.exit(1);
+      } else {
+        LOGGER.info('Cozy light was properly terminated.');
+        process.exit(0);
+      }
+    });
+  } catch (err) {
+    LOGGER.raw(err);
+    LOGGER.error('Cozy light was not properly terminated.');
+    process.exit(1);
+  }
 });
 
 
