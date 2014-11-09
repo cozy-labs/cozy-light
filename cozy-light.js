@@ -228,12 +228,11 @@ var configHelpers = {
   watchConfig: function (newWatcher) {
     var isSet = false;
     configHelpers.watchers.forEach(function (watcher) {
-      if (watcher == newWatcher) { isSet = true; }
+      if (watcher === newWatcher) { isSet = true; }
     });
     if (!isSet) { configHelpers.watchers.push(newWatcher); }
   }
 };
-
 
 // Express app controllers
 
@@ -250,7 +249,7 @@ var controllers = {
 
     var applications = [];
     var plugins = [];
-    
+
     if (Object.keys(config.apps).length > 0) {
       Object.keys(config.apps).forEach(function (key) {
         applications.push(config.apps[key]);
@@ -336,13 +335,13 @@ var controllers = {
 var npmHelpers = {
 
   /**
-  * Fetch given app source and dependencies from NPM registry.
-  *
-  * Config file is ~/.cozy-light/.config
-  *
-  * @param {String} app App to fetch from NPM.
-  * @param {Function} callback Callback to run once work is done.
-  */
+   * Fetch given app source and dependencies from NPM registry.
+   *
+   * Config file is ~/.cozy-light/.config
+   *
+   * @param {String} app App to fetch from NPM.
+   * @param {Function} callback Callback to run once work is done.
+   */
   install: function (app, callback) {
     npm.load({}, function () {
       npm.commands.install(home, [app], callback);
@@ -362,10 +361,10 @@ var npmHelpers = {
   },
 
   /**
-  * Remove application source and dependencies using NPM lib.
-  *
-  * @param {String} app App to fetch from NPM.
-  * @param {Function} callback Callback to run once work is done.
+   * Remove application source and dependencies using NPM lib.
+   *
+   * @param {String} app App to fetch from NPM.
+   * @param {Function} callback Callback to run once work is done.
    */
   uninstall: function (app, callback) {
     npm.load({}, function () {
@@ -380,17 +379,17 @@ var npmHelpers = {
    * @param {Function} callback Termination.
    */
   fetchManifest: function (app, callback) {
-    if( fs.existsSync(app)
+    if (fs.existsSync(app)
       && fs.existsSync(pathExtra.join(app,'package.json')) ){
       fs.readFile(pathExtra.join(app,'package.json'),function(err, manifest){
         if (err) {
           LOGGER.error(err);
           callback(err);
-        }else{
+        } else {
           callback(err, JSON.parse(manifest), 'file');
         }
       });
-    }else{
+    } else {
       var client = request.newClient( 'https://raw.githubusercontent.com/');
       var manifestUrl = app + '/master/package.json';
 
@@ -402,7 +401,7 @@ var npmHelpers = {
         }else if (err) {
           LOGGER.error(err);
           callback(err);
-        }else{
+        } else {
           callback(err,manifest, 'url');
         }
       });
@@ -417,11 +416,11 @@ var npmHelpers = {
    */
   fetchInstall: function (app, callback) {
     npmHelpers.fetchManifest(app, function(err, manifest, type){
-      if( err ){ return callback(err); }
+      if (err){ return callback(err); }
       var cb = function(err){
         callback(err, manifest, type);
       };
-      if( type == 'file' ) {
+      if (type === 'file') {
         npmHelpers.link(app, cb);
       } else {
         npmHelpers.install(app, cb);
@@ -460,7 +459,7 @@ var serverHelpers = {
       var slug = '';
 
       var urlParts = req.url.split('/');
-      if(urlParts.length === 3) {
+      if (urlParts.length === 3) {
         publicOrPrivate = urlParts[1];
         slug = urlParts[2];
       }
@@ -582,7 +581,7 @@ var serverHelpers = {
   stopApplication: function (application, callback) {
     var name = application.name;
 
-    if(loadedApps[name] !== undefined) {
+    if (loadedApps[name] !== undefined) {
       var appModule = loadedApps[name].appModule;
 
       var closeServer = function () {
@@ -590,7 +589,7 @@ var serverHelpers = {
           loadedApps[name].server.close(function logInfo (err) {
             if (err) {
               LOGGER.raw(err);
-              LOGGER.warn('An error occured while stopping ' + name);
+              LOGGER.warn('An error occurred while stopping ' + name);
             } else {
               LOGGER.info('Application ' + name + ' is now stopped.');
             }
@@ -598,7 +597,7 @@ var serverHelpers = {
           });
         } catch (err) {
           LOGGER.raw(err);
-          LOGGER.warn('An error occured while stopping ' + name);
+          LOGGER.warn('An error occurred while stopping ' + name);
           callback();
         }
       };
@@ -672,7 +671,7 @@ var serverHelpers = {
    * Require and configure every plugins listed in the configuration file.
    */
   loadPlugins: function() {
-    if(config.plugins !== undefined && typeof(config.plugins) === 'object') {
+    if (config.plugins !== undefined && typeof(config.plugins) === 'object') {
       Object.keys(config.plugins).forEach(function loadPlugin (pluginName) {
         try {
           var pluginConfig = config.plugins[pluginName];
@@ -707,10 +706,10 @@ var serverHelpers = {
    * It asks to every plugin to end properly.
    */
   exitHandler: function (err, callback) {
-    if(err) {
+    if (err) {
       LOGGER.raw(err);
-      LOGGER.error('An error occured on termination');
-    } else if(config.plugins !== undefined) {
+      LOGGER.error('An error occurred on termination');
+    } else if (config.plugins !== undefined) {
 
       var exitPlugin = function (pluginName, cb) {
         var options = config.plugins[pluginName];
@@ -776,13 +775,13 @@ var actions = {
 
       if (err) {
         LOGGER.raw(err);
-        LOGGER.error('An error occured while creating server');
+        LOGGER.error('An error occurred while creating server');
       } else {
 
         var startServer = function (err) {
           if (err) {
             LOGGER.raw(err);
-            LOGGER.error('An error occured while creating server');
+            LOGGER.error('An error occurred while creating server');
           } else {
 
             // Take port from command line args, or config,
@@ -830,12 +829,12 @@ var actions = {
   stop: function (callback) {
     serverHelpers.stopAllApps(function (err) {
       if (err) {
-        callback(err);
+        if (callback) { callback(err); }
       } else {
         if (server !== null) {
           server.close(callback);
         } else {
-          callback();
+          if (callback) { callback(err); }
         }
       }
     });
@@ -857,7 +856,8 @@ var actions = {
       if (err) {
         LOGGER.raw(err);
         LOGGER.error('Cannot find given app manifest.');
-        LOGGER.error('Make sure it lives on Github or in the given directory.');
+        LOGGER.error('Make sure it lives on Github');
+        LOGGER.error('or in the given directory.');
         LOGGER.error(app + ' installation failed.');
       } else {
         configHelpers.addApp(app, manifest);
@@ -912,7 +912,8 @@ var actions = {
       if (err) {
         LOGGER.raw(err);
         LOGGER.error('Cannot find given plugin manifest.');
-        LOGGER.error('Make sure it lives on Github or in the given directory.');
+        LOGGER.error('Make sure it lives on Github');
+        LOGGER.error('or in the given directory.');
         LOGGER.error(plugin + ' installation failed.');
       } else {
         configHelpers.addPlugin(plugin, manifest);
@@ -1009,7 +1010,7 @@ configHelpers.init();
 
 // Process arguments
 
-if(module.parent === null) {
+if (module.parent === null) {
   serverHelpers.loadPlugins();
 
   program.parse(process.argv);
