@@ -23,6 +23,7 @@ const DEFAULT_PORT = 19104;
 
 // 'Global' variables
 
+var initialWd = process.cwd();
 var home = '';
 var configPath = '';
 var routes = {};
@@ -345,7 +346,7 @@ var nodeHelpers = {
         delete require.cache[name];
       }
     }
-  },
+  }
 };
 
 var npmHelpers = {
@@ -372,6 +373,7 @@ var npmHelpers = {
    */
   link: function (app, callback) {
     npm.load({}, function () {
+      app = pathExtra.resolve(initialWd, app);
       npm.commands.link([app], callback);
     });
   },
@@ -395,9 +397,11 @@ var npmHelpers = {
    * @param {Function} callback Termination.
    */
   fetchManifest: function (app, callback) {
-    if (fs.existsSync(app)
-      && fs.existsSync(pathExtra.join(app,'package.json')) ){
-      fs.readFile(pathExtra.join(app,'package.json'),function(err, manifest){
+    var appPath = pathExtra.resolve(initialWd, app);
+    if (fs.existsSync(appPath)
+        && fs.existsSync(pathExtra.join(appPath,'package.json'))) {
+      var manifestPath = pathExtra.join(appPath,'package.json');
+      fs.readFile(manifestPath, function checkError (err, manifest) {
         if (err) {
           LOGGER.error(err);
           callback(err);
@@ -414,7 +418,7 @@ var npmHelpers = {
         if (res.statusCode !== 200) {
           LOGGER.error(err);
           callback(err);
-        }else if (err) {
+        } else if (err) {
           LOGGER.error(err);
           callback(err);
         } else {
@@ -741,7 +745,7 @@ var serverHelpers = {
         if (err) {
           callback(err);
         } else {
-          actions.stop(callback);
+          actions.stop(callback)
         }
       };
 
@@ -1037,12 +1041,8 @@ if (!process.argv.slice(2).length) {
 
 process.on('uncaughtException', function (err) {
   if (err) {
-    LOGGER.warn('An exception is uncaught');
+    LOGGER.warn('An exception is uncaught:');
     LOGGER.raw(err);
-    serverHelpers.exitHandler(err, function terminate () {
-      process.exit(1);
-    });
-    process.exit(1);
   }
 });
 
