@@ -332,6 +332,22 @@ var controllers = {
 };
 
 
+var nodeHelpers = {
+
+  /**
+   * Clear require cache given app name
+   *
+   * @param {String} app App to clear from require cache.
+   */
+  clearRequireCache: function (app) {
+    var modulePath = configHelpers.modulePath(app);
+    for (var name in require.cache) {
+      if (name.match(new RegExp('^' + modulePath))) {
+        delete require.cache[name];
+      }
+    }
+  },
+};
 
 var npmHelpers = {
 
@@ -641,14 +657,7 @@ var serverHelpers = {
 
     var runApp = function (key, callback) {
       var application = config.apps[key];
-      var modulePath = configHelpers.modulePath(key);
-
-      // Clean require's cache, otherwise same code is loaded twice
-      for (var name in require.cache) {
-        if (name.match(new RegExp('^' + modulePath))) {
-          delete require.cache[name];
-        }
-      }
+      nodeHelpers.clearRequireCache(key);
       serverHelpers.startApplication(application, db, callback);
     };
 
