@@ -75,11 +75,15 @@ var $ = MINI.$, HTML = MINI.HTML;
 $(function() {
   var request = superagent;
   function loadData (data) {
-    $('.application-list').ht(
-      '{{each app: apps}}' +
-      '<p class="app-line"><a href="apps/{{app.name}}/" target="_blank">' +
-      '{{app.displayName}}</a><span>&nbsp;({{app.version }})</span></p>' +
-      '{{/each}}', {apps: data.body.apps});
+    if (data.body.apps.length > 0) {
+      $('.application-list').ht(
+        '{{each app: apps}}' +
+        '<p class="app-line"><a href="apps/{{app.name}}/" target="_blank">' +
+        '{{app.displayName}}</a><span>&nbsp;({{app.version }})</span></p>' +
+        '{{/each}}', {apps: data.body.apps});
+    } else {
+      $('.application-list').fill('<em>no applications installed</em>');
+    }
 
     $('.memory-value').fill(data.body.resources.memoryUsage);
   };
