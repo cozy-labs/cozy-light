@@ -460,7 +460,7 @@ var serverHelpers = {
       var slug = '';
 
       var urlParts = req.url.split('/');
-      if(urlParts.length === 3) {
+      if (urlParts.length >= 3) {
         publicOrPrivate = urlParts[1];
         slug = urlParts[2];
       }
