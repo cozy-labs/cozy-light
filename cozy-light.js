@@ -366,7 +366,8 @@ var nodeHelpers = {
    * Clear close a node server by calling
    * each socket.destroy on close event
    *
-   * @param {Object} s Server to configure.
+   * @param {Object} server Server to configure.
+   * @param {Array} sockets Array to store sockets.
    */
   clearCloseServer: function (server, sockets) {
     server.on('connection', function(socket) {
