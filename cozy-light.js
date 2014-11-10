@@ -15,6 +15,9 @@ var async = require('async');
 var printit = require('printit');
 var Pouchdb = require('pouchdb');
 var httpProxy = require('http-proxy');
+var ws = require('ws');
+var WebSocketServer = ws.Server;
+
 var pkg = require('./package.json');
 
 // Constants
@@ -34,6 +37,7 @@ var defaultAppsPort = port;
 var proxy = null;
 var config = null;
 var server = null;
+var wss;
 var sockets = [];
 var db = null;
 
@@ -308,6 +312,42 @@ var controllers = {
     } else {
       res.send(404);
     }
+  },
+
+  /**
+   */
+  listApps: function (req, res) {
+    res.send(serverHelpers.exportApps());
+  },
+
+  /**
+   */
+  listPlugins: function (req, res) {
+    res.send(pluginHelpers.exportPlugins());
+  },
+
+  /**
+   */
+  installApp: function (req, res) {
+    res.send(404);
+  },
+
+  /**
+   */
+  uninstallApp: function (req, res) {
+    res.send(404);
+  },
+
+  /**
+   */
+  installPlugin: function (req, res) {
+    res.send(404);
+  },
+
+  /**
+   */
+  uninstallPlugin: function (req, res) {
+    res.send(404);
   }
 };
 
@@ -562,6 +602,27 @@ var pluginHelpers = {
   stopAll: function (callback) {
     var plugins = Object.keys(loadedPlugins || {});
     async.eachSeries(plugins, pluginHelpers.stop, callback);
+  },
+
+  /**
+   * Export plugins to a plain object
+   *
+   * @returns {Array}
+   */
+  exportPlugins: function () {
+    var plugins = [];
+    Object.keys(config.plugins).forEach(function(name){
+      var template = '';
+      if (loadedPlugins[name].getTemplate) {
+        template = loadedPlugins[name].getTemplate(config);
+      }
+      plugins.push({
+        displayName: config.plugins[name].displayName,
+        version: config.plugins[name].version,
+        template: template
+      });
+    });
+    return plugins;
   }
 };
 
@@ -619,15 +680,6 @@ var serverHelpers = {
   },
 
   /**
-   * Create dashboard application server.
-   */
-  createApplicationServer: function (callback) {
-    var app = express();
-    app.use(morgan('combined'));
-    callback(app);
-  },
-
-  /**
    * setup dashboard application server.
    */
   setupApplicationServer: function (app) {
@@ -638,16 +690,67 @@ var serverHelpers = {
     app.all('/public/:name/*', controllers.proxyPublic);
     app.all('/public/:name*', controllers.proxyPublic);
 
+    app.all('/rest/list-apps', controllers.listApps);
+    app.all('/rest/list-plugins', controllers.listPlugins);
+
     app.all('/*', controllers.automaticRedirect);
   },
 
   /**
-   * Get dashboard application port.
+   * setup dashboard application socket.
+   */
+  setupApplicationSocket: function () {
+    wss = new WebSocketServer({
+      host: 'localhost',
+      port: serverHelpers.getApplicationSocketPort()
+    });
+    wss.on('connection', function(ws) {
+      var emit = function(m,d){
+        var event = {
+          message:m,
+          data:d
+        };
+        ws.send( JSON.stringify(event) );
+      };
+      var sendApplicationList = function(){
+        emit('applicationList', serverHelpers.exportApps());
+      };
+      var sendPluginList = function(){
+        emit('pluginList', pluginHelpers.exportPlugins());
+      };
+      var sendMemoryValue = function(){
+        var memoryUsage = process.memoryUsage();
+        var memory = {
+          value: Math.ceil(memoryUsage.heapUsed / 1000000),
+          unit: 'MB'
+        };
+        emit('memoryChanged', memory);
+      };
+
+      sendPluginList();
+      sendApplicationList();
+      sendMemoryValue();
+      var interval = setInterval(sendMemoryValue,2500);
+      ws.on('close', function() {
+        clearInterval(interval);
+      });
+    });
+  },
+
+  /**
+   * @return {String} Application server host.
+   */
+  getApplicationServerHost: function () {
+    return 'localhost';
+  },
+
+  /**
+   * Get application server port.
    * Take port from command line args, or config,
    * fallback to default one
    * if none set.
    *
-   * @return {int} Port to dashboard.
+   * @return {int} Application server port.
    */
   getApplicationServerPort: function (options) {
     var mainPort = DEFAULT_PORT;
@@ -662,17 +765,42 @@ var serverHelpers = {
   },
 
   /**
-   * Get dashboard application url.
+   * Get application socket port.
+   *  application server port+1
    *
-   * @return {String} Url to dashboard.
+   * @return {int} Application socket port.
+   */
+  getApplicationSocketPort: function (options) {
+    return serverHelpers.getApplicationServerPort(options)+1;
+  },
+
+  /**
+   * @return {String} Application server url.
    */
   getApplicationServerUrl: function (options) {
+    var h = serverHelpers.getApplicationServerHost(options);
     var p = serverHelpers.getApplicationServerPort(options);
-    var location = '://localhost:' + p;
+    var location = '://' + h + ':' + p;
     if (config.ssl !== undefined) {
       location = 'https' + location;
     } else  {
       location = 'http' + location;
+    }
+
+    return location;
+  },
+
+  /**
+   * @return {String} Application socket url.
+   */
+  getApplicationSocketUrl: function (options) {
+    var h = serverHelpers.getApplicationServerHost(options);
+    var p = serverHelpers.getApplicationSocketPort(options);
+    var location = '://' + h + ':' + p;
+    if (config.ssl !== undefined) {
+      location = 'wss' + location;
+    } else  {
+      location = 'ws' + location;
     }
 
     return location;
@@ -719,39 +847,14 @@ var serverHelpers = {
         var options = {
           db: db,
           port: port,
+          'rest_api': serverHelpers.getApplicationServerUrl(program),
+          'socket_api': serverHelpers.getApplicationSocketUrl(program),
           getPort: function(){
             return ++port;
           },
           configChanged: function(cb){
             loadedApps[name].watchers.push(cb);
             configHelpers.configChanged(cb);
-          },
-          getApps: function(){
-            var apps = [];
-            var baseUrl = serverHelpers.getApplicationServerUrl();
-            Object.keys(config.apps).forEach(function(name){
-              apps.push({
-                displayName: config.apps[name].displayName,
-                version: config.apps[name].version,
-                url: baseUrl + '/apps/' + config.apps[name].name + '/'
-              });
-            });
-            return apps;
-          },
-          getPlugins: function(){
-            var plugins = [];
-            Object.keys(config.plugins).forEach(function(name){
-              var template = '';
-              if (loadedPlugins[name].getTemplate) {
-                template = loadedPlugins[name].getTemplate(config);
-              }
-              plugins.push({
-                displayName: config.plugins[name].displayName,
-                version: config.plugins[name].version,
-                template: template
-              });
-            });
-            return plugins;
           },
           silent: true
         };
@@ -851,6 +954,24 @@ var serverHelpers = {
       serverHelpers.startApplication(application, db, cb);
     }
     async.eachSeries(Object.keys(config.apps), startApp, callback);
+  },
+
+  /**
+   * Export plugins to a plain object
+   *
+   * @returns {Array}
+   */
+  exportApps: function () {
+    var apps = [];
+    var baseUrl = serverHelpers.getApplicationServerUrl();
+    Object.keys(config.apps).forEach(function(name){
+      apps.push({
+        displayName: config.apps[name].displayName,
+        version: config.apps[name].version,
+        url: baseUrl + '/apps/' + config.apps[name].name + '/'
+      });
+    });
+    return apps;
   }
 };
 
@@ -869,53 +990,54 @@ var actions = {
    */
   start: function (program, callback) {
 
+    var app = express();
+    app.use(morgan('combined'));
 
     config.pouchdb = Pouchdb;
     config.appPort = port;
 
-    serverHelpers.createApplicationServer(function (app) {
-      pluginHelpers.startAll(app, function(err){
-        serverHelpers.setupApplicationServer(app);
-        if (err) {
-          LOGGER.raw(err);
-          LOGGER.error('An error occurred while creating server');
-        } else {
+    pluginHelpers.startAll(app, function(err){
+      serverHelpers.setupApplicationServer(app);
+      serverHelpers.setupApplicationSocket();
+      if (err) {
+        LOGGER.raw(err);
+        LOGGER.error('An error occurred while creating server');
+      } else {
 
-          var startServer = function (err) {
-            if (err) {
-              LOGGER.raw(err);
-              LOGGER.error('An error occurred while creating server');
-            } else {
+        var startServer = function (err) {
+          if (err) {
+            LOGGER.raw(err);
+            LOGGER.error('An error occurred while creating server');
+          } else {
 
-              // Set SSL configuration if certificates path are properly set.
-              var options = {};
-              if (config.ssl !== undefined) {
-                options.key = fs.readFileSync(config.ssl.key, 'utf8');
-                options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
-                server = https.createServer(options, app);
-              } else  {
-                server = http.createServer(app);
-              }
-              var mainPort = serverHelpers.getApplicationServerPort(program);
-              var location = serverHelpers.getApplicationServerUrl(program);
-              server.listen(mainPort);
-              nodeHelpers.clearCloseServer(server, sockets);
-              serverHelpers.initializeProxy(server);
-              LOGGER.info(
-                'Cozy Light Dashboard is running at ' +
-                location + ' ...'
-              );
-
-              // Reload apps when file configuration is modified
-              configHelpers.watchConfig(actions.restart);
-              if (callback !== undefined && typeof(callback) === 'function') {
-                callback(null, app, server);
-              }
+            // Set SSL configuration if certificates path are properly set.
+            var options = {};
+            if (config.ssl !== undefined) {
+              options.key = fs.readFileSync(config.ssl.key, 'utf8');
+              options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
+              server = https.createServer(options, app);
+            } else  {
+              server = http.createServer(app);
             }
-          };
-          serverHelpers.startAllApps(db,startServer);
-        }
-      });
+            var mainPort = serverHelpers.getApplicationServerPort(program);
+            var location = serverHelpers.getApplicationServerUrl(program);
+            server.listen(mainPort);
+            nodeHelpers.clearCloseServer(server, sockets);
+            serverHelpers.initializeProxy(server);
+            LOGGER.info(
+              'Cozy Light Dashboard is running at ' +
+              location + ' ...'
+            );
+
+            // Reload apps when file configuration is modified
+            configHelpers.watchConfig(actions.restart);
+            if (callback !== undefined && typeof(callback) === 'function') {
+              callback(null, app, server);
+            }
+          }
+        };
+        serverHelpers.startAllApps(db, startServer);
+      }
     });
   },
 
