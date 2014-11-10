@@ -255,41 +255,6 @@ var configHelpers = {
 var controllers = {
 
   /**
-   * Returns application list, plugin data to show and resource consumption.
-   */
-  index: function (req, res) {
-
-    config = configHelpers.loadConfigFile();
-    var memoryUsage = process.memoryUsage();
-    memoryUsage = Math.ceil(memoryUsage.heapUsed / 1000000);
-
-    var applications = [];
-    var plugins = [];
-
-    if (Object.keys(config.apps).length > 0) {
-      Object.keys(config.apps).forEach(function (key) {
-        applications.push(config.apps[key]);
-      });
-    }
-
-    Object.keys(loadedPlugins).forEach(function (pluginName) {
-      var plugin = loadedPlugins[pluginName];
-      if (plugin.getTemplate !== undefined) {
-        var template = plugin.getTemplate(config);
-        plugins.push(template);
-      }
-    });
-
-    res.send({
-      apps: applications,
-      plugins: plugins,
-      resources: {
-        memoryUsage: memoryUsage
-      }
-    });
-  },
-
-  /**
    * Proxy requests targeting apps.
    */
   proxyPrivate: function (req, res) {
@@ -554,13 +519,15 @@ var pluginHelpers = {
         nodeHelpers.clearRequireCache(options.name);
         if (plugin.onExit !== undefined) {
           return plugin.onExit(options, config, function(err){
-            console.log(err);
-            LOGGER.error('Plugin ' + pluginName + ' failed for termination.');
+            if (err) {
+              LOGGER.raw(err);
+              LOGGER.error('Plugin ' + pluginName + ' failed for termination.');
+            }
             callback(err);
           });
         }
       } catch(err) {
-        console.log(err);
+        LOGGER.raw(err);
         LOGGER.error('Plugin ' + pluginName + ' failed for termination.');
       }
       callback();
@@ -652,27 +619,21 @@ var serverHelpers = {
   createApplicationServer: function (callback) {
     var app = express();
     app.use(morgan('combined'));
-    app.use(express.static(pathExtra.join(__dirname, 'assets'),
-            { maxAge: 86400000 }));
+    callback(app);
+  },
 
-    config.pouchdb = Pouchdb;
-    config.appPort = port;
+  /**
+   * setup dashboard application server.
+   */
+  setupApplicationServer: function (app) {
 
-    var setupApplicationServer = function () {
-      app.all('/home', controllers.index);
+    app.all('/apps/:name/*', controllers.proxyPrivate);
+    app.all('/apps/:name*', controllers.proxyPrivate);
 
-      app.all('/apps/:name/*', controllers.proxyPrivate);
-      app.all('/apps/:name*', controllers.proxyPrivate);
+    app.all('/public/:name/*', controllers.proxyPublic);
+    app.all('/public/:name*', controllers.proxyPublic);
 
-      app.all('/public/:name/*', controllers.proxyPublic);
-      app.all('/public/:name*', controllers.proxyPublic);
-
-      app.all('/*', controllers.automaticRedirect);
-
-      callback(app);
-    };
-
-    setupApplicationServer();
+    app.all('/*', controllers.automaticRedirect);
   },
 
   /**
@@ -774,10 +735,14 @@ var serverHelpers = {
           getPlugins: function(){
             var plugins = [];
             Object.keys(config.plugins).forEach(function(name){
+              var template = '';
+              if (loadedPlugins[name].getTemplate) {
+                template = loadedPlugins[name].getTemplate(config);
+              }
               plugins.push({
                 displayName:config.plugins[name].displayName,
                 version:config.plugins[name].version,
-                template:loadedPlugins[name].getTemplate(config)
+                template:template
               });
             });
             return plugins;
@@ -901,9 +866,13 @@ var actions = {
    */
   start: function (program, callback) {
 
+
+    config.pouchdb = Pouchdb;
+    config.appPort = port;
+
     serverHelpers.createApplicationServer(function (app) {
       pluginHelpers.startAll(app, function(err){
-
+        serverHelpers.setupApplicationServer(app);
         if (err) {
           LOGGER.raw(err);
           LOGGER.error('An error occurred while creating server');
