@@ -38,7 +38,6 @@ var proxy = null;
 var config = null;
 var server = null;
 var wss;
-var sockets = [];
 var db = null;
 
 
@@ -317,7 +316,7 @@ var controllers = {
   /**
    */
   listApps: function (req, res) {
-    res.send(serverHelpers.exportApps());
+    res.send(applicationHelpers.exportApps());
   },
 
   /**
@@ -374,18 +373,21 @@ var nodeHelpers = {
    * @param {Object} server Server to configure.
    * @param {Array} sockets Array to store sockets.
    */
-  clearCloseServer: function (server, sockets) {
-    server.on('connection', function(socket) {
-      sockets.push(socket);
-      socket.on('close', function () {
-        sockets.splice(sockets.indexOf(socket), 1);
+  clearCloseServer: function (server) {
+    (function(server){
+      var sockets = [];
+      server.on('connection', function(socket) {
+        sockets.push(socket);
+        socket.on('close', function () {
+          sockets.splice(sockets.indexOf(socket), 1);
+        });
       });
-    });
-    server.on('close', function() {
-      sockets.forEach(function(socket){
-        socket.destroy();
+      server.on('close', function() {
+        sockets.forEach(function(socket){
+          socket.destroy();
+        });
       });
-    });
+    })(server);
   }
 };
 
@@ -627,184 +629,7 @@ var pluginHelpers = {
 };
 
 
-var serverHelpers = {
-
-  /**
-   * Configure properly proxy: handle errors and websockets.
-   *
-   * @param {Object} server Express server.
-   */
-  initializeProxy: function (server) {
-
-    proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
-
-    proxy.on('error', function onProxyError(err, req, res) {
-      LOGGER.raw(err);
-      res.send(err, 500);
-    });
-
-    server.on('upgrade', function onProxyUpgrade(req, socket, head) {
-
-      function proxyWS(port) {
-        proxy.ws(req, socket, head, {
-          target: 'ws://localhost:' + port,
-          ws: true
-        });
-      }
-
-      req.originalUrl = req.url;
-
-      var publicOrPrivate = '';
-      var slug = '';
-
-      var urlParts = req.url.split('/');
-      if (urlParts.length >= 3) {
-        publicOrPrivate = urlParts[1];
-        slug = urlParts[2];
-      }
-
-      if (publicOrPrivate === 'public') {
-        req.url = req.url.replace('/public/' + slug, '/public');
-        proxyWS(routes[slug]);
-
-      } else if (publicOrPrivate === 'apps') {
-        req.url = req.url.replace('/apps/' + slug, '');
-        proxyWS(routes[slug]);
-
-      } else {
-        proxyWS(process.env.DEFAULT_REDIRECT_PORT);
-      }
-    });
-
-    return proxy;
-  },
-
-  /**
-   * setup dashboard application server.
-   */
-  setupApplicationServer: function (app) {
-
-    app.all('/apps/:name/*', controllers.proxyPrivate);
-    app.all('/apps/:name*', controllers.proxyPrivate);
-
-    app.all('/public/:name/*', controllers.proxyPublic);
-    app.all('/public/:name*', controllers.proxyPublic);
-
-    app.all('/rest/list-apps', controllers.listApps);
-    app.all('/rest/list-plugins', controllers.listPlugins);
-
-    app.all('/*', controllers.automaticRedirect);
-  },
-
-  /**
-   * setup dashboard application socket.
-   */
-  setupApplicationSocket: function () {
-    wss = new WebSocketServer({
-      host: 'localhost',
-      port: serverHelpers.getApplicationSocketPort()
-    });
-    wss.on('connection', function(ws) {
-      var emit = function(m,d){
-        var event = {
-          message:m,
-          data:d
-        };
-        ws.send( JSON.stringify(event) );
-      };
-      var sendApplicationList = function(){
-        emit('applicationList', serverHelpers.exportApps());
-      };
-      var sendPluginList = function(){
-        emit('pluginList', pluginHelpers.exportPlugins());
-      };
-      var sendMemoryValue = function(){
-        var memoryUsage = process.memoryUsage();
-        var memory = {
-          value: Math.ceil(memoryUsage.heapUsed / 1000000),
-          unit: 'MB'
-        };
-        emit('memoryChanged', memory);
-      };
-
-      sendPluginList();
-      sendApplicationList();
-      sendMemoryValue();
-      var interval = setInterval(sendMemoryValue,2500);
-      ws.on('close', function() {
-        clearInterval(interval);
-      });
-    });
-  },
-
-  /**
-   * @return {String} Application server host.
-   */
-  getApplicationServerHost: function () {
-    return 'localhost';
-  },
-
-  /**
-   * Get application server port.
-   * Take port from command line args, or config,
-   * fallback to default one
-   * if none set.
-   *
-   * @return {int} Application server port.
-   */
-  getApplicationServerPort: function (options) {
-    var mainPort = DEFAULT_PORT;
-    var p = options || program;
-    if (p.port !== undefined) {
-      mainPort = p.port;
-    } else if (config.port !== undefined) {
-      mainPort = config.port;
-    }
-
-    return mainPort;
-  },
-
-  /**
-   * Get application socket port.
-   *  application server port+1
-   *
-   * @return {int} Application socket port.
-   */
-  getApplicationSocketPort: function (options) {
-    return serverHelpers.getApplicationServerPort(options)+1;
-  },
-
-  /**
-   * @return {String} Application server url.
-   */
-  getApplicationServerUrl: function (options) {
-    var h = serverHelpers.getApplicationServerHost(options);
-    var p = serverHelpers.getApplicationServerPort(options);
-    var location = '://' + h + ':' + p;
-    if (config.ssl !== undefined) {
-      location = 'https' + location;
-    } else  {
-      location = 'http' + location;
-    }
-
-    return location;
-  },
-
-  /**
-   * @return {String} Application socket url.
-   */
-  getApplicationSocketUrl: function (options) {
-    var h = serverHelpers.getApplicationServerHost(options);
-    var p = serverHelpers.getApplicationSocketPort(options);
-    var location = '://' + h + ':' + p;
-    if (config.ssl !== undefined) {
-      location = 'wss' + location;
-    } else  {
-      location = 'ws' + location;
-    }
-
-    return location;
-  },
+var applicationHelpers = {
 
   /**
    * Start given classic application as a new listening server. List of
@@ -847,10 +672,10 @@ var serverHelpers = {
         var options = {
           db: db,
           port: port,
-          'rest_api': serverHelpers.getApplicationServerUrl(program),
-          'socket_api': serverHelpers.getApplicationSocketUrl(program),
+          'rest_api': mainAppHelper.getServerUrl(program),
+          'socket_api': mainAppHelper.getSocketUrl(program),
           getPort: function(){
-            return ++port;
+            return port++;
           },
           configChanged: function(cb){
             loadedApps[name].watchers.push(cb);
@@ -862,7 +687,7 @@ var serverHelpers = {
           if (err) { LOGGER.error(err); }
 
           if (server !== undefined ){
-            nodeHelpers.clearCloseServer(server, loadedApps[name].sockets);
+            nodeHelpers.clearCloseServer(server);
             loadedApps[name].server = server;
           }
           routes[name] = port;
@@ -937,7 +762,7 @@ var serverHelpers = {
   stopAllApps: function (callback) {
     function stopApp (app, cb) {
       var application = config.apps[app];
-      serverHelpers.stopApplication(application, cb);
+      applicationHelpers.stopApplication(application, cb);
     }
     async.eachSeries(Object.keys(config.apps), stopApp, callback);
   },
@@ -951,7 +776,7 @@ var serverHelpers = {
   startAllApps: function (db, callback) {
     function startApp (app, cb) {
       var application = config.apps[app];
-      serverHelpers.startApplication(application, db, cb);
+      applicationHelpers.startApplication(application, db, cb);
     }
     async.eachSeries(Object.keys(config.apps), startApp, callback);
   },
@@ -963,7 +788,7 @@ var serverHelpers = {
    */
   exportApps: function () {
     var apps = [];
-    var baseUrl = serverHelpers.getApplicationServerUrl();
+    var baseUrl = mainAppHelper.getServerUrl();
     Object.keys(config.apps).forEach(function(name){
       apps.push({
         displayName: config.apps[name].displayName,
@@ -975,6 +800,239 @@ var serverHelpers = {
   }
 };
 
+var mainAppHelper = {
+
+  /**
+   * Configure properly proxy: handle errors and websockets.
+   *
+   * @param {Object} server Express server.
+   */
+  initializeProxy: function (server) {
+
+    proxy = httpProxy.createProxyServer(/*{agent: new http.Agent()}*/);
+
+    proxy.on('error', function onProxyError(err, req, res) {
+      LOGGER.raw(err);
+      res.send(err, 500);
+    });
+
+    server.on('upgrade', function onProxyUpgrade(req, socket, head) {
+
+      function proxyWS(port) {
+        proxy.ws(req, socket, head, {
+          target: 'ws://localhost:' + port,
+          ws: true
+        });
+      }
+
+      req.originalUrl = req.url;
+
+      var publicOrPrivate = '';
+      var slug = '';
+
+      var urlParts = req.url.split('/');
+      if (urlParts.length >= 3) {
+        publicOrPrivate = urlParts[1];
+        slug = urlParts[2];
+      }
+
+      if (publicOrPrivate === 'public') {
+        req.url = req.url.replace('/public/' + slug, '/public');
+        proxyWS(routes[slug]);
+
+      } else if (publicOrPrivate === 'apps') {
+        req.url = req.url.replace('/apps/' + slug, '');
+        proxyWS(routes[slug]);
+
+      } else {
+        proxyWS(process.env.DEFAULT_REDIRECT_PORT);
+      }
+    });
+
+    return proxy;
+  },
+
+  /**
+   * setup dashboard application server.
+   */
+  setupServer: function (app) {
+
+    app.all('/apps/:name/*', controllers.proxyPrivate);
+    app.all('/apps/:name*', controllers.proxyPrivate);
+
+    app.all('/public/:name/*', controllers.proxyPublic);
+    app.all('/public/:name*', controllers.proxyPublic);
+
+    app.all('/rest/list-apps', controllers.listApps);
+    app.all('/rest/list-plugins', controllers.listPlugins);
+
+    app.all('/*', controllers.automaticRedirect);
+  },
+
+  /**
+   * setup dashboard application socket.
+   */
+  setupSocket: function () {
+    wss = new WebSocketServer({
+      host: 'localhost',
+      port: mainAppHelper.getSocketPort()
+    });
+    wss.on('connection', function(ws) {
+      var emit = function(m,d){
+        var event = {
+          message:m,
+          data:d
+        };
+        ws.send( JSON.stringify(event) );
+      };
+      var sendApplicationList = function(){
+        emit('applicationList', applicationHelpers.exportApps());
+      };
+      var sendPluginList = function(){
+        emit('pluginList', pluginHelpers.exportPlugins());
+      };
+      var sendMemoryValue = function(){
+        var memoryUsage = process.memoryUsage();
+        var memory = {
+          value: Math.ceil(memoryUsage.heapUsed / 1000000),
+          unit: 'MB'
+        };
+        emit('memoryChanged', memory);
+      };
+
+      sendPluginList();
+      sendApplicationList();
+      sendMemoryValue();
+      var socketInterval = setInterval(sendMemoryValue,2500);
+      ws.on('close', function() {
+        clearInterval(socketInterval);
+      });
+    });
+    nodeHelpers.clearCloseServer(wss);
+  },
+
+  /**
+   */
+  stopAll: function (done) {
+    var list = [];
+    if (server){
+      list.push(function(d){
+        server.close(function(){
+          d();
+        });
+      });
+    }
+    if (wss){
+      list.push(function(d){
+        wss.close(function(){
+          console.log("wss")
+        });
+        d();
+      });
+    }
+    if (proxy){
+      list.push(function(d){
+        proxy.close(function(){
+          console.log("proxy")
+        });
+        d();
+      });
+    }
+    async.series(list,done);
+  },
+
+  /**
+   * @return {String} Application server host.
+   */
+  getHost: function () {
+    return 'localhost';
+  },
+
+  /**
+   * Get application server port.
+   * Take port from command line args, or config,
+   * fallback to default one
+   * if none set.
+   *
+   * @return {int} Application server port.
+   */
+  getServerPort: function (options) {
+    var mainPort = DEFAULT_PORT;
+    var p = options || program;
+    if (p.port !== undefined) {
+      mainPort = p.port;
+    } else if (config.port !== undefined) {
+      mainPort = config.port;
+    }
+
+    return mainPort;
+  },
+
+  /**
+   * Get application socket port.
+   *  application server port+1
+   *
+   * @return {int} Application socket port.
+   */
+  getSocketPort: function (options) {
+    return mainAppHelper.getServerPort(options)+1;
+  },
+
+  /**
+   * @return {String} Application server url.
+   */
+  getServerUrl: function (options) {
+    var h = mainAppHelper.getHost(options);
+    var p = mainAppHelper.getServerPort(options);
+    var location = '://' + h + ':' + p;
+    if (config.ssl !== undefined) {
+      location = 'https' + location;
+    } else  {
+      location = 'http' + location;
+    }
+
+    return location;
+  },
+
+  /**
+   * @return {String} Application socket url.
+   */
+  getSocketUrl: function (options) {
+    var h = mainAppHelper.getHost(options);
+    var p = mainAppHelper.getSocketPort(options);
+    var location = '://' + h + ':' + p;
+    if (config.ssl !== undefined) {
+      location = 'wss' + location;
+    } else  {
+      location = 'ws' + location;
+    }
+
+    return location;
+  }
+};
+
+var restartWatcher = {
+  watchers:[],
+  trigger:function(){
+    restartWatcher.watchers.forEach(function(cb){
+      cb();
+    })
+  },
+  on:function(cb){
+    restartWatcher.watchers.push(cb);
+  },
+  off:function(cb){
+    restartWatcher.watchers.splice(
+      restartWatcher.watchers.indexOf(cb),1);
+  },
+  one:function(cb){
+    var oner = function(){
+      restartWatcher.off(oner);
+      cb();
+    };
+    restartWatcher.on(oner);
+  }
+};
 
 // Actions
 
@@ -997,8 +1055,8 @@ var actions = {
     config.appPort = port;
 
     pluginHelpers.startAll(app, function(err){
-      serverHelpers.setupApplicationServer(app);
-      serverHelpers.setupApplicationSocket();
+      mainAppHelper.setupServer(app);
+      mainAppHelper.setupSocket();
       if (err) {
         LOGGER.raw(err);
         LOGGER.error('An error occurred while creating server');
@@ -1019,11 +1077,11 @@ var actions = {
             } else  {
               server = http.createServer(app);
             }
-            var mainPort = serverHelpers.getApplicationServerPort(program);
-            var location = serverHelpers.getApplicationServerUrl(program);
+            var mainPort = mainAppHelper.getServerPort(program);
+            var location = mainAppHelper.getServerUrl(program);
             server.listen(mainPort);
-            nodeHelpers.clearCloseServer(server, sockets);
-            serverHelpers.initializeProxy(server);
+            nodeHelpers.clearCloseServer(server);
+            mainAppHelper.initializeProxy(server);
             LOGGER.info(
               'Cozy Light Dashboard is running at ' +
               location + ' ...'
@@ -1036,7 +1094,7 @@ var actions = {
             }
           }
         };
-        serverHelpers.startAllApps(db, startServer);
+        applicationHelpers.startAllApps(db, startServer);
       }
     });
   },
@@ -1047,31 +1105,16 @@ var actions = {
    * @param {Function} callback Termination.
    */
   stop: function (callback) {
-    serverHelpers.stopAllApps(function (err) {
-      if (err) {
-        if (callback) { callback(err); }
-      } else {
-        pluginHelpers.stopAll(function(err){
-          if (err) {
-            if (callback) { callback(err); }
-          } else {
-            if (server !== null) {
-              server.close(function(){
-                LOGGER.info('Cozy Light Dashboard is now stopped.');
-                server = null;
-                if (callback) { callback(); }
-              });
-            } else {
-              if (callback) { callback(err); }
-            }
-            if( proxy ){
-              proxy.close();
-              proxy = null;
-            }
-            port = defaultAppsPort;
-          }
+    applicationHelpers.stopAllApps(function (err) {
+      if (err) { LOGGER.raw(err); }
+
+      pluginHelpers.stopAll(function(err){
+        if (err) { LOGGER.raw(err); }
+        mainAppHelper.stopAll(function(){
+          port = defaultAppsPort;
+          if (callback) { callback(); }
         });
-      }
+      });
     });
   },
 
@@ -1090,6 +1133,7 @@ var actions = {
       actions.start(program,function(){
         LOGGER.info('Cozy Light was properly restarted.');
         if (callback){ callback(); }
+        restartWatcher.trigger();
       });
     });
   },
@@ -1139,9 +1183,11 @@ var actions = {
         configHelpers.addApp(app, manifest);
         LOGGER.info(app + ' installed. Enjoy!');
       }
-      if (callback !== undefined && typeof(callback) === 'function') {
-        callback(err);
-      }
+      restartWatcher.one(function(){
+        if (callback !== undefined && typeof(callback) === 'function') {
+          callback(err);
+        }
+      });
     });
   },
 
@@ -1165,9 +1211,11 @@ var actions = {
           configHelpers.removeApp(app);
           LOGGER.info(app + ' successfully uninstalled.');
         }
-        if (callback !== undefined && typeof(callback) === 'function') {
-          callback(err);
-        }
+        restartWatcher.one(function(){
+          if (callback !== undefined && typeof(callback) === 'function') {
+            callback(err);
+          }
+        });
       });
     }
   },
@@ -1195,9 +1243,11 @@ var actions = {
         configHelpers.addPlugin(plugin, manifest);
         LOGGER.info(plugin + ' installed. Enjoy!');
       }
-      if (callback !== undefined && typeof(callback) === 'function') {
-        callback(err);
-      }
+      restartWatcher.one(function(){
+        if (callback !== undefined && typeof(callback) === 'function') {
+          callback(err);
+        }
+      });
     });
   },
 
@@ -1220,9 +1270,11 @@ var actions = {
           LOGGER.info(plugin + ' successfully uninstalled.');
           configHelpers.removePlugin(plugin);
         }
-        if (callback !== undefined && typeof(callback) === 'function') {
-          callback(err);
-        }
+        restartWatcher.one(function(){
+          if (callback !== undefined && typeof(callback) === 'function') {
+            callback(err);
+          }
+        });
       });
     }
   },
@@ -1318,7 +1370,8 @@ if (!process.argv.slice(2).length) {
 module.exports = {
   configHelpers: configHelpers,
   npmHelpers: npmHelpers,
-  serverHelpers: serverHelpers,
+  applicationHelpers: applicationHelpers,
+  mainAppHelper: mainAppHelper,
   actions: actions,
   controllers: controllers
 };

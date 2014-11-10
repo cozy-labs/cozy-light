@@ -10,7 +10,8 @@ var cozyLight = require('./cozy-light');
 var actions = cozyLight.actions;
 var configHelpers = cozyLight.configHelpers;
 var npmHelpers = cozyLight.npmHelpers;
-var serverHelpers = cozyLight.serverHelpers;
+var applicationHelpers = cozyLight.applicationHelpers;
+var mainAppHelper = cozyLight.mainAppHelper;
 
 var workingDir = pathExtra.join( __dirname, '/.test-working_dir/');
 var fixturesDir = pathExtra.join( __dirname, '/fixtures/');
@@ -243,6 +244,17 @@ describe('Server Helpers', function () {
   it.skip('createApplicationServer', function(){
   });
 
+  it.skip('loadPlugins', function(){
+  });
+
+  it.skip('exitHandler', function(){
+  });
+
+});
+
+
+describe('Application Helpers', function () {
+
   describe('startApplication', function () {
     it('should start a server for given application', function (done) {
       this.timeout(10000);
@@ -257,7 +269,7 @@ describe('Server Helpers', function () {
       var manifest = require(pathExtra.join(dest, 'package.json'));
       manifest.type = 'classic';
       var db = new PouchDB('test');
-      serverHelpers.startApplication(manifest, db, function assertAccess () {
+      applicationHelpers.startApplication(manifest, db, function assertAccess () {
         var client = requestJSON.newClient('http://localhost:18001');
         client.get('', function assertResponse (err, res) {
           assert.equal(err, null,
@@ -276,7 +288,7 @@ describe('Server Helpers', function () {
       var manifest = require(pathExtra.join(appHome, 'package.json'));
       manifest.type = 'classic';
 
-      serverHelpers.stopApplication(manifest, function assertStop () {
+      applicationHelpers.stopApplication(manifest, function assertStop () {
         var client = requestJSON.newClient('http://localhost:18001');
         client.get('', function assertResponse(err) {
           assert.notEqual(err, null,
@@ -285,12 +297,6 @@ describe('Server Helpers', function () {
         });
       });
     });
-  });
-
-  it.skip('loadPlugins', function(){
-  });
-
-  it.skip('exitHandler', function(){
   });
 
 });
