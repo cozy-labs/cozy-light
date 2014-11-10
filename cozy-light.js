@@ -341,6 +341,11 @@ var nodeHelpers = {
         sockets.splice(sockets.indexOf(socket), 1);
       });
     });
+    server.on('close', function() {
+      sockets.forEach(function(socket){
+        socket.destroy();
+      });
+    });
   }
 };
 
@@ -785,15 +790,12 @@ var serverHelpers = {
         try {
           if (loadedApps[name].server !== undefined ){
             LOGGER.info('Application ' + name + ' is now stopping.');
-            loadedApps[name].sockets.forEach(function(socket){
-              socket.destroy();
-            });
             loadedApps[name].server.close(function logInfo (err) {
               if (err) {
                 LOGGER.raw(err);
                 LOGGER.warn('An error occurred while stopping ' + name);
               } else {
-                LOGGER.info('Application ' + name + ' is now stopped.');
+                LOGGER.info('...done');
               }
               callback();
             });
@@ -932,19 +934,18 @@ var actions = {
             if (callback) { callback(err); }
           } else {
             if (server !== null) {
-              sockets.forEach(function(socket){
-                socket.destroy();
-              });
               server.close(function(){
                 LOGGER.info('Cozy Light Dashboard is now stopped.');
                 server = null;
-                callback();
+                if (callback) { callback(); }
               });
             } else {
               if (callback) { callback(err); }
             }
-            proxy.close();
-            proxy = null;
+            if( proxy ){
+              proxy.close();
+              proxy = null;
+            }
             port = defaultAppsPort;
           }
         });
@@ -965,7 +966,7 @@ var actions = {
       routes = {};
       LOGGER.info('Restarting all apps...');
       actions.start(program,function(){
-        LOGGER.info('Cozy light was properly restarted.');
+        LOGGER.info('Cozy Light was properly restarted.');
         if (callback){ callback(); }
       });
     });
@@ -978,12 +979,17 @@ var actions = {
   exit: function () {
     var endProcess = function (err) {
       if (err) {
-        LOGGER.error('Cozy light was not properly terminated.');
-        process.exit(1);
+        LOGGER.error('Cozy Light was not properly terminated.');
       } else {
-        LOGGER.info('Cozy light was properly terminated.');
-        process.exit(0);
+        LOGGER.info('Cozy Light was properly terminated.');
       }
+
+      if( process._getActiveHandles().length
+        || process._getActiveRequests().length ) {
+        LOGGER.info('Forcing termination.');
+        process.exit(err?1:0);
+      }
+
     };
     actions.stop(endProcess);
   },
@@ -1167,8 +1173,7 @@ if (module.parent === null) {
       LOGGER.warn('An exception is uncaught');
       LOGGER.raw(err);
       console.log(err.stack);
-      actions.stop();
-      process.exit(1);
+      actions.exit();
     }
   });
 
@@ -1178,7 +1183,6 @@ if (module.parent === null) {
   process.on('SIGINT', actions.exit);
 
 }
-
 
 // If arguments doesn't match any of the one set, it displays help.
 
