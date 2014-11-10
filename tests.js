@@ -207,9 +207,9 @@ describe('NPM Helpers', function () {
       npmHelpers.fetchInstall('cozy-labs/hello',
         function (err, manifest, type) {
           assert.equal(err, null, 'Cannot install module.');
-        assert.equal('url', type);
-        assert.equal('hello', manifest.name);
-        done();
+          assert.equal('url', type);
+          assert.equal('hello', manifest.name);
+          done();
       });
     });
     it('should fetch then install an absolute module path.', function (done) {

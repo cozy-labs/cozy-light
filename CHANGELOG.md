@@ -1,7 +1,9 @@
 ### 0.3.1
 
 * Allow to install folders as app or plugins.
+    * given path can be relative or absolute
 * Extract html for index route into a dedicated file.
+* make the dashboard a single page app.
 
 ### 0.3.0
 

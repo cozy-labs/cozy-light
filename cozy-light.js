@@ -394,9 +394,9 @@ var npmHelpers = {
   fetchManifest: function (app, callback) {
     var appPath = pathExtra.resolve(initialWd, app);
     if (fs.existsSync(appPath)
-      && fs.existsSync(pathExtra.join(appPath,'package.json')) ){
-      fs.readFile(pathExtra.join(appPath,'package.json'),
-        function(err, manifest){
+        && fs.existsSync(pathExtra.join(appPath,'package.json'))) {
+      var manifestPath = pathExtra.join(appPath,'package.json');
+      fs.readFile(manifestPath, function checkError (err, manifest) {
         if (err) {
           LOGGER.error(err);
           callback(err);
@@ -801,7 +801,7 @@ var serverHelpers = {
           }
         } catch (err) {
           LOGGER.raw(err);
-          LOGGER.warn('An error occured while stopping ' + name);
+          LOGGER.warn('An error occurred while stopping ' + name);
           callback();
         }
       };
