@@ -43,7 +43,6 @@ var db = null;
 
 // Helpers
 
-
 var configHelpers = {
 
   /**
@@ -361,103 +360,6 @@ var configHelpers = {
   }
 };
 
-// Express app controllers
-
-var controllers = {
-
-  /**
-   * Proxy requests targeting apps.
-   */
-  proxyPrivate: function (req, res) {
-    var appName = req.params.name;
-    var appPort = routes[appName];
-    req.url = req.url.substring(('/apps/' + appName).length);
-    if (port !== null) {
-      proxy.web(req, res, { target: 'http://localhost:' + appPort });
-    } else {
-      res.send(404);
-    }
-  },
-
-  /**
-   * Proxy requests targeting apps public path.
-   */
-  proxyPublic: function (req, res) {
-    var appName = req.params.name;
-    var appPort = routes[appName];
-    req.url = '/public' + req.url.substring(('/public/' + appName).length);
-    if (port !== null) {
-      proxy.web(req, res, { target: 'http://localhost:' + appPort });
-    } else {
-      res.send(404);
-    }
-  },
-
-  /**
-   * If request path don't match any existing route, it's redirected to
-   */
-  automaticRedirect: function (req, res) {
-    if (req.headers.referer !== undefined) {
-      var referer = url.parse(req.headers.referer);
-      var app = referer.path.split('/')[2];
-      if (app !== undefined && app !== '') {
-        var link = url.parse(encodeURI(req.url));
-        link.path = link.path.split('?')[0];
-        link.path = '/apps/' + app + link.path;
-        link.pathname = link.path;
-        if (link.path.indexOf(link.query) > 0) {
-          link.query = '';
-          link.search = '';
-        }
-        if (link.search === null) {
-          link.search = '';
-        }
-        res.redirect(link.format(), 307);
-      } else {
-        res.redirect('/', 307);
-      }
-    } else {
-      res.send(404);
-    }
-  },
-
-  /**
-   */
-  listApps: function (req, res) {
-    res.send(configHelpers.exportApps());
-  },
-
-  /**
-   */
-  listPlugins: function (req, res) {
-    res.send(configHelpers.exportPlugins());
-  },
-
-  /**
-   */
-  installApp: function (req, res) {
-    res.send(404);
-  },
-
-  /**
-   */
-  uninstallApp: function (req, res) {
-    res.send(404);
-  },
-
-  /**
-   */
-  installPlugin: function (req, res) {
-    res.send(404);
-  },
-
-  /**
-   */
-  uninstallPlugin: function (req, res) {
-    res.send(404);
-  }
-};
-
 var nodeHelpers = {
 
   /**
@@ -549,7 +451,7 @@ var npmHelpers = {
   fetchManifest: function (app, callback) {
     var appPath = pathExtra.resolve(initialWd, app);
     if (fs.existsSync(appPath)
-        && fs.existsSync(pathExtra.join(appPath,'package.json'))) {
+      && fs.existsSync(pathExtra.join(appPath,'package.json'))) {
       var manifestPath = pathExtra.join(appPath,'package.json');
       fs.readFile(manifestPath, function checkError (err, manifest) {
         if (err) {
@@ -871,6 +773,101 @@ var applicationHelpers = {
   }
 };
 
+var controllers = {
+
+  /**
+   * Proxy requests targeting apps.
+   */
+  proxyPrivate: function (req, res) {
+    var appName = req.params.name;
+    var appPort = routes[appName];
+    req.url = req.url.substring(('/apps/' + appName).length);
+    if (port !== null) {
+      proxy.web(req, res, { target: 'http://localhost:' + appPort });
+    } else {
+      res.send(404);
+    }
+  },
+
+  /**
+   * Proxy requests targeting apps public path.
+   */
+  proxyPublic: function (req, res) {
+    var appName = req.params.name;
+    var appPort = routes[appName];
+    req.url = '/public' + req.url.substring(('/public/' + appName).length);
+    if (port !== null) {
+      proxy.web(req, res, { target: 'http://localhost:' + appPort });
+    } else {
+      res.send(404);
+    }
+  },
+
+  /**
+   * If request path don't match any existing route, it's redirected to
+   */
+  automaticRedirect: function (req, res) {
+    if (req.headers.referer !== undefined) {
+      var referer = url.parse(req.headers.referer);
+      var app = referer.path.split('/')[2];
+      if (app !== undefined && app !== '') {
+        var link = url.parse(encodeURI(req.url));
+        link.path = link.path.split('?')[0];
+        link.path = '/apps/' + app + link.path;
+        link.pathname = link.path;
+        if (link.path.indexOf(link.query) > 0) {
+          link.query = '';
+          link.search = '';
+        }
+        if (link.search === null) {
+          link.search = '';
+        }
+        res.redirect(link.format(), 307);
+      } else {
+        res.redirect('/', 307);
+      }
+    } else {
+      res.send(404);
+    }
+  },
+
+  /**
+   */
+  listApps: function (req, res) {
+    res.send(configHelpers.exportApps());
+  },
+
+  /**
+   */
+  listPlugins: function (req, res) {
+    res.send(configHelpers.exportPlugins());
+  },
+
+  /**
+   */
+  installApp: function (req, res) {
+    res.send(404);
+  },
+
+  /**
+   */
+  uninstallApp: function (req, res) {
+    res.send(404);
+  },
+
+  /**
+   */
+  installPlugin: function (req, res) {
+    res.send(404);
+  },
+
+  /**
+   */
+  uninstallPlugin: function (req, res) {
+    res.send(404);
+  }
+};
+
 var mainAppHelper = {
 
   /**
@@ -1009,6 +1006,8 @@ var mainAppHelper = {
   }
 };
 
+// Actions
+
 var restartWatcher = {
   watchers: [],
   trigger: function(){
@@ -1031,8 +1030,6 @@ var restartWatcher = {
     restartWatcher.on(oner);
   }
 };
-
-// Actions
 
 var actions = {
 
@@ -1290,47 +1287,6 @@ var actions = {
 };
 
 
-// CLI
-
-program
-  .version(pkg.version);
-
-program
-  .command('start')
-  .option('-p, --port <port>', 'port number on which Cozy Light is available')
-  .description('start Cozy Light server')
-  .action(actions.start);
-
-program
-  .command('install <app>')
-  .description('Add app to current Cozy Light')
-  .action(actions.installApp);
-
-program
-  .command('uninstall <app>')
-  .description('Remove app from current Cozy Light')
-  .action(actions.uninstallApp);
-
-program
-  .command('add-plugin <plugin>')
-  .description('Add plugin to current Cozy Light')
-  .action(actions.installPlugin);
-
-program
-  .command('remove-plugin <plugin>')
-  .description('Remove plugin from current Cozy Light')
-  .action(actions.uninstallPlugin);
-
-program
-  .command('display-config')
-  .description('Display current config of Cozy Light')
-  .action(actions.displayConfig);
-
-program
-  .command('*')
-  .description('display help')
-  .action(program.outputHelp);
-
 
 // Init Cozy Light
 
@@ -1340,7 +1296,56 @@ configHelpers.init();
 // Process arguments
 
 if (module.parent === null) {
+
+// CLI
+
+  program
+    .version(pkg.version);
+
+  program
+    .command('start')
+    .option('-p, --port <port>', 'port number on which Cozy Light is available')
+    .description('start Cozy Light server')
+    .action(actions.start);
+
+  program
+    .command('install <app>')
+    .description('Add app to current Cozy Light')
+    .action(actions.installApp);
+
+  program
+    .command('uninstall <app>')
+    .description('Remove app from current Cozy Light')
+    .action(actions.uninstallApp);
+
+  program
+    .command('add-plugin <plugin>')
+    .description('Add plugin to current Cozy Light')
+    .action(actions.installPlugin);
+
+  program
+    .command('remove-plugin <plugin>')
+    .description('Remove plugin from current Cozy Light')
+    .action(actions.uninstallPlugin);
+
+  program
+    .command('display-config')
+    .description('Display current config of Cozy Light')
+    .action(actions.displayConfig);
+
+  program
+    .command('*')
+    .description('display help')
+    .action(program.outputHelp);
+
+
   program.parse(process.argv);
+
+// If arguments doesn't match any of the one set, it displays help.
+
+  if (!process.argv.slice(2).length) {
+    program.outputHelp();
+  }
 
 // Manage errors
 
@@ -1358,12 +1363,6 @@ if (module.parent === null) {
 
   process.on('SIGINT', actions.exit);
 
-}
-
-// If arguments doesn't match any of the one set, it displays help.
-
-if (!process.argv.slice(2).length) {
-  program.outputHelp();
 }
 
 
