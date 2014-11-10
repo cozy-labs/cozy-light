@@ -662,7 +662,8 @@ var serverHelpers = {
    * @return {String} Url to dashboard.
    */
   getApplicationServerUrl: function (options) {
-    var location = '://localhost:' + serverHelpers.getApplicationServerPort(options);
+    var p = serverHelpers.getApplicationServerPort(options);
+    var location = '://localhost:' + p;
     if (config.ssl !== undefined) {
       location = 'https' + location;
     } else  {
@@ -722,12 +723,12 @@ var serverHelpers = {
           },
           getApps: function(){
             var apps = [];
-            var base_url = serverHelpers.getApplicationServerUrl();
+            var baseUrl = serverHelpers.getApplicationServerUrl();
             Object.keys(config.apps).forEach(function(name){
               apps.push({
-                displayName:config.apps[name].displayName,
-                version:config.apps[name].version,
-                url:base_url + '/apps/' + config.apps[name].name + '/'
+                displayName: config.apps[name].displayName,
+                version: config.apps[name].version,
+                url: baseUrl + '/apps/' + config.apps[name].name + '/'
               });
             });
             return apps;
@@ -740,9 +741,9 @@ var serverHelpers = {
                 template = loadedPlugins[name].getTemplate(config);
               }
               plugins.push({
-                displayName:config.plugins[name].displayName,
-                version:config.plugins[name].version,
-                template:template
+                displayName: config.plugins[name].displayName,
+                version: config.plugins[name].version,
+                template: template
               });
             });
             return plugins;

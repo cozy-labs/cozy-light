@@ -2,7 +2,8 @@ var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var assert = require('assert');
 var http = require('http');
-var request = require('request-json-light');
+var requestJSON = require('request-json-light');
+var request = require('request');
 var PouchDB = require('pouchdb');
 var cozyLight = require('./cozy-light');
 
@@ -257,10 +258,10 @@ describe('Server Helpers', function () {
       manifest.type = 'classic';
       var db = new PouchDB('test');
       serverHelpers.startApplication(manifest, db, function assertAccess () {
-        var client = request.newClient('http://localhost:18001');
+        var client = requestJSON.newClient('http://localhost:18001');
         client.get('', function assertResponse (err, res) {
           assert.equal(err, null,
-                       'An error occured while accessing test app.');
+                       'An error occurred while accessing test app.');
           assert.equal(res.statusCode, 200,
                        'Wrong return code for test app.');
           done();
@@ -276,7 +277,7 @@ describe('Server Helpers', function () {
       manifest.type = 'classic';
 
       serverHelpers.stopApplication(manifest, function assertStop () {
-        var client = request.newClient('http://localhost:18001');
+        var client = requestJSON.newClient('http://localhost:18001');
         client.get('', function assertResponse(err) {
           assert.notEqual(err, null,
                           'Application should not be accessible anymore.');
@@ -319,24 +320,13 @@ describe('actions', function () {
       var opt = {port: 8090};
       actions.start(opt, function(err, app, server) {
        assert.equal(err, null, 'Cannot start server');
-        var options = {
-          host: 'localhost',
-          port: opt.port
-        };
-        http.get(options, function(res) {
-          res.setEncoding('utf8');
-          var body = '';
-          res.on('data', function (chunk) {
-            body += chunk;
-          });
-          res.on('end', function () {
-            var expected = 'Cozy Light: Your Personal Cloud at Home';
-            assert(body.indexOf(expected) > -1);
-            server.close();
+        request('http://localhost:' + opt.port + '/',
+          function(error, response){
+            assert.equal(error, null,
+              'An error occurred while accessing test app.');
+            assert.equal(response.statusCode, 404,
+              'Wrong return code for test app.');
             done();
-          });
-        }).on('error', function(e) {
-          done(e);
         });
       });
     });
@@ -370,6 +360,9 @@ describe('actions', function () {
   it.skip('addPlugin', function () {});
   it.skip('removePlugin', function () {});
 
+  after(function(done){
+    actions.stop(done);
+  })
 });
 
 
@@ -394,7 +387,7 @@ describe('Functional tests', function () {
       setTimeout(done, 1000);
     });
     it('fake app should be started.', function (done) {
-      var client = request.newClient('http://localhost:18001');
+      var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res) {
         assert.equal(err, null, 'An error occurred while accessing test app.');
         assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
@@ -417,7 +410,7 @@ describe('Functional tests', function () {
       setTimeout(done, 1000);
     });
     it('ensure initial source code.', function (done) {
-      var client = request.newClient('http://localhost:18001');
+      var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
         assert.equal(err, null, 'An error occurred while accessing test app.');
         assert.equal(body.ok, true,
@@ -437,7 +430,7 @@ describe('Functional tests', function () {
       actions.restart(done);
     });
     it('fake app should be started.', function (done) {
-      var client = request.newClient('http://localhost:18001');
+      var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
         assert.equal(err, null,
           'An error occured while accessing test app.');
