@@ -6,7 +6,6 @@ var url = require('url');
 var fs = require('fs');
 var fsExtra = require('fs-extra');
 var pathExtra = require('path-extra');
-var program = require('commander');
 var npm = require('npm');
 var request = require('request-json-light');
 var express = require('express');
@@ -18,14 +17,13 @@ var httpProxy = require('http-proxy');
 var ws = require('ws');
 var WebSocketServer = ws.Server;
 
-var pkg = require('./package.json');
-
 // Constants
 const LOGGER = printit({ prefix: 'Cozy Light' });
 const DEFAULT_PORT = 19104;
 
 // 'Global' variables
 
+var program = {};
 var initialWd = process.cwd();
 var home = '';
 var configPath = '';
@@ -194,10 +192,11 @@ var configHelpers = {
    *
    * @return {Object} config
    */
-  init: function (customHome) {
+  init: function (customHome, options) {
     // default home dir is ~/.cozy-light
     // default config path is ~/.cozy-light/package.json
-    home = customHome || pathExtra.join(pathExtra.homedir(), '.cozy-light');
+    home = pathExtra.join(customHome, '.cozy-light');
+    program = options || program;
     configPath = pathExtra.join(home, 'config.json');
 
     fsExtra.mkdirsSync(home);
@@ -1125,7 +1124,7 @@ var actions = {
       loadedApps = {};
       routes = {};
       LOGGER.info('Restarting all apps...');
-      actions.start(program,function(){
+      actions.start(program, function(){
         LOGGER.info('Cozy Light was properly restarted.');
         if (callback){ callback(); }
         restartWatcher.trigger();
@@ -1286,84 +1285,6 @@ var actions = {
   }
 };
 
-
-
-// Init Cozy Light
-
-configHelpers.init();
-
-
-// Process arguments
-
-if (module.parent === null) {
-
-// CLI
-
-  program
-    .version(pkg.version);
-
-  program
-    .command('start')
-    .option('-p, --port <port>', 'port number on which Cozy Light is available')
-    .description('start Cozy Light server')
-    .action(actions.start);
-
-  program
-    .command('install <app>')
-    .description('Add app to current Cozy Light')
-    .action(actions.installApp);
-
-  program
-    .command('uninstall <app>')
-    .description('Remove app from current Cozy Light')
-    .action(actions.uninstallApp);
-
-  program
-    .command('add-plugin <plugin>')
-    .description('Add plugin to current Cozy Light')
-    .action(actions.installPlugin);
-
-  program
-    .command('remove-plugin <plugin>')
-    .description('Remove plugin from current Cozy Light')
-    .action(actions.uninstallPlugin);
-
-  program
-    .command('display-config')
-    .description('Display current config of Cozy Light')
-    .action(actions.displayConfig);
-
-  program
-    .command('*')
-    .description('display help')
-    .action(program.outputHelp);
-
-
-  program.parse(process.argv);
-
-// If arguments doesn't match any of the one set, it displays help.
-
-  if (!process.argv.slice(2).length) {
-    program.outputHelp();
-  }
-
-// Manage errors
-
-  process.on('uncaughtException', function (err) {
-    if (err) {
-      LOGGER.warn('An exception is uncaught');
-      LOGGER.raw(err);
-      console.log(err.stack);
-      actions.exit();
-    }
-  });
-
-
-// Manage termination
-
-  process.on('SIGINT', actions.exit);
-
-}
 
 
 // Export module for testing purpose.

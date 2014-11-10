@@ -20,7 +20,7 @@
     "express"
   ],
   "bin": {
-    "cozy-light": "cozy-light.js"
+    "cozy-light": "bin.js"
   },
   "bugs": {
     "url": "https://github.com/cozy-labs/cozy-light/issues"
@@ -33,7 +33,7 @@
   "engines": {
     "node": "*"
   },
-  "main": "./cozy-light",
+  "main": "./cozy-light.js",
   "dependencies": {
     "americano": "0.3.7",
     "async": "0.9.0",

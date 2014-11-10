@@ -14,7 +14,8 @@ var applicationHelpers = cozyLight.applicationHelpers;
 
 var workingDir = pathExtra.join( __dirname, '/.test-working_dir/');
 var fixturesDir = pathExtra.join( __dirname, '/fixtures/');
-var HOME = pathExtra.join(workingDir, '.cozy-light');
+var HOME = workingDir;
+var cozyHOME = pathExtra.join(HOME, '.cozy-light' );
 
 
 before(function(){
@@ -39,7 +40,7 @@ describe('Config Helpers', function () {
       this.timeout(10000);
       configHelpers.init(HOME);
       assert(fs.existsSync(HOME), 'HOME directory not created');
-      assert(fs.existsSync(pathExtra.join(HOME, 'config.json')),
+      assert(fs.existsSync(pathExtra.join(cozyHOME, 'config.json')),
              'configuration file not created');
     });
   });
@@ -47,7 +48,7 @@ describe('Config Helpers', function () {
   describe('createConfigFile', function () {
     it('should create an empty config file', function () {
       configHelpers.createConfigFile();
-      assert(fs.existsSync(pathExtra.join(HOME, 'config.json')),
+      assert(fs.existsSync(pathExtra.join(cozyHOME, 'config.json')),
         'configuration file not created');
     });
   });
@@ -126,7 +127,7 @@ describe('NPM Helpers', function () {
   describe('install', function () {
     it('should install a module.', function (done) {
       this.timeout(60000);
-      process.chdir(HOME);
+      process.chdir(cozyHOME);
       var destPath = configHelpers.modulePath('hello');
       npmHelpers.install('cozy-labs/hello', function (err) {
         assert.equal(err, null, 'Cannot install module.');
@@ -136,7 +137,7 @@ describe('NPM Helpers', function () {
       });
     });
     it('should link a  module.', function (done) {
-      process.chdir(HOME);
+      process.chdir(cozyHOME);
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       var destPath = configHelpers.modulePath('hello');
       npmHelpers.link(testapp, function (err) {
@@ -150,7 +151,7 @@ describe('NPM Helpers', function () {
 
   describe('uninstall', function(){
     it('should remove a remote module.', function (done) {
-      process.chdir(HOME);
+      process.chdir(cozyHOME);
       var destPath = configHelpers.modulePath('hello');
       npmHelpers.uninstall('hello', function (err) {
         assert.equal(err, null, 'Cannot uninstall module.');
@@ -160,7 +161,7 @@ describe('NPM Helpers', function () {
       });
     });
     it('should remove a local module.', function (done) {
-      process.chdir(HOME);
+      process.chdir(cozyHOME);
       var destPath = configHelpers.modulePath('test-app');
       npmHelpers.uninstall('test-app', function (err) {
         assert.equal(err, null, 'Cannot uninstall module.');
