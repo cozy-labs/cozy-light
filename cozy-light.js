@@ -250,6 +250,114 @@ var configHelpers = {
       if (watcher === newWatcher) { index = k; }
     });
     if (index !== false) { configHelpers.watchers.splice(index,1); }
+  },
+
+  /**
+   * Export plugins to a plain object
+   *
+   * @returns {Array}
+   */
+  exportPlugins: function () {
+    var plugins = [];
+    Object.keys(config.plugins).forEach(function(name){
+      var template = '';
+      if (loadedPlugins[name].getTemplate) {
+        template = loadedPlugins[name].getTemplate(config);
+      }
+      plugins.push({
+        displayName: config.plugins[name].displayName,
+        version: config.plugins[name].version,
+        template: template
+      });
+    });
+    return plugins;
+  },
+
+  /**
+   * Export plugins to a plain object
+   *
+   * @returns {Array}
+   */
+  exportApps: function () {
+    var apps = [];
+    var baseUrl = configHelpers.getServerUrl();
+    Object.keys(config.apps).forEach(function(name){
+      apps.push({
+        displayName: config.apps[name].displayName,
+        version: config.apps[name].version,
+        url: baseUrl + '/apps/' + config.apps[name].name + '/'
+      });
+    });
+    return apps;
+  },
+
+  /**
+   * @return {String} Application server host.
+   */
+  getHost: function () {
+    return 'localhost';
+  },
+
+  /**
+   * Get application server port.
+   * Take port from command line args, or config,
+   * fallback to default one
+   * if none set.
+   *
+   * @return {int} Application server port.
+   */
+  getServerPort: function (options) {
+    var mainPort = DEFAULT_PORT;
+    var p = options || program;
+    if (p.port !== undefined) {
+      mainPort = p.port;
+    } else if (config.port !== undefined) {
+      mainPort = config.port;
+    }
+
+    return mainPort;
+  },
+
+  /**
+   * Get application socket port.
+   *  application server port+1
+   *
+   * @return {int} Application socket port.
+   */
+  getSocketPort: function (options) {
+    return configHelpers.getServerPort(options) + 1;
+  },
+
+  /**
+   * @return {String} Application server url.
+   */
+  getServerUrl: function (options) {
+    var h = configHelpers.getHost(options);
+    var p = configHelpers.getServerPort(options);
+    var location = '://' + h + ':' + p;
+    if (config.ssl !== undefined) {
+      location = 'https' + location;
+    } else  {
+      location = 'http' + location;
+    }
+
+    return location;
+  },
+
+  /**
+   * @return {String} Application socket url.
+   */
+  getSocketUrl: function (options) {
+    var h = configHelpers.getHost(options);
+    var p = configHelpers.getSocketPort(options);
+    var location = '://' + h + ':' + p;
+    if (config.ssl !== undefined) {
+      location = 'wss' + location;
+    } else  {
+      location = 'ws' + location;
+    }
+
+    return location;
   }
 };
 
@@ -316,13 +424,13 @@ var controllers = {
   /**
    */
   listApps: function (req, res) {
-    res.send(applicationHelpers.exportApps());
+    res.send(configHelpers.exportApps());
   },
 
   /**
    */
   listPlugins: function (req, res) {
-    res.send(pluginHelpers.exportPlugins());
+    res.send(configHelpers.exportPlugins());
   },
 
   /**
@@ -518,6 +626,9 @@ var pluginHelpers = {
           version: pluginConfig.version,
           description: pluginConfig.description,
           configPath: configPath,
+          /*eslint-disable */
+          config_path: configPath, // for backward compatibility
+          /*eslint-enable */
           home: home,
           npmHelpers: npmHelpers,
           proxy: proxy
@@ -604,30 +715,8 @@ var pluginHelpers = {
   stopAll: function (callback) {
     var plugins = Object.keys(loadedPlugins || {});
     async.eachSeries(plugins, pluginHelpers.stop, callback);
-  },
-
-  /**
-   * Export plugins to a plain object
-   *
-   * @returns {Array}
-   */
-  exportPlugins: function () {
-    var plugins = [];
-    Object.keys(config.plugins).forEach(function(name){
-      var template = '';
-      if (loadedPlugins[name].getTemplate) {
-        template = loadedPlugins[name].getTemplate(config);
-      }
-      plugins.push({
-        displayName: config.plugins[name].displayName,
-        version: config.plugins[name].version,
-        template: template
-      });
-    });
-    return plugins;
   }
 };
-
 
 var applicationHelpers = {
 
@@ -672,8 +761,8 @@ var applicationHelpers = {
         var options = {
           db: db,
           port: port,
-          'rest_api': mainAppHelper.getServerUrl(program),
-          'socket_api': mainAppHelper.getSocketUrl(program),
+          'rest_api': configHelpers.getServerUrl(program),
+          'socket_api': configHelpers.getSocketUrl(program),
           getPort: function(){
             return port++;
           },
@@ -779,24 +868,6 @@ var applicationHelpers = {
       applicationHelpers.startApplication(application, db, cb);
     }
     async.eachSeries(Object.keys(config.apps), startApp, callback);
-  },
-
-  /**
-   * Export plugins to a plain object
-   *
-   * @returns {Array}
-   */
-  exportApps: function () {
-    var apps = [];
-    var baseUrl = mainAppHelper.getServerUrl();
-    Object.keys(config.apps).forEach(function(name){
-      apps.push({
-        displayName: config.apps[name].displayName,
-        version: config.apps[name].version,
-        url: baseUrl + '/apps/' + config.apps[name].name + '/'
-      });
-    });
-    return apps;
   }
 };
 
@@ -875,21 +946,21 @@ var mainAppHelper = {
   setupSocket: function () {
     wss = new WebSocketServer({
       host: 'localhost',
-      port: mainAppHelper.getSocketPort()
+      port: configHelpers.getSocketPort()
     });
     wss.on('connection', function(ws) {
-      var emit = function(m,d){
+      var emit = function(m, d){
         var event = {
-          message:m,
-          data:d
+          message: m,
+          data: d
         };
         ws.send( JSON.stringify(event) );
       };
       var sendApplicationList = function(){
-        emit('applicationList', applicationHelpers.exportApps());
+        emit('applicationList', configHelpers.exportApps());
       };
       var sendPluginList = function(){
-        emit('pluginList', pluginHelpers.exportPlugins());
+        emit('pluginList', configHelpers.exportPlugins());
       };
       var sendMemoryValue = function(){
         var memoryUsage = process.memoryUsage();
@@ -924,108 +995,35 @@ var mainAppHelper = {
     }
     if (wss){
       list.push(function(d){
-        wss.close(function(){
-          console.log("wss")
-        });
+        wss.close(); // does not work well, or has no callback
         d();
       });
     }
     if (proxy){
       list.push(function(d){
-        proxy.close(function(){
-          console.log("proxy")
-        });
+        proxy.close(); // does not work well, or has no callback
         d();
       });
     }
     async.series(list,done);
-  },
-
-  /**
-   * @return {String} Application server host.
-   */
-  getHost: function () {
-    return 'localhost';
-  },
-
-  /**
-   * Get application server port.
-   * Take port from command line args, or config,
-   * fallback to default one
-   * if none set.
-   *
-   * @return {int} Application server port.
-   */
-  getServerPort: function (options) {
-    var mainPort = DEFAULT_PORT;
-    var p = options || program;
-    if (p.port !== undefined) {
-      mainPort = p.port;
-    } else if (config.port !== undefined) {
-      mainPort = config.port;
-    }
-
-    return mainPort;
-  },
-
-  /**
-   * Get application socket port.
-   *  application server port+1
-   *
-   * @return {int} Application socket port.
-   */
-  getSocketPort: function (options) {
-    return mainAppHelper.getServerPort(options)+1;
-  },
-
-  /**
-   * @return {String} Application server url.
-   */
-  getServerUrl: function (options) {
-    var h = mainAppHelper.getHost(options);
-    var p = mainAppHelper.getServerPort(options);
-    var location = '://' + h + ':' + p;
-    if (config.ssl !== undefined) {
-      location = 'https' + location;
-    } else  {
-      location = 'http' + location;
-    }
-
-    return location;
-  },
-
-  /**
-   * @return {String} Application socket url.
-   */
-  getSocketUrl: function (options) {
-    var h = mainAppHelper.getHost(options);
-    var p = mainAppHelper.getSocketPort(options);
-    var location = '://' + h + ':' + p;
-    if (config.ssl !== undefined) {
-      location = 'wss' + location;
-    } else  {
-      location = 'ws' + location;
-    }
-
-    return location;
   }
 };
 
 var restartWatcher = {
-  watchers:[],
-  trigger:function(){
+  watchers: [],
+  trigger: function(){
     restartWatcher.watchers.forEach(function(cb){
       cb();
-    })
+    });
   },
-  on:function(cb){
+  on: function(cb){
     restartWatcher.watchers.push(cb);
   },
-  off:function(cb){
+  off: function(cb){
     restartWatcher.watchers.splice(
       restartWatcher.watchers.indexOf(cb),1);
   },
-  one:function(cb){
+  one: function(cb){
     var oner = function(){
       restartWatcher.off(oner);
       cb();
@@ -1077,8 +1075,8 @@ var actions = {
             } else  {
               server = http.createServer(app);
             }
-            var mainPort = mainAppHelper.getServerPort(program);
-            var location = mainAppHelper.getServerUrl(program);
+            var mainPort = configHelpers.getServerPort(program);
+            var location = configHelpers.getServerUrl(program);
             server.listen(mainPort);
             nodeHelpers.clearCloseServer(server);
             mainAppHelper.initializeProxy(server);
@@ -1150,10 +1148,14 @@ var actions = {
         LOGGER.info('Cozy Light was properly terminated.');
       }
 
-      if( process._getActiveHandles().length
+      /*eslint-disable */
+      if (process._getActiveHandles().length
         || process._getActiveRequests().length ) {
+      /*eslint-enable */
         LOGGER.info('Forcing termination.');
-        process.exit(err?1:0);
+        /*eslint-disable */
+        process.exit(err ? 1 : 0);
+        /*eslint-enable */
       }
 
     };

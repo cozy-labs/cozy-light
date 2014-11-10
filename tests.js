@@ -1,7 +1,6 @@
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var assert = require('assert');
-var http = require('http');
 var requestJSON = require('request-json-light');
 var request = require('request');
 var PouchDB = require('pouchdb');
@@ -11,7 +10,7 @@ var actions = cozyLight.actions;
 var configHelpers = cozyLight.configHelpers;
 var npmHelpers = cozyLight.npmHelpers;
 var applicationHelpers = cozyLight.applicationHelpers;
-var mainAppHelper = cozyLight.mainAppHelper;
+//var mainAppHelper = cozyLight.mainAppHelper;
 
 var workingDir = pathExtra.join( __dirname, '/.test-working_dir/');
 var fixturesDir = pathExtra.join( __dirname, '/fixtures/');
@@ -269,16 +268,17 @@ describe('Application Helpers', function () {
       var manifest = require(pathExtra.join(dest, 'package.json'));
       manifest.type = 'classic';
       var db = new PouchDB('test');
-      applicationHelpers.startApplication(manifest, db, function assertAccess () {
-        var client = requestJSON.newClient('http://localhost:18001');
-        client.get('', function assertResponse (err, res) {
-          assert.equal(err, null,
-                       'An error occurred while accessing test app.');
-          assert.equal(res.statusCode, 200,
-                       'Wrong return code for test app.');
-          done();
+      applicationHelpers.startApplication(manifest, db,
+        function assertAccess () {
+          var client = requestJSON.newClient('http://localhost:18001');
+          client.get('', function assertResponse (err, res) {
+            assert.equal(err, null,
+              'An error occurred while accessing test app.');
+            assert.equal(res.statusCode, 200,
+              'Wrong return code for test app.');
+            done();
+          });
         });
-      });
     });
   });
 
@@ -324,7 +324,7 @@ describe('actions', function () {
   describe('start', function () {
     it('should listen and respond to http requests.', function (done) {
       var opt = {port: 8090};
-      actions.start(opt, function(err, app, server) {
+      actions.start(opt, function(err) {
        assert.equal(err, null, 'Cannot start server');
         request('http://localhost:' + opt.port + '/',
           function(error, response){
@@ -368,7 +368,8 @@ describe('actions', function () {
 
   after(function(done){
     actions.stop(done);
-  })
+  });
+
 });
 
 
