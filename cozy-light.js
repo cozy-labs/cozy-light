@@ -413,7 +413,6 @@ var npmHelpers = {
       var client = request.newClient( 'https://raw.githubusercontent.com/');
       var manifestUrl = app + '/master/package.json';
 
-      LOGGER.info('Installing application ' + app + '...');
       client.get(manifestUrl, function (err, res, manifest) {
         if (res.statusCode !== 200) {
           LOGGER.error(err);
