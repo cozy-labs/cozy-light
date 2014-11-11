@@ -229,11 +229,8 @@ var configHelpers = {
    * @return {Object} config
    */
   watchConfig: function (newWatcher) {
-    var isSet = false;
-    configHelpers.watchers.forEach(function (watcher) {
-      if (watcher === newWatcher) { isSet = true; }
-    });
-    if (!isSet) { configHelpers.watchers.push(newWatcher); }
+    var index = configHelpers.watchers.indexOf(newWatcher);
+    if (index==-1) { configHelpers.watchers.push(newWatcher); }
   },
 
   /**
@@ -243,11 +240,8 @@ var configHelpers = {
    * @return {Object} config
    */
   unwatchConfig: function (newWatcher) {
-    var index = false;
-    configHelpers.watchers.forEach(function (watcher, k) {
-      if (watcher === newWatcher) { index = k; }
-    });
-    if (index !== false) { configHelpers.watchers.splice(index,1); }
+    var index = configHelpers.watchers.indexOf(newWatcher);
+    if (index > -1) { configHelpers.watchers.splice(index,1); }
   },
 
   /**
