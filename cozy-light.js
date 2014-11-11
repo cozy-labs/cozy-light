@@ -9,6 +9,7 @@ var pathExtra = require('path-extra');
 var npm = require('npm');
 var request = require('request-json-light');
 var express = require('express');
+var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var async = require('async');
 var printit = require('printit');
@@ -253,7 +254,7 @@ var configHelpers = {
     var plugins = [];
     Object.keys(config.plugins).forEach(function(name){
       var template = '';
-      if (loadedPlugins[name].getTemplate) {
+      if (loadedPlugins[name] && loadedPlugins[name].getTemplate) {
         template = loadedPlugins[name].getTemplate(config);
       }
       plugins.push({
@@ -839,33 +840,35 @@ var controllers = {
   /**
    */
   installApp: function (req, res) {
-    npmHelpers.fetchInstall(app, function addAppToConfig (err, manifest) {
-      if (!err) {
-        configHelpers.addApp(app, manifest);
-        restartWatcher.one(function(){
-          res.send(200);
-        });
-      }else{
-        res.send(500);
-      }
-    });
+    var app = req.body.app;
+    if (config.apps[app]) {
+      res.status(500).end();
+    }else{
+      npmHelpers.fetchInstall(app, function addAppToConfig (err, manifest) {
+        if (!err) {
+          configHelpers.addApp(app, manifest);
+          res.status(200).end();
+        }else{
+          res.status(500).end();
+        }
+      });
+    }
   },
 
   /**
    */
   uninstallApp: function (req, res) {
+    var app = req.body.app;
     if (config.apps[app] === undefined) {
-      res.send(404);
+      res.status(404).end();
     } else {
       var module = config.apps[app].name;
       npmHelpers.uninstall(module, function removeAppFromConfig (err) {
         if (!err) {
           configHelpers.removeApp(app);
-          restartWatcher.one(function(){
-            res.send(200);
-          });
+          res.status(200).end();
         }else{
-          res.send(500);
+          res.status(500).end();
         }
       });
     }
@@ -874,14 +877,13 @@ var controllers = {
   /**
    */
   installPlugin: function (req, res) {
-    npmHelpers.fetchInstall(app, function addAppToConfig (err, manifest) {
+    var plugin = req.body.plugin;
+    npmHelpers.fetchInstall(plugin, function addPluginToConfig (err, manifest) {
       if (!err) {
-        configHelpers.addApp(app, manifest);
-        restartWatcher.one(function(){
-          res.send(200);
-        });
+        configHelpers.addPlugin(plugin, manifest);
+        res.status(200).end();
       }else{
-        res.send(500);
+        res.status(500).end();
       }
     });
   },
@@ -889,18 +891,17 @@ var controllers = {
   /**
    */
   uninstallPlugin: function (req, res) {
-    if (config.apps[app] === undefined) {
-      res.send(404);
+    var plugin = req.body.plugin;
+    if (config.plugins[plugin] === undefined) {
+      res.status(404).end();
     } else {
-      var module = config.apps[app].name;
-      npmHelpers.uninstall(module, function removeAppFromConfig (err) {
+      var module = config.plugins[plugin].name;
+      npmHelpers.uninstall(module, function remotePluginFromConfig (err) {
         if (!err) {
-          configHelpers.removeApp(app);
-          restartWatcher.one(function(){
-            res.send(200);
-          });
+          configHelpers.removePlugin(plugin);
+          res.status(200).end();
         }else{
-          res.send(500);
+          res.status(500).end();
         }
       });
     }
@@ -1084,6 +1085,10 @@ var actions = {
 
     var app = express();
     app.use(morgan('combined'));
+    var jsonParser = bodyParser.json();
+    var urlencodedParser = bodyParser.urlencoded({ extended: false });
+    app.use(urlencodedParser);
+    app.use(jsonParser);
 
     config.pouchdb = Pouchdb;
     config.appPort = port;
@@ -1303,7 +1308,8 @@ var actions = {
     if (config.plugins[plugin] === undefined) {
       LOGGER.error(plugin + ' is not installed.');
     } else {
-      npmHelpers.uninstall(plugin, function remotePluginFromConfig (err) {
+      var module = config.plugins[plugin].name;
+      npmHelpers.uninstall(module, function remotePluginFromConfig (err) {
         if (err) {
           LOGGER.raw(err);
           LOGGER.error('npm did not uninstall ' + plugin + ' correctly.');
