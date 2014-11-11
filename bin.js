@@ -6,7 +6,7 @@ var pathExtra = require('path-extra');
 var program = require('commander');
 var express = require('express');
 var printit = require('printit');
-var cozy = require('./lib.js');
+var cozy = require('./cozy-light');
 var actions = cozy.actions;
 var configHelpers = cozy.configHelpers;
 
