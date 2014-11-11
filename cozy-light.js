@@ -1171,15 +1171,16 @@ var actions = {
         LOGGER.error('Make sure it lives on Github');
         LOGGER.error('or in the given directory.');
         LOGGER.error(app + ' installation failed.');
+        callback(err);
       } else {
         configHelpers.addApp(app, manifest);
         LOGGER.info(app + ' installed. Enjoy!');
+        restartWatcher.one(function(){
+          if (callback !== undefined && typeof(callback) === 'function') {
+            callback(err);
+          }
+        });
       }
-      restartWatcher.one(function(){
-        if (callback !== undefined && typeof(callback) === 'function') {
-          callback(err);
-        }
-      });
     });
   },
 
@@ -1199,15 +1200,16 @@ var actions = {
         if (err) {
           LOGGER.raw(err);
           LOGGER.error('npm did not uninstall ' + app + ' correctly.');
+          callback(err);
         } else {
           configHelpers.removeApp(app);
           LOGGER.info(app + ' successfully uninstalled.');
+          restartWatcher.one(function(){
+            if (callback !== undefined && typeof(callback) === 'function') {
+              callback(err);
+            }
+          });
         }
-        restartWatcher.one(function(){
-          if (callback !== undefined && typeof(callback) === 'function') {
-            callback(err);
-          }
-        });
       });
     }
   },
@@ -1231,15 +1233,16 @@ var actions = {
         LOGGER.error('Make sure it lives on Github');
         LOGGER.error('or in the given directory.');
         LOGGER.error(plugin + ' installation failed.');
+        callback(err);
       } else {
         configHelpers.addPlugin(plugin, manifest);
         LOGGER.info(plugin + ' installed. Enjoy!');
+        restartWatcher.one(function(){
+          if (callback !== undefined && typeof(callback) === 'function') {
+            callback(err);
+          }
+        });
       }
-      restartWatcher.one(function(){
-        if (callback !== undefined && typeof(callback) === 'function') {
-          callback(err);
-        }
-      });
     });
   },
 
@@ -1258,15 +1261,16 @@ var actions = {
         if (err) {
           LOGGER.raw(err);
           LOGGER.error('npm did not uninstall ' + plugin + ' correctly.');
+          callback(err);
         } else {
           LOGGER.info(plugin + ' successfully uninstalled.');
           configHelpers.removePlugin(plugin);
+          restartWatcher.one(function(){
+            if (callback !== undefined && typeof(callback) === 'function') {
+              callback(err);
+            }
+          });
         }
-        restartWatcher.one(function(){
-          if (callback !== undefined && typeof(callback) === 'function') {
-            callback(err);
-          }
-        });
       });
     }
   },
