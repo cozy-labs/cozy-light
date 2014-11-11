@@ -749,7 +749,7 @@ var applicationHelpers = {
    *
    * @param {Function} callback Termination.
    */
-  stopAllApps: function (callback) {
+  stopAll: function (callback) {
     function stopApp (app, cb) {
       var application = config.apps[app];
       applicationHelpers.stopApplication(application, cb);
@@ -763,7 +763,7 @@ var applicationHelpers = {
    * @param db The datastore.
    * @param {Function} callback Termination.
    */
-  startAllApps: function (db, callback) {
+  startAll: function (db, callback) {
     function startApp (app, cb) {
       var application = config.apps[app];
       applicationHelpers.startApplication(application, db, cb);
@@ -1088,7 +1088,7 @@ var actions = {
             }
           }
         };
-        applicationHelpers.startAllApps(db, startServer);
+        applicationHelpers.startAll(db, startServer);
       }
     });
   },
@@ -1099,7 +1099,7 @@ var actions = {
    * @param {Function} callback Termination.
    */
   stop: function (callback) {
-    applicationHelpers.stopAllApps(function (err) {
+    applicationHelpers.stopAll(function (err) {
       if (err) { LOGGER.raw(err); }
 
       pluginHelpers.stopAll(function(err){
