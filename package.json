@@ -56,7 +56,7 @@
   },
   "scripts": {
     "test": "mocha --globals s --reporter spec tests.js",
-    "lint": "eslint cozy-light.js tests.js",
+    "lint": "eslint bin.js cozy-light.js tests.js",
     "start": "node bin.js"
   },
   "repository": {

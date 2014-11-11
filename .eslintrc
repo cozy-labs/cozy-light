@@ -11,6 +11,8 @@
     "curly": [2, "all"],
     "strict": false,
     "no-multi-str": true,
+    "space-infix-ops": [2, {before: false, after: true}],
+    "comma-spacing": [2, {before: false, after: true}],
     "quotes": [2, "single"],
     "max-len": 80
   }

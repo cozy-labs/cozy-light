@@ -35,7 +35,7 @@ var defaultAppsPort = port;
 var proxy = null;
 var config = null;
 var server = null;
-var wss;
+var wss = null;
 var db = null;
 
 
@@ -181,20 +181,22 @@ var configHelpers = {
   },
 
   /**
-   * Set configHelpers HOME and CONFIG_PATH
-   * Create HOME folder
-   * Change CWD to HOME folder
-   * Initialize a default config file if none exists
-   * Manage config file watcher subscriptions
-   * Load and return config file.
+   * Init happens in several steps:
+   * - Set configHelpers HOME and CONFIG_PATH
+   * - Create the home folder
+   * - Change current working directory to home folder
+   * - Initialize a default config file if none exists
+   * - Manage config file watcher subscriptions
+   * - Load and return config file.
+   *
+   * default home dir is ~/.cozy-light
+   * default config path is ~/.cozy-light/package.json
    *
    * @param {String} customHome The home path where .cozy-light folder belongs
    *
    * @return {Object} config
    */
   init: function (customHome, options) {
-    // default home dir is ~/.cozy-light
-    // default config path is ~/.cozy-light/package.json
     home = pathExtra.join(customHome, '.cozy-light');
     program = options || program;
     configPath = pathExtra.join(home, 'config.json');
@@ -230,7 +232,7 @@ var configHelpers = {
    */
   watchConfig: function (newWatcher) {
     var index = configHelpers.watchers.indexOf(newWatcher);
-    if (index==-1) { configHelpers.watchers.push(newWatcher); }
+    if (index === -1) { configHelpers.watchers.push(newWatcher); }
   },
 
   /**
@@ -245,7 +247,7 @@ var configHelpers = {
   },
 
   /**
-   * Export plugins to a plain object
+   * Prepare plugins to be sent as json file to the web UI.
    *
    * @returns {Array}
    */
@@ -266,7 +268,7 @@ var configHelpers = {
   },
 
   /**
-   * Export plugins to a plain object
+   * Prepare apps to be sent as json file to the web UI.
    *
    * @returns {Array}
    */
@@ -293,16 +295,15 @@ var configHelpers = {
   /**
    * Get application server port.
    * Take port from command line args, or config,
-   * fallback to default one
-   * if none set.
+   * fallback to default one if none is set.
    *
    * @return {int} Application server port.
    */
   getServerPort: function (options) {
     var mainPort = DEFAULT_PORT;
-    var p = options || program;
-    if (p.port !== undefined) {
-      mainPort = p.port;
+    var infos = options || program;
+    if (infos.port !== undefined) {
+      mainPort = infos.port;
     } else if (config.port !== undefined) {
       mainPort = config.port;
     }
@@ -322,41 +323,44 @@ var configHelpers = {
 
   /**
    * @return {String} Application server url.
+   * TODO: refactor with url module.
    */
   getServerUrl: function (options) {
-    var h = configHelpers.getHost(options);
-    var p = configHelpers.getServerPort(options);
-    var location = '://' + h + ':' + p;
+    var host = configHelpers.getHost(options);
+    var port = configHelpers.getServerPort(options);
+    var serverUrl = '://' + host + ':' + port;
     if (config.ssl !== undefined) {
-      location = 'https' + location;
+      serverUrl = 'https' + serverUrl;
     } else  {
-      location = 'http' + location;
+      serverUrl = 'http' + serverUrl;
     }
 
-    return location;
+    return serverUrl;
   },
 
   /**
    * @return {String} Application socket url.
+   * TODO: refactor with url module and melt it with getServerUrl
    */
   getSocketUrl: function (options) {
-    var h = configHelpers.getHost(options);
-    var p = configHelpers.getSocketPort(options);
-    var location = '://' + h + ':' + p;
+    var host = configHelpers.getHost(options);
+    var port = configHelpers.getSocketPort(options);
+    var serverUrl = '://' + host + ':' + port;
     if (config.ssl !== undefined) {
-      location = 'wss' + location;
+      serverUrl = 'wss' + serverUrl;
     } else  {
-      location = 'ws' + location;
+      serverUrl = 'ws' + serverUrl;
     }
 
-    return location;
+    return serverUrl;
   }
 };
+
 
 var nodeHelpers = {
 
   /**
-   * Clear require cache given app name
+   * Clear from the require cache, the given app.
    *
    * @param {String} app App to clear from require cache.
    */
@@ -370,11 +374,12 @@ var nodeHelpers = {
   },
 
   /**
-   * Clear close a node server by calling
+   * Close a node server by calling
    * each socket.destroy on close event
    *
    * @param {Object} server Server to configure.
    * @param {Array} sockets Array to store sockets.
+   * TODO: refactor with url module.
    */
   clearCloseServer: function (server) {
     (function(server){
@@ -393,6 +398,7 @@ var nodeHelpers = {
     })(server);
   }
 };
+
 
 var npmHelpers = {
 
@@ -443,8 +449,9 @@ var npmHelpers = {
    */
   fetchManifest: function (app, callback) {
     var appPath = pathExtra.resolve(initialWd, app);
+
     if (fs.existsSync(appPath)
-      && fs.existsSync(pathExtra.join(appPath,'package.json'))) {
+        && fs.existsSync(pathExtra.join(appPath,'package.json'))) {
       var manifestPath = pathExtra.join(appPath,'package.json');
       fs.readFile(manifestPath, function checkError (err, manifest) {
         if (err) {
@@ -466,7 +473,7 @@ var npmHelpers = {
           LOGGER.error(err);
           callback(err);
         } else {
-          callback(err,manifest, 'url');
+          callback(err, manifest, 'url');
         }
       });
     }
@@ -477,11 +484,12 @@ var npmHelpers = {
    *
    * @param {String} app App or Plugin name to fetch from url or path.
    * @param {Function} callback Termination.
+   * TODO rename this function
    */
   fetchInstall: function (app, callback) {
     npmHelpers.fetchManifest(app, function(err, manifest, type){
-      if (err){ return callback(err); }
-      var cb = function(err){
+      if (err) { return callback(err); }
+      var cb = function (err) {
         callback(err, manifest, type);
       };
       if (type === 'file') {
@@ -496,17 +504,18 @@ var npmHelpers = {
 var pluginHelpers = {
 
   /**
-   * Start given plugin.
+   * Start given plugin (require it, run configuration and apply change to
+   * cozy light server).
    *
    * @param pluginName The plugin name to start.
    * @param applicationServer The application server to connect the plugin on.
    * @param callback Termination.
    */
   start: function (pluginName, applicationServer, callback) {
-    if (config.plugins[pluginName] === undefined){
+    if (config.plugins[pluginName] === undefined) {
       LOGGER.error(
         'Plugin ' + pluginName + ' not installed !');
-    } else if (loadedPlugins[pluginName] !== undefined){
+    } else if (loadedPlugins[pluginName] !== undefined) {
       LOGGER.error(
         'Plugin ' + pluginName + ' already started !');
     } else {
@@ -551,7 +560,7 @@ var pluginHelpers = {
   },
 
   /**
-   * Stop given plugin.
+   * Stop given plugin (unload it form cache and run its exit handleR).
    *
    * @param pluginName The plugin name to start.
    * @param callback Termination.
@@ -567,7 +576,7 @@ var pluginHelpers = {
       var options = config.plugins[pluginName];
       delete loadedPlugins[pluginName];
       try {
-        var plugin = require( configHelpers.modulePath(options.name) );
+        var plugin = require(configHelpers.modulePath(options.name));
         nodeHelpers.clearRequireCache(options.name);
         if (plugin.onExit !== undefined) {
           return plugin.onExit(options, config, function(err){
@@ -612,6 +621,7 @@ var pluginHelpers = {
   }
 };
 
+
 var applicationHelpers = {
 
   /**
@@ -633,7 +643,7 @@ var applicationHelpers = {
       var appModule;
       try {
         appModule = require( configHelpers.modulePath(name) );
-      } catch(err) {
+      } catch (err) {
         LOGGER.raw(err);
       }
 
@@ -652,15 +662,16 @@ var applicationHelpers = {
           watchers: []
         };
 
+        // TODO understand getPort and configChanged.
         var options = {
           db: db,
           port: port,
           'rest_api': configHelpers.getServerUrl(program),
           'socket_api': configHelpers.getSocketUrl(program),
-          getPort: function(){
+          getPort: function () {
             return port++;
           },
-          configChanged: function(cb){
+          configChanged: function (cb) {
             loadedApps[name].watchers.push(cb);
             configHelpers.configChanged(cb);
           },
@@ -670,6 +681,7 @@ var applicationHelpers = {
           if (err) { LOGGER.error(err); }
 
           if (server !== undefined ){
+            // TODO understand why this operation is required.
             nodeHelpers.clearCloseServer(server);
             loadedApps[name].server = server;
           }
@@ -796,34 +808,6 @@ var controllers = {
   },
 
   /**
-   * If request path don't match any existing route, it's redirected to
-   */
-  automaticRedirect: function (req, res) {
-    if (req.headers.referer !== undefined) {
-      var referer = url.parse(req.headers.referer);
-      var app = referer.path.split('/')[2];
-      if (app !== undefined && app !== '') {
-        var link = url.parse(encodeURI(req.url));
-        link.path = link.path.split('?')[0];
-        link.path = '/apps/' + app + link.path;
-        link.pathname = link.path;
-        if (link.path.indexOf(link.query) > 0) {
-          link.query = '';
-          link.search = '';
-        }
-        if (link.search === null) {
-          link.search = '';
-        }
-        res.redirect(link.format(), 307);
-      } else {
-        res.redirect('/', 307);
-      }
-    } else {
-      res.send(404);
-    }
-  },
-
-  /**
    */
   listApps: function (req, res) {
     res.send(configHelpers.exportApps());
@@ -859,6 +843,7 @@ var controllers = {
     res.send(404);
   }
 };
+
 
 var mainAppHelper = {
 
@@ -937,21 +922,21 @@ var mainAppHelper = {
       host: 'localhost',
       port: configHelpers.getSocketPort()
     });
-    wss.on('connection', function(ws) {
-      var emit = function(m, d){
+    wss.on('connection', function (ws) {
+      var emit = function (message, data) {
         var event = {
-          message: m,
-          data: d
+          message: message,
+          data: data
         };
-        ws.send( JSON.stringify(event) );
+        ws.send(JSON.stringify(event));
       };
-      var sendApplicationList = function(){
+      var sendApplicationList = function () {
         emit('applicationList', configHelpers.exportApps());
       };
-      var sendPluginList = function(){
+      var sendPluginList = function () {
         emit('pluginList', configHelpers.exportPlugins());
       };
-      var sendMemoryValue = function(){
+      var sendMemoryValue = function ( ){
         var memoryUsage = process.memoryUsage();
         var memory = {
           value: Math.ceil(memoryUsage.heapUsed / 1000000),
@@ -963,7 +948,7 @@ var mainAppHelper = {
       sendPluginList();
       sendApplicationList();
       sendMemoryValue();
-      var socketInterval = setInterval(sendMemoryValue,2500);
+      var socketInterval = setInterval(sendMemoryValue, 2500);
       ws.on('close', function() {
         clearInterval(socketInterval);
       });
@@ -972,34 +957,34 @@ var mainAppHelper = {
   },
 
   /**
+   * TODO write comment.
    */
   stopAll: function (done) {
     var list = [];
-    if (server){
-      list.push(function(d){
-        server.close(function(){
-          d();
-        });
+    if (server) {
+      list.push(function (callback){
+        server.close(callback);
       });
     }
-    if (wss){
-      list.push(function(d){
+    if (wss) {
+      list.push(function (callback) {
         wss.close(); // does not work well, or has no callback
-        d();
+        callback();
       });
     }
-    if (proxy){
-      list.push(function(d){
+    if (proxy) {
+      list.push(function (callback) {
         proxy.close(); // does not work well, or has no callback
-        d();
+        callback();
       });
     }
-    async.series(list,done);
+    async.series(list, done);
   }
 };
 
 // Actions
 
+// TODO write comment, put it in a module.
 var restartWatcher = {
   watchers: [],
   trigger: function(){
@@ -1065,14 +1050,11 @@ var actions = {
               server = http.createServer(app);
             }
             var mainPort = configHelpers.getServerPort(program);
-            var location = configHelpers.getServerUrl(program);
+            var url = configHelpers.getServerUrl(program);
             server.listen(mainPort);
             nodeHelpers.clearCloseServer(server);
             mainAppHelper.initializeProxy(server);
-            LOGGER.info(
-              'Cozy Light Dashboard is running at ' +
-              location + ' ...'
-            );
+            LOGGER.info('Cozy Light Dashboard is running at ' + url + ' ...');
 
             // Reload apps when file configuration is modified
             configHelpers.watchConfig(actions.restart);
@@ -1095,7 +1077,7 @@ var actions = {
     applicationHelpers.stopAll(function (err) {
       if (err) { LOGGER.raw(err); }
 
-      pluginHelpers.stopAll(function(err){
+      pluginHelpers.stopAll(function (err) {
         if (err) { LOGGER.raw(err); }
         mainAppHelper.stopAll(function(){
           port = defaultAppsPort;
