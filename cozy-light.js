@@ -839,25 +839,71 @@ var controllers = {
   /**
    */
   installApp: function (req, res) {
-    res.send(404);
+    npmHelpers.fetchInstall(app, function addAppToConfig (err, manifest) {
+      if (!err) {
+        configHelpers.addApp(app, manifest);
+        restartWatcher.one(function(){
+          res.send(200);
+        });
+      }else{
+        res.send(500);
+      }
+    });
   },
 
   /**
    */
   uninstallApp: function (req, res) {
-    res.send(404);
+    if (config.apps[app] === undefined) {
+      res.send(404);
+    } else {
+      var module = config.apps[app].name;
+      npmHelpers.uninstall(module, function removeAppFromConfig (err) {
+        if (!err) {
+          configHelpers.removeApp(app);
+          restartWatcher.one(function(){
+            res.send(200);
+          });
+        }else{
+          res.send(500);
+        }
+      });
+    }
   },
 
   /**
    */
   installPlugin: function (req, res) {
-    res.send(404);
+    npmHelpers.fetchInstall(app, function addAppToConfig (err, manifest) {
+      if (!err) {
+        configHelpers.addApp(app, manifest);
+        restartWatcher.one(function(){
+          res.send(200);
+        });
+      }else{
+        res.send(500);
+      }
+    });
   },
 
   /**
    */
   uninstallPlugin: function (req, res) {
-    res.send(404);
+    if (config.apps[app] === undefined) {
+      res.send(404);
+    } else {
+      var module = config.apps[app].name;
+      npmHelpers.uninstall(module, function removeAppFromConfig (err) {
+        if (!err) {
+          configHelpers.removeApp(app);
+          restartWatcher.one(function(){
+            res.send(200);
+          });
+        }else{
+          res.send(500);
+        }
+      });
+    }
   }
 };
 
