@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 
-var http = require('http');
-var url = require('url');
 var pathExtra = require('path-extra');
 var program = require('commander');
-var express = require('express');
 var printit = require('printit');
-var cozy = require('./lib.js');
+
+var cozy = require('./cozy-light');
 var actions = cozy.actions;
 var configHelpers = cozy.configHelpers;
 
@@ -62,7 +60,10 @@ program
 configHelpers.init(pathExtra.homedir(), program);
 
 
+// Run CLI
+
 program.parse(process.argv);
+
 
 // If arguments doesn't match any of the one set, it displays help.
 

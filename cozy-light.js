@@ -229,11 +229,8 @@ var configHelpers = {
    * @return {Object} config
    */
   watchConfig: function (newWatcher) {
-    var isSet = false;
-    configHelpers.watchers.forEach(function (watcher) {
-      if (watcher === newWatcher) { isSet = true; }
-    });
-    if (!isSet) { configHelpers.watchers.push(newWatcher); }
+    var index = configHelpers.watchers.indexOf(newWatcher);
+    if (index==-1) { configHelpers.watchers.push(newWatcher); }
   },
 
   /**
@@ -243,11 +240,8 @@ var configHelpers = {
    * @return {Object} config
    */
   unwatchConfig: function (newWatcher) {
-    var index = false;
-    configHelpers.watchers.forEach(function (watcher, k) {
-      if (watcher === newWatcher) { index = k; }
-    });
-    if (index !== false) { configHelpers.watchers.splice(index,1); }
+    var index = configHelpers.watchers.indexOf(newWatcher);
+    if (index > -1) { configHelpers.watchers.splice(index,1); }
   },
 
   /**
@@ -748,7 +742,7 @@ var applicationHelpers = {
    *
    * @param {Function} callback Termination.
    */
-  stopAllApps: function (callback) {
+  stopAll: function (callback) {
     function stopApp (app, cb) {
       var application = config.apps[app];
       applicationHelpers.stopApplication(application, cb);
@@ -762,7 +756,7 @@ var applicationHelpers = {
    * @param db The datastore.
    * @param {Function} callback Termination.
    */
-  startAllApps: function (db, callback) {
+  startAll: function (db, callback) {
     function startApp (app, cb) {
       var application = config.apps[app];
       applicationHelpers.startApplication(application, db, cb);
@@ -1087,7 +1081,7 @@ var actions = {
             }
           }
         };
-        applicationHelpers.startAllApps(db, startServer);
+        applicationHelpers.startAll(db, startServer);
       }
     });
   },
@@ -1098,7 +1092,7 @@ var actions = {
    * @param {Function} callback Termination.
    */
   stop: function (callback) {
-    applicationHelpers.stopAllApps(function (err) {
+    applicationHelpers.stopAll(function (err) {
       if (err) { LOGGER.raw(err); }
 
       pluginHelpers.stopAll(function(err){
@@ -1176,15 +1170,16 @@ var actions = {
         LOGGER.error('Make sure it lives on Github');
         LOGGER.error('or in the given directory.');
         LOGGER.error(app + ' installation failed.');
+        callback(err);
       } else {
         configHelpers.addApp(app, manifest);
         LOGGER.info(app + ' installed. Enjoy!');
+        restartWatcher.one(function(){
+          if (callback !== undefined && typeof(callback) === 'function') {
+            callback(err);
+          }
+        });
       }
-      restartWatcher.one(function(){
-        if (callback !== undefined && typeof(callback) === 'function') {
-          callback(err);
-        }
-      });
     });
   },
 
@@ -1204,15 +1199,16 @@ var actions = {
         if (err) {
           LOGGER.raw(err);
           LOGGER.error('npm did not uninstall ' + app + ' correctly.');
+          callback(err);
         } else {
           configHelpers.removeApp(app);
           LOGGER.info(app + ' successfully uninstalled.');
+          restartWatcher.one(function(){
+            if (callback !== undefined && typeof(callback) === 'function') {
+              callback(err);
+            }
+          });
         }
-        restartWatcher.one(function(){
-          if (callback !== undefined && typeof(callback) === 'function') {
-            callback(err);
-          }
-        });
       });
     }
   },
@@ -1236,15 +1232,16 @@ var actions = {
         LOGGER.error('Make sure it lives on Github');
         LOGGER.error('or in the given directory.');
         LOGGER.error(plugin + ' installation failed.');
+        callback(err);
       } else {
         configHelpers.addPlugin(plugin, manifest);
         LOGGER.info(plugin + ' installed. Enjoy!');
+        restartWatcher.one(function(){
+          if (callback !== undefined && typeof(callback) === 'function') {
+            callback(err);
+          }
+        });
       }
-      restartWatcher.one(function(){
-        if (callback !== undefined && typeof(callback) === 'function') {
-          callback(err);
-        }
-      });
     });
   },
 
@@ -1263,15 +1260,16 @@ var actions = {
         if (err) {
           LOGGER.raw(err);
           LOGGER.error('npm did not uninstall ' + plugin + ' correctly.');
+          callback(err);
         } else {
           LOGGER.info(plugin + ' successfully uninstalled.');
           configHelpers.removePlugin(plugin);
+          restartWatcher.one(function(){
+            if (callback !== undefined && typeof(callback) === 'function') {
+              callback(err);
+            }
+          });
         }
-        restartWatcher.one(function(){
-          if (callback !== undefined && typeof(callback) === 'function') {
-            callback(err);
-          }
-        });
       });
     }
   },
