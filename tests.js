@@ -1,19 +1,21 @@
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var assert = require('assert');
-var http = require('http');
-var request = require('request-json-light');
+var requestJSON = require('request-json-light');
+var request = require('request');
 var PouchDB = require('pouchdb');
 var cozyLight = require('./cozy-light');
 
 var actions = cozyLight.actions;
 var configHelpers = cozyLight.configHelpers;
 var npmHelpers = cozyLight.npmHelpers;
-var serverHelpers = cozyLight.serverHelpers;
+var applicationHelpers = cozyLight.applicationHelpers;
+//var mainAppHelper = cozyLight.mainAppHelper;
 
 var workingDir = pathExtra.join( __dirname, '/.test-working_dir/');
 var fixturesDir = pathExtra.join( __dirname, '/fixtures/');
-var HOME = pathExtra.join(workingDir, '.cozy-light');
+var HOME = workingDir;
+var cozyHOME = pathExtra.join(HOME, '.cozy-light' );
 
 
 before(function(){
@@ -38,7 +40,7 @@ describe('Config Helpers', function () {
       this.timeout(10000);
       configHelpers.init(HOME);
       assert(fs.existsSync(HOME), 'HOME directory not created');
-      assert(fs.existsSync(pathExtra.join(HOME, 'config.json')),
+      assert(fs.existsSync(pathExtra.join(cozyHOME, 'config.json')),
              'configuration file not created');
     });
   });
@@ -46,7 +48,7 @@ describe('Config Helpers', function () {
   describe('createConfigFile', function () {
     it('should create an empty config file', function () {
       configHelpers.createConfigFile();
-      assert(fs.existsSync(pathExtra.join(HOME, 'config.json')),
+      assert(fs.existsSync(pathExtra.join(cozyHOME, 'config.json')),
         'configuration file not created');
     });
   });
@@ -125,7 +127,7 @@ describe('NPM Helpers', function () {
   describe('install', function () {
     it('should install a module.', function (done) {
       this.timeout(60000);
-      process.chdir(HOME);
+      process.chdir(cozyHOME);
       var destPath = configHelpers.modulePath('hello');
       npmHelpers.install('cozy-labs/hello', function (err) {
         assert.equal(err, null, 'Cannot install module.');
@@ -135,7 +137,7 @@ describe('NPM Helpers', function () {
       });
     });
     it('should link a  module.', function (done) {
-      process.chdir(HOME);
+      process.chdir(cozyHOME);
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       var destPath = configHelpers.modulePath('hello');
       npmHelpers.link(testapp, function (err) {
@@ -149,7 +151,7 @@ describe('NPM Helpers', function () {
 
   describe('uninstall', function(){
     it('should remove a remote module.', function (done) {
-      process.chdir(HOME);
+      process.chdir(cozyHOME);
       var destPath = configHelpers.modulePath('hello');
       npmHelpers.uninstall('hello', function (err) {
         assert.equal(err, null, 'Cannot uninstall module.');
@@ -159,7 +161,7 @@ describe('NPM Helpers', function () {
       });
     });
     it('should remove a local module.', function (done) {
-      process.chdir(HOME);
+      process.chdir(cozyHOME);
       var destPath = configHelpers.modulePath('test-app');
       npmHelpers.uninstall('test-app', function (err) {
         assert.equal(err, null, 'Cannot uninstall module.');
@@ -242,6 +244,17 @@ describe('Server Helpers', function () {
   it.skip('createApplicationServer', function(){
   });
 
+  it.skip('loadPlugins', function(){
+  });
+
+  it.skip('exitHandler', function(){
+  });
+
+});
+
+
+describe('Application Helpers', function () {
+
   describe('startApplication', function () {
     it('should start a server for given application', function (done) {
       this.timeout(10000);
@@ -256,16 +269,17 @@ describe('Server Helpers', function () {
       var manifest = require(pathExtra.join(dest, 'package.json'));
       manifest.type = 'classic';
       var db = new PouchDB('test');
-      serverHelpers.startApplication(manifest, db, function assertAccess () {
-        var client = request.newClient('http://localhost:18001');
-        client.get('', function assertResponse (err, res) {
-          assert.equal(err, null,
-                       'An error occured while accessing test app.');
-          assert.equal(res.statusCode, 200,
-                       'Wrong return code for test app.');
-          done();
+      applicationHelpers.startApplication(manifest, db,
+        function assertAccess () {
+          var client = requestJSON.newClient('http://localhost:18001');
+          client.get('', function assertResponse (err, res) {
+            assert.equal(err, null,
+              'An error occurred while accessing test app.');
+            assert.equal(res.statusCode, 200,
+              'Wrong return code for test app.');
+            done();
+          });
         });
-      });
     });
   });
 
@@ -275,8 +289,8 @@ describe('Server Helpers', function () {
       var manifest = require(pathExtra.join(appHome, 'package.json'));
       manifest.type = 'classic';
 
-      serverHelpers.stopApplication(manifest, function assertStop () {
-        var client = request.newClient('http://localhost:18001');
+      applicationHelpers.stopApplication(manifest, function assertStop () {
+        var client = requestJSON.newClient('http://localhost:18001');
         client.get('', function assertResponse(err) {
           assert.notEqual(err, null,
                           'Application should not be accessible anymore.');
@@ -284,74 +298,6 @@ describe('Server Helpers', function () {
         });
       });
     });
-  });
-
-  describe('reloadApps', function() {
-
-    it('should restart all apps', function(done) {
-      var appHome = configHelpers.modulePath('test-app');
-      var manifest = require(pathExtra.join(appHome, 'package.json'));
-      configHelpers.addApp('test-app', manifest);
-
-      serverHelpers.reloadApps(function assertAppAccess () {
-        var client = request.newClient('http://localhost:18002');
-        client.get('', function assertResponse (err, res) {
-          assert.equal(err, null,
-                      'An error occured while accessing test app.');
-          assert.equal(res.statusCode, 200,
-                       'Wrong return code for test app.');
-          configHelpers.removeApp('test-app');
-          serverHelpers.stopApplication(manifest, done);
-        });
-      });
-      });
-
-    it('should reload app source code', function(done) {
-      var appHome = configHelpers.modulePath('test-app');
-      var manifest = require(pathExtra.join(appHome, 'package.json'));
-      manifest.type = 'classic';
-      configHelpers.addApp('test-app', manifest);
-
-      var db = new PouchDB('test');
-      serverHelpers.startApplication(manifest, db, function assertAccess () {
-        var client = request.newClient('http://localhost:18003');
-
-        client.get('', function assertResponse (err, res, body) {
-          assert.equal(err, null, 'An error occured while accessing test app.');
-          assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
-          assert(body.ok, 'Wrong initial response body for test app.');
-
-          var serverFile = appHome + '/server.js';
-          var content = fs.readFileSync(serverFile,'utf-8');
-          content = content.replace('send({ok: true})','send({ok: false})');
-          fs.writeFileSync(serverFile, content);
-
-          serverHelpers.reloadApps(function assertAppAccess () {
-            client = request.newClient('http://localhost:18004');
-
-            client.get('', function assertResponse (err, res, body) {
-              assert.equal(err, null,
-                           'An error occured while accessing test app.');
-              assert.equal(res.statusCode, 200,
-                           'Wrong return code for test app.');
-              assert.equal(body.ok, false,
-                           'Wrong reloaded response body for test app.');
-              content = content.replace(
-                'send({ok: false})', 'send({ok: true})');
-              fs.writeFileSync(serverFile,content);
-              configHelpers.removeApp('test-app');
-              serverHelpers.stopApplication(manifest, done);
-            });
-          });
-        });
-      });
-    });
-  });
-
-  it.skip('loadPlugins', function(){
-  });
-
-  it.skip('exitHandler', function(){
   });
 
 });
@@ -379,26 +325,15 @@ describe('actions', function () {
   describe('start', function () {
     it('should listen and respond to http requests.', function (done) {
       var opt = {port: 8090};
-      actions.start(opt, function(err, app, server) {
+      actions.start(opt, function(err) {
        assert.equal(err, null, 'Cannot start server');
-        var options = {
-          host: 'localhost',
-          port: opt.port
-        };
-        http.get(options, function(res) {
-          res.setEncoding('utf8');
-          var body = '';
-          res.on('data', function (chunk) {
-            body += chunk;
-          });
-          res.on('end', function () {
-            var expected = 'Cozy Light: Your Personal Cloud at Home';
-            assert(body.indexOf(expected) > -1);
-            server.close();
+        request('http://localhost:' + opt.port + '/',
+          function(error, response){
+            assert.equal(error, null,
+              'An error occurred while accessing test app.');
+            assert.equal(response.statusCode, 404,
+              'Wrong return code for test app.');
             done();
-          });
-        }).on('error', function(e) {
-          done(e);
         });
       });
     });
@@ -432,10 +367,15 @@ describe('actions', function () {
   it.skip('addPlugin', function () {});
   it.skip('removePlugin', function () {});
 
+  after(function(done){
+    actions.stop(done);
+  });
+
 });
 
 
 describe('Functional tests', function () {
+
   describe('Hot app install', function () {
     it('starts the main server.', function (done) {
       var opt = {port: 8090};
@@ -455,10 +395,63 @@ describe('Functional tests', function () {
       setTimeout(done, 1000);
     });
     it('fake app should be started.', function (done) {
-      var client = request.newClient('http://localhost:18005');
+      var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res) {
-        assert.equal(err, null, 'An error occured while accessing test app.');
+        assert.equal(err, null, 'An error occurred while accessing test app.');
         assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
+        actions.stop(done);
+      });
+    });
+  });
+
+  describe('Hot app reload', function () {
+
+    it('starts the main server.', function (done) {
+      var opt = {port: 8090};
+      actions.start(opt, done);
+    });
+    it('install fake app manually.', function (done) {
+      // Nothing to do test app is still in the cozy-light folder.
+      done();
+    });
+    it('wait 1s.', function (done) {
+      setTimeout(done, 1000);
+    });
+    it('ensure initial source code.', function (done) {
+      var client = requestJSON.newClient('http://localhost:18001');
+      client.get('', function assertResponse (err, res, body) {
+        assert.equal(err, null, 'An error occurred while accessing test app.');
+        assert.equal(body.ok, true,
+          'Wrong reloaded response body for test app.');
+        done();
+      });
+    });
+    it('change application code.', function (done) {
+      var appHome = configHelpers.modulePath('test-app');
+      var serverFile = appHome + '/server.js';
+      var content = fs.readFileSync(serverFile,'utf-8');
+      content = content.replace('send({ok: true})','send({ok: false})');
+      fs.writeFileSync(serverFile, content);
+      done();
+    });
+    it('restart cozy-light.', function (done) {
+      actions.restart(done);
+    });
+    it('fake app should be started.', function (done) {
+      var client = requestJSON.newClient('http://localhost:18001');
+      client.get('', function assertResponse (err, res, body) {
+        assert.equal(err, null,
+          'An error occured while accessing test app.');
+        assert.equal(res.statusCode, 200,
+          'Wrong return code for test app.');
+        assert.equal(body.ok, false,
+          'Wrong reloaded response body for test app.');
+        var appHome = configHelpers.modulePath('test-app');
+        var serverFile = appHome + '/server.js';
+        var content = fs.readFileSync(serverFile,'utf-8');
+        content = content.replace(
+          'send({ok: false})', 'send({ok: true})');
+        fs.writeFileSync(serverFile,content);
         done();
       });
     });
