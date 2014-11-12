@@ -77,7 +77,7 @@ process.on('uncaughtException', function (err) {
   if (err) {
     LOGGER.warn('An exception is uncaught');
     LOGGER.raw(err);
-    console.log(err.stack);
+    LOGGER.raw(err.stack);
     actions.exit();
   }
 });
