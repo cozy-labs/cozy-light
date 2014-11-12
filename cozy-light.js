@@ -847,10 +847,31 @@ var mainAppHelper = {
   },
 
   /**
-   * setup dashboard application server.
+   * start dashboard application server.
+   *
+   * @param program
+   * @param app
+   * @returns {*}
    */
-  setupServer: function (app) {
-
+  start: function (program,app) {
+    // Set SSL configuration if certificates path are properly set.
+    var options = {};
+    if (config.ssl !== undefined) {
+      options.key = fs.readFileSync(config.ssl.key, 'utf8');
+      options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
+      server = https.createServer(options, app);
+    } else  {
+      server = http.createServer(app);
+    }
+    var mainPort = configHelpers.getServerPort(program);
+    var location = configHelpers.getServerUrl(program);
+    server.listen(mainPort);
+    nodeHelpers.clearCloseServer(server);
+    mainAppHelper.initializeProxy(server);
+    LOGGER.info(
+      'Cozy Light Dashboard is running at ' +
+      location + ' ...'
+    );
     app.all('/apps/:name/*', controllers.proxyPrivate);
     app.all('/apps/:name*', controllers.proxyPrivate);
 
@@ -858,11 +879,12 @@ var mainAppHelper = {
     app.all('/public/:name*', controllers.proxyPublic);
 
     app.all('/*', controllers.automaticRedirect);
+    return server;
   },
 
   /**
    */
-  stopAll: function (done) {
+  stop: function (done) {
     var list = [];
     if (server){
       list.push(function(d){
@@ -928,47 +950,15 @@ var actions = {
     config.pouchdb = Pouchdb;
     config.appPort = port;
 
-    pluginHelpers.startAll(app, function(err){
-      mainAppHelper.setupServer(app);
-      if (err) {
-        LOGGER.raw(err);
-        LOGGER.error('An error occurred while creating server');
-      } else {
-
-        var startServer = function (err) {
-          if (err) {
-            LOGGER.raw(err);
-            LOGGER.error('An error occurred while creating server');
-          } else {
-
-            // Set SSL configuration if certificates path are properly set.
-            var options = {};
-            if (config.ssl !== undefined) {
-              options.key = fs.readFileSync(config.ssl.key, 'utf8');
-              options.cert = fs.readFileSync(config.ssl.cert, 'utf8');
-              server = https.createServer(options, app);
-            } else  {
-              server = http.createServer(app);
-            }
-            var mainPort = configHelpers.getServerPort(program);
-            var location = configHelpers.getServerUrl(program);
-            server.listen(mainPort);
-            nodeHelpers.clearCloseServer(server);
-            mainAppHelper.initializeProxy(server);
-            LOGGER.info(
-              'Cozy Light Dashboard is running at ' +
-              location + ' ...'
-            );
-
-            // Reload apps when file configuration is modified
-            configHelpers.watchConfig(actions.restart);
-            if (callback !== undefined && typeof(callback) === 'function') {
-              callback(null, app, server);
-            }
-          }
-        };
-        applicationHelpers.startAll(db, startServer);
-      }
+    pluginHelpers.startAll(app, function(){
+      mainAppHelper.start(program, app);
+      applicationHelpers.startAll(db, function() {
+        // Reload apps when file configuration is modified
+        configHelpers.watchConfig(actions.restart);
+        if (callback !== undefined && typeof(callback) === 'function') {
+          callback(null, app, server);
+        }
+      });
     });
   },
 
@@ -983,7 +973,7 @@ var actions = {
 
       pluginHelpers.stopAll(function(err){
         if (err) { LOGGER.raw(err); }
-        mainAppHelper.stopAll(function(){
+        mainAppHelper.stop(function(){
           port = defaultAppsPort;
           if (callback) { callback(); }
         });
