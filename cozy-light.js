@@ -847,15 +847,15 @@ var mainAppHelper = {
     } else  {
       server = http.createServer(app);
     }
+
     var mainPort = configHelpers.getServerPort(program);
-    var location = configHelpers.getServerUrl(program);
     server.listen(mainPort);
-    nodeHelpers.clearCloseServer(server);
     mainAppHelper.initializeProxy(server);
+
     LOGGER.info(
-      'Cozy Light Dashboard is running at ' +
-      location + ' ...'
+      'Cozy Light server is listening on port ' + mainPort + '...'
     );
+
     app.all('/apps/:name/*', controllers.proxyPrivate);
     app.all('/apps/:name*', controllers.proxyPrivate);
 
@@ -870,7 +870,7 @@ var mainAppHelper = {
   stop: function (done) {
     var list = [];
     if (server) {
-      list.push(function (callback){
+      list.push(function (callback) {
         try {
           server.close(callback);
         } catch (err) {
@@ -1003,11 +1003,9 @@ var actions = {
       /*eslint-disable */
       if (process._getActiveHandles().length
         || process._getActiveRequests().length ) {
-      /*eslint-enable */
-        /*eslint-disable */
         process.exit(err ? 1 : 0);
-        /*eslint-enable */
       }
+      /*eslint-enable */
 
     };
     actions.stop(endProcess);
