@@ -1,6 +1,5 @@
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
-var express = require('express');
 var assert = require('assert');
 var requestJSON = require('request-json-light');
 var request = require('request');

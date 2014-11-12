@@ -228,7 +228,7 @@ var configHelpers = {
    */
   watchConfig: function (newWatcher) {
     var index = configHelpers.watchers.indexOf(newWatcher);
-    if (index==-1) { configHelpers.watchers.push(newWatcher); }
+    if (index === -1) { configHelpers.watchers.push(newWatcher); }
   },
 
   /**
@@ -644,7 +644,8 @@ var applicationHelpers = {
           }
           routes[name] = options.port;
           LOGGER.info(
-            'Application ' + name + ' is now running on port ' + options.port + '...');
+            'Application ' + name + ' is now running ' +
+            'on port ' + options.port + '...');
           port = port + 1;
           callback(err, app, server);
         });
