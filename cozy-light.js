@@ -599,7 +599,7 @@ var applicationHelpers = {
    *                      (they all share the same datastore).
    * @param {Function} callback Termination.
    */
-  startApplication: function (application, db, callback) {
+  start: function (application, db, callback) {
 
     if (application.type === undefined || application.type === 'classic') {
 
@@ -661,7 +661,7 @@ var applicationHelpers = {
    * @param application The application to stop.
    * @param {Function} callback Termination.
    */
-  stopApplication: function (application, callback) {
+  stop: function (application, callback) {
     var name = application.name;
 
     if (loadedApps[name] !== undefined) {
@@ -715,7 +715,7 @@ var applicationHelpers = {
   stopAll: function (callback) {
     function stopApp (app, cb) {
       var application = config.apps[app];
-      applicationHelpers.stopApplication(application, cb);
+      applicationHelpers.stop(application, cb);
     }
     async.eachSeries(Object.keys(config.apps), stopApp, callback);
   },
@@ -729,7 +729,7 @@ var applicationHelpers = {
   startAll: function (db, callback) {
     function startApp (app, cb) {
       var application = config.apps[app];
-      applicationHelpers.startApplication(application, db, cb);
+      applicationHelpers.start(application, db, cb);
     }
     async.eachSeries(Object.keys(config.apps), startApp, callback);
   }
@@ -853,7 +853,7 @@ var mainAppHelper = {
    * @param app
    * @returns {*}
    */
-  start: function (program,app) {
+  start: function (program, app) {
     // Set SSL configuration if certificates path are properly set.
     var options = {};
     if (config.ssl !== undefined) {
@@ -970,7 +970,6 @@ var actions = {
   stop: function (callback) {
     applicationHelpers.stopAll(function (err) {
       if (err) { LOGGER.raw(err); }
-
       pluginHelpers.stopAll(function(err){
         if (err) { LOGGER.raw(err); }
         mainAppHelper.stop(function(){
