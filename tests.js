@@ -36,6 +36,10 @@ describe('Config Helpers', function () {
     fs.remove(HOME, done);
   });
 
+  it.skip('modulePath', function(){});
+  it.skip('loadConfigFile', function(){});
+  it.skip('saveConfig', function(){});
+
   describe('init', function () {
     it('should initialize Home directory', function () {
       this.timeout(10000);
@@ -120,6 +124,18 @@ describe('Config Helpers', function () {
     });
   });
 
+  it.skip('watchConfig', function(){});
+  it.skip('unwatchConfig', function(){});
+  it.skip('exportPlugins', function(){});
+  it.skip('exportApps', function(){});
+  it.skip('getHost', function(){});
+  it.skip('getServerUrl', function(){});
+});
+
+
+describe('Node Helpers', function () {
+  it.skip('clearRequireCache', function(){});
+  it.skip('clearCloseServer', function(){});
 });
 
 
@@ -237,26 +253,33 @@ describe('NPM Helpers', function () {
 });
 
 
-describe('Server Helpers', function () {
+describe('Main App Helpers', function () {
 
-  it.skip('initializeProxy', function(){
+  it.skip('initializeProxy', function(){});
+
+  it.skip('start', function(){
   });
 
-  it.skip('createApplicationServer', function(){
+  it.skip('stop', function(){
   });
 
-  it.skip('loadPlugins', function(){
-  });
-
-  it.skip('exitHandler', function(){
+  it.skip('exit', function(){
   });
 
 });
 
 
+describe('Plugin Helpers', function () {
+  it.skip('start', function(){});
+  it.skip('stop', function(){});
+  it.skip('startAll', function(){});
+  it.skip('stopAll', function(){});
+});
+
+
 describe('Application Helpers', function () {
 
-  describe('startApplication', function () {
+  describe('start', function () {
     it('should start a server for given application', function (done) {
       this.timeout(10000);
       var source = pathExtra.join(__dirname, 'fixtures', 'test-app');
@@ -284,7 +307,7 @@ describe('Application Helpers', function () {
     });
   });
 
-  describe('stopApplication', function () {
+  describe('stop', function () {
     it('should stop running server for given application', function (done) {
       var appHome = configHelpers.modulePath('test-app');
       var manifest = require(pathExtra.join(appHome, 'package.json'));
@@ -301,6 +324,8 @@ describe('Application Helpers', function () {
     });
   });
 
+  it.skip('startAll', function(){});
+  it.skip('stopAll', function(){});
 });
 
 
@@ -312,8 +337,6 @@ describe('Controllers', function () {
   it.skip('proxyPublic', function(){
   });
 
-  it.skip('automaticRedirect', function(){
-  });
 });
 
 
