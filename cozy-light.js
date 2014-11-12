@@ -248,17 +248,18 @@ var configHelpers = {
    * @returns {Array}
    */
   exportPlugins: function () {
-    var plugins = [];
-    Object.keys(config.plugins).forEach(function(name){
+    var plugins = {};
+    Object.keys(config.plugins || {}).forEach(function(name){
       var template = '';
       if (loadedPlugins[name] && loadedPlugins[name].getTemplate) {
         template = loadedPlugins[name].getTemplate(config);
       }
-      plugins.push({
+      plugins[name] = {
+        name: name,
         displayName: config.plugins[name].displayName,
         version: config.plugins[name].version,
         template: template
-      });
+      };
     });
     return plugins;
   },
@@ -269,14 +270,15 @@ var configHelpers = {
    * @returns {Array}
    */
   exportApps: function () {
-    var apps = [];
+    var apps = {};
     var baseUrl = configHelpers.getServerUrl();
-    Object.keys(config.apps).forEach(function(name){
-      apps.push({
+    Object.keys(config.apps || {}).forEach(function(name){
+      apps[name] = {
+        name: name,
         displayName: config.apps[name].displayName,
         version: config.apps[name].version,
         url: baseUrl + '/apps/' + config.apps[name].name + '/'
-      });
+      };
     });
     return apps;
   },
