@@ -945,7 +945,7 @@ var mainAppHelper = {
   },
 
   /**
-   * setup dashboard application server.
+   * setup main application server.
    */
   setupServer: function (app) {
 
@@ -957,12 +957,10 @@ var mainAppHelper = {
 
     app.all('/rest/list-apps', controllers.listApps);
     app.all('/rest/list-plugins', controllers.listPlugins);
-
-    app.all('/*', controllers.automaticRedirect);
   },
 
   /**
-   * setup dashboard application socket.
+   * setup main application socket.
    */
   setupSocket: function () {
     wss = new WebSocketServer({
@@ -1010,7 +1008,11 @@ var mainAppHelper = {
     var list = [];
     if (server) {
       list.push(function (callback){
-        server.close(callback);
+        try {
+          server.close(callback);
+        } catch (err) {
+          callback();
+        }
       });
     }
     if (wss) {
@@ -1021,7 +1023,9 @@ var mainAppHelper = {
     }
     if (proxy) {
       list.push(function (callback) {
-        proxy.close(); // does not work well, or has no callback
+        if(proxy.close !== undefined) {
+          proxy.close(); // does not work well, or has no callback
+        }
         callback();
       });
     }
@@ -1101,11 +1105,11 @@ var actions = {
               server = http.createServer(app);
             }
             var mainPort = configHelpers.getServerPort(program);
-            var url = configHelpers.getServerUrl(program);
             server.listen(mainPort);
             nodeHelpers.clearCloseServer(server);
             mainAppHelper.initializeProxy(server);
-            LOGGER.info('Cozy Light Dashboard is running at ' + url + ' ...');
+            LOGGER.info(
+                'Cozy Light server is running on port ' + mainPort + ' ...');
 
             // Reload apps when file configuration is modified
             configHelpers.watchConfig(actions.restart);
@@ -1174,7 +1178,7 @@ var actions = {
       if (process._getActiveHandles().length
         || process._getActiveRequests().length ) {
       /*eslint-enable */
-        LOGGER.info('Forcing termination.');
+        //LOGGER.info('Forcing termination.');
         /*eslint-disable */
         process.exit(err ? 1 : 0);
         /*eslint-enable */
