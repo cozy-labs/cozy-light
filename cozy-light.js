@@ -15,8 +15,6 @@ var async = require('async');
 var printit = require('printit');
 var Pouchdb = require('pouchdb');
 var httpProxy = require('http-proxy');
-var ws = require('ws');
-var WebSocketServer = ws.Server;
 
 // Constants
 const LOGGER = printit({ prefix: 'Cozy Light' });
@@ -36,7 +34,6 @@ var defaultAppsPort = port;
 var proxy = null;
 var config = null;
 var server = null;
-var wss;
 var db = null;
 
 
@@ -312,16 +309,6 @@ var configHelpers = {
   },
 
   /**
-   * Get application socket port.
-   *  application server port+1
-   *
-   * @return {int} Application socket port.
-   */
-  getSocketPort: function (options) {
-    return configHelpers.getServerPort(options) + 1;
-  },
-
-  /**
    * @return {String} Application server url.
    */
   getServerUrl: function (options) {
@@ -332,22 +319,6 @@ var configHelpers = {
       location = 'https' + location;
     } else  {
       location = 'http' + location;
-    }
-
-    return location;
-  },
-
-  /**
-   * @return {String} Application socket url.
-   */
-  getSocketUrl: function (options) {
-    var h = configHelpers.getHost(options);
-    var p = configHelpers.getSocketPort(options);
-    var location = '://' + h + ':' + p;
-    if (config.ssl !== undefined) {
-      location = 'wss' + location;
-    } else  {
-      location = 'ws' + location;
     }
 
     return location;
@@ -657,14 +628,8 @@ var applicationHelpers = {
         var options = {
           db: db,
           port: port,
-          'rest_api': configHelpers.getServerUrl(program),
-          'socket_api': configHelpers.getSocketUrl(program),
           getPort: function(){
             return port++;
-          },
-          configChanged: function(cb){
-            loadedApps[name].watchers.push(cb);
-            configHelpers.configChanged(cb);
           },
           silent: true
         };
@@ -823,88 +788,6 @@ var controllers = {
     } else {
       res.send(404);
     }
-  },
-
-  /**
-   */
-  listApps: function (req, res) {
-    res.send(configHelpers.exportApps());
-  },
-
-  /**
-   */
-  listPlugins: function (req, res) {
-    res.send(configHelpers.exportPlugins());
-  },
-
-  /**
-   */
-  installApp: function (req, res) {
-    var app = req.body.app;
-    if (config.apps[app]) {
-      res.status(500).end();
-    }else{
-      npmHelpers.fetchInstall(app, function addAppToConfig (err, manifest) {
-        if (!err) {
-          configHelpers.addApp(app, manifest);
-          res.status(200).end();
-        }else{
-          res.status(500).end();
-        }
-      });
-    }
-  },
-
-  /**
-   */
-  uninstallApp: function (req, res) {
-    var app = req.body.app;
-    if (config.apps[app] === undefined) {
-      res.status(404).end();
-    } else {
-      var module = config.apps[app].name;
-      npmHelpers.uninstall(module, function removeAppFromConfig (err) {
-        if (!err) {
-          configHelpers.removeApp(app);
-          res.status(200).end();
-        }else{
-          res.status(500).end();
-        }
-      });
-    }
-  },
-
-  /**
-   */
-  installPlugin: function (req, res) {
-    var plugin = req.body.plugin;
-    npmHelpers.fetchInstall(plugin, function addPluginToConfig (err, manifest) {
-      if (!err) {
-        configHelpers.addPlugin(plugin, manifest);
-        res.status(200).end();
-      }else{
-        res.status(500).end();
-      }
-    });
-  },
-
-  /**
-   */
-  uninstallPlugin: function (req, res) {
-    var plugin = req.body.plugin;
-    if (config.plugins[plugin] === undefined) {
-      res.status(404).end();
-    } else {
-      var module = config.plugins[plugin].name;
-      npmHelpers.uninstall(module, function remotePluginFromConfig (err) {
-        if (!err) {
-          configHelpers.removePlugin(plugin);
-          res.status(200).end();
-        }else{
-          res.status(500).end();
-        }
-      });
-    }
   }
 };
 
@@ -971,52 +854,7 @@ var mainAppHelper = {
     app.all('/public/:name/*', controllers.proxyPublic);
     app.all('/public/:name*', controllers.proxyPublic);
 
-    app.all('/rest/list-apps', controllers.listApps);
-    app.all('/rest/list-plugins', controllers.listPlugins);
-
     app.all('/*', controllers.automaticRedirect);
-  },
-
-  /**
-   * setup dashboard application socket.
-   */
-  setupSocket: function () {
-    wss = new WebSocketServer({
-      host: 'localhost',
-      port: configHelpers.getSocketPort()
-    });
-    wss.on('connection', function(ws) {
-      var emit = function(m, d){
-        var event = {
-          message: m,
-          data: d
-        };
-        ws.send( JSON.stringify(event) );
-      };
-      var sendApplicationList = function(){
-        emit('applicationList', configHelpers.exportApps());
-      };
-      var sendPluginList = function(){
-        emit('pluginList', configHelpers.exportPlugins());
-      };
-      var sendMemoryValue = function(){
-        var memoryUsage = process.memoryUsage();
-        var memory = {
-          value: Math.ceil(memoryUsage.heapUsed / 1000000),
-          unit: 'MB'
-        };
-        emit('memoryChanged', memory);
-      };
-
-      sendPluginList();
-      sendApplicationList();
-      sendMemoryValue();
-      var socketInterval = setInterval(sendMemoryValue,2500);
-      ws.on('close', function() {
-        clearInterval(socketInterval);
-      });
-    });
-    nodeHelpers.clearCloseServer(wss);
   },
 
   /**
@@ -1028,12 +866,6 @@ var mainAppHelper = {
         server.close(function(){
           d();
         });
-      });
-    }
-    if (wss){
-      list.push(function(d){
-        wss.close(); // does not work well, or has no callback
-        d();
       });
     }
     if (proxy){
@@ -1095,7 +927,6 @@ var actions = {
 
     pluginHelpers.startAll(app, function(err){
       mainAppHelper.setupServer(app);
-      mainAppHelper.setupSocket();
       if (err) {
         LOGGER.raw(err);
         LOGGER.error('An error occurred while creating server');
@@ -1341,6 +1172,7 @@ var actions = {
 
 module.exports = {
   configHelpers: configHelpers,
+  nodeHelpers: nodeHelpers,
   npmHelpers: npmHelpers,
   applicationHelpers: applicationHelpers,
   mainAppHelper: mainAppHelper,
