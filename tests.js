@@ -270,7 +270,7 @@ describe('Application Helpers', function () {
       var manifest = require(pathExtra.join(dest, 'package.json'));
       manifest.type = 'classic';
       var db = new PouchDB('test');
-      applicationHelpers.startApplication(manifest, db,
+      applicationHelpers.start(manifest, db,
         function assertAccess () {
           var client = requestJSON.newClient('http://localhost:18001');
           client.get('', function assertResponse (err, res) {
@@ -290,7 +290,7 @@ describe('Application Helpers', function () {
       var manifest = require(pathExtra.join(appHome, 'package.json'));
       manifest.type = 'classic';
 
-      applicationHelpers.stopApplication(manifest, function assertStop () {
+      applicationHelpers.stop(manifest, function assertStop () {
         var client = requestJSON.newClient('http://localhost:18001');
         client.get('', function assertResponse(err) {
           assert.notEqual(err, null,
