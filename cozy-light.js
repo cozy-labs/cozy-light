@@ -788,7 +788,7 @@ var controllers = {
         res.redirect('/', 307);
       }
     } else {
-      res.send(404);
+      res.status(404).end();
     }
   }
 };
