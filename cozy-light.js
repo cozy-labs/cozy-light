@@ -686,9 +686,9 @@ var applicationHelpers = {
             nodeHelpers.clearCloseServer(server);
             loadedApps[name].server = server;
           }
-          routes[name] = port;
+          routes[name] = options.port;
           LOGGER.info(
-            'Application ' + name + ' is now running on port ' + port + '...');
+            'Application ' + name + ' is now running on port ' + options.port + '...');
           port = port + 1;
           callback(err, app, server);
         });
