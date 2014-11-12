@@ -1178,7 +1178,6 @@ var actions = {
       if (process._getActiveHandles().length
         || process._getActiveRequests().length ) {
       /*eslint-enable */
-        //LOGGER.info('Forcing termination.');
         /*eslint-disable */
         process.exit(err ? 1 : 0);
         /*eslint-enable */
