@@ -218,7 +218,12 @@ var configHelpers = {
         onConfigChanged
     );
 
-    return configHelpers.loadConfigFile();
+    config = configHelpers.loadConfigFile();
+    Object.keys(config.plugins || {}).forEach(function (name) {
+      pluginHelpers.loadPlugin(name);
+    });
+
+    return config;
   },
 
 
@@ -476,6 +481,30 @@ var npmHelpers = {
 
 var pluginHelpers = {
 
+  loadPlugin: function (pluginName) {
+      var pluginConfig = config.plugins[pluginName];
+      var pluginPath = configHelpers.modulePath(pluginConfig.name);
+      var pluginModule = require(pluginPath);
+      var options = {
+        name: pluginConfig.name,
+        displayName: pluginConfig.displayName,
+        version: pluginConfig.version,
+        description: pluginConfig.description,
+        configPath: configPath,
+        /*eslint-disable */
+        config_path: configPath, // for backward compatibility
+        /*eslint-enable */
+        home: home,
+        npmHelpers: npmHelpers,
+        proxy: proxy
+      };
+      pluginModule.configure(options, config, program);
+
+      loadedPlugins[pluginName] = pluginModule;
+
+      return pluginModule;
+  },
+
   /**
    * Start given plugin (require it, run configuration and apply change to
    * cozy light server).
@@ -486,32 +515,15 @@ var pluginHelpers = {
    */
   start: function (pluginName, applicationServer, callback) {
     if (config.plugins[pluginName] === undefined) {
-      LOGGER.error(
-        'Plugin ' + pluginName + ' not installed !');
-    } else if (loadedPlugins[pluginName] !== undefined) {
-      LOGGER.error(
-        'Plugin ' + pluginName + ' already started !');
+      LOGGER.error('Plugin ' + pluginName + ' not installed !');
     } else {
       try {
-        var pluginConfig = config.plugins[pluginName];
-        var pluginPath = configHelpers.modulePath(pluginConfig.name);
-        var plugin = require(pluginPath);
-        var options = {
-          name: pluginConfig.name,
-          displayName: pluginConfig.displayName,
-          version: pluginConfig.version,
-          description: pluginConfig.description,
-          configPath: configPath,
-          /*eslint-disable */
-          config_path: configPath, // for backward compatibility
-          /*eslint-enable */
-          home: home,
-          npmHelpers: npmHelpers,
-          proxy: proxy
+        var plugin;
+        if (loadedPlugins[pluginName] === undefined) {
+          plugin = pluginHelpers.loadPlugin(pluginName);
+        } else {
+          plugin = loadedPlugins[pluginName];
         };
-        plugin.configure(options, config, program);
-
-        loadedPlugins[pluginName] = plugin;
 
         if (plugin.configureAppServer !== undefined) {
           LOGGER.info('Configuring plugin ' + pluginName + '...');
@@ -539,12 +551,10 @@ var pluginHelpers = {
    * @param callback Termination.
    */
   stop: function (pluginName, callback) {
-    if (config.plugins[pluginName] === undefined){
-      LOGGER.error(
-        'Plugin ' + pluginName + ' not installed !');
-    } else if (loadedPlugins[pluginName] === undefined){
-      LOGGER.error(
-        'Plugin ' + pluginName + ' not started !');
+    if (config.plugins[pluginName] === undefined) {
+      LOGGER.error('Plugin ' + pluginName + ' not installed!');
+    } else if (loadedPlugins[pluginName] === undefined) {
+      LOGGER.error('Plugin ' + pluginName + ' not started!');
     } else {
       var options = config.plugins[pluginName];
       delete loadedPlugins[pluginName];
@@ -552,13 +562,15 @@ var pluginHelpers = {
         var plugin = require(configHelpers.modulePath(options.name));
         nodeHelpers.clearRequireCache(options.name);
         if (plugin.onExit !== undefined) {
-          return plugin.onExit(options, config, function(err){
+          return plugin.onExit(options, config, function (err) {
             if (err) {
               LOGGER.raw(err);
               LOGGER.error('Plugin ' + pluginName + ' failed for termination.');
             }
             callback(err);
           });
+        } else {
+          callback();
         }
       } catch(err) {
         LOGGER.raw(err);
@@ -1004,8 +1016,8 @@ var actions = {
       /*eslint-disable */
       if (process._getActiveHandles().length
         || process._getActiveRequests().length ) {
-        process.exit(err ? 1 : 0);
       }
+      process.exit(err ? 1 : 0);
       /*eslint-enable */
 
     };
