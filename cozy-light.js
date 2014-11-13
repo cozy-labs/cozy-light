@@ -976,6 +976,7 @@ var actions = {
     LOGGER.info('Stopping apps...');
     actions.stop(function(){
       LOGGER.info('Apps stopped.');
+      configHelpers.loadConfigFile();
       loadedPlugins = {};
       loadedApps = {};
       routes = {};
