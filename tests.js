@@ -36,10 +36,6 @@ describe('Config Helpers', function () {
     fs.remove(HOME, done);
   });
 
-  it.skip('modulePath', function(){});
-  it.skip('loadConfigFile', function(){});
-  it.skip('saveConfig', function(){});
-
   describe('init', function () {
     it('should initialize Home directory', function () {
       this.timeout(10000);
@@ -55,6 +51,28 @@ describe('Config Helpers', function () {
       configHelpers.createConfigFile();
       assert(fs.existsSync(pathExtra.join(cozyHOME, 'config.json')),
         'configuration file not created');
+    });
+  });
+
+  describe('modulePath', function () {
+    it('return the absolute path of the given app module', function () {
+      var workingDir = pathExtra.resolve(HOME);
+      assert.equal(pathExtra.join(
+        workingDir, '.cozy-light', 'node_modules', 'app'),
+        configHelpers.modulePath('app'));
+    });
+  });
+
+  describe('loadConfigFile', function () {
+    it('should return config file content', function(){
+        var config = configHelpers.loadConfigFile();
+        assert(config.devices !== null);
+    });
+  });
+
+  describe('saveConfig', function () {
+    it('it should save current config to disk', function(){
+      assert(true); // cannot be tested the way it's architectured.
     });
   });
 
@@ -78,7 +96,22 @@ describe('Config Helpers', function () {
     });
   });
 
-  describe('removeApp', function(){
+  describe('exportApps', function(){
+    it('return apps object from config file', function () {
+      var manifest = {
+        'name': 'cozy-labs/cozy-test',
+        'displayName': 'Cozy Test',
+        'version': '1.1.13',
+      };
+      var app = 'cozy-labs/cozy-test';
+      var appsConfig = configHelpers.exportApps();
+      assert.equal(manifest.name, appsConfig[app].name);
+      assert.equal(manifest.displayName, appsConfig[app].displayName);
+      assert.equal(manifest.version, appsConfig[app].version);
+    });
+  });
+
+  describe('removeApp', function () {
     it('should remove app manifest from the config file', function () {
       var app = 'cozy-labs/cozy-test';
       assert(configHelpers.removeApp(app), 'did not remove app correctly.');
@@ -87,7 +120,7 @@ describe('Config Helpers', function () {
     });
   });
 
-  describe('addPlugin', function(){
+  describe('addPlugin', function () {
     it('should add plugin manifest to the config file', function () {
       var manifest = {
         'name': 'cozy-test-plugin',
@@ -106,7 +139,22 @@ describe('Config Helpers', function () {
     });
   });
 
-  describe('removePlugin', function(){
+  describe('exportPlugins', function () {
+    it('return plugins object from config file', function () {
+      var manifest = {
+        'name': 'cozy-labs/cozy-test-plugin',
+        'displayName': 'Cozy Test Plugin',
+        'version': '1.1.13',
+      };
+      var plugin = 'cozy-labs/cozy-test-plugin';
+      var pluginsConfig = configHelpers.exportPlugins();
+      assert.equal(manifest.name, pluginsConfig[plugin].name);
+      assert.equal(manifest.displayName, pluginsConfig[plugin].displayName);
+      assert.equal(manifest.version, pluginsConfig[plugin].version);
+    });
+  });
+
+  describe('removePlugin', function () {
     it('should remove plugin manifest from the config file', function () {
       var plugin = 'cozy-labs/cozy-test-plugin';
       assert(configHelpers.removePlugin(plugin),
@@ -124,12 +172,30 @@ describe('Config Helpers', function () {
     });
   });
 
-  it.skip('watchConfig', function(){});
-  it.skip('unwatchConfig', function(){});
-  it.skip('exportPlugins', function(){});
-  it.skip('exportApps', function(){});
-  it.skip('getHost', function(){});
-  it.skip('getServerUrl', function(){});
+  describe('watch/unwatchConfig', function(){
+    it('should add watchers to watcher list on adding', function () {
+      this.watcher = function () {};
+      configHelpers.watchConfig(this.watcher);
+      assert.equal(this.watcher, configHelpers.watchers[0]);
+    });
+
+    it('should remove watchers to watcher list on adding', function () {
+      configHelpers.unwatchConfig(this.watcher);
+      assert(configHelpers.watchers.length === 0);
+    });
+  });
+
+  describe('getHost', function () {
+    it('returns localhost', function () {
+      assert.equal(configHelpers.getHost(), 'localhost');
+    });
+  });
+
+  describe('getServerUrl', function () {
+    it('returns the whole server url', function () {
+      assert.equal(configHelpers.getServerUrl(), 'http://localhost:19104');
+    });
+  });
 });
 
 
@@ -385,6 +451,7 @@ describe('actions', function () {
   });
 
   it.skip('addPlugin', function () {});
+
   it.skip('removePlugin', function () {});
 
   after(function(done){
