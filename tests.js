@@ -72,7 +72,11 @@ describe('Config Helpers', function () {
 
   describe('saveConfig', function () {
     it('it should save current config to disk', function(){
-      assert(true); // cannot be tested the way it's architectured.
+      var config = configHelpers.loadConfigFile();
+      config.dumbKey = true;
+      configHelpers.saveConfig();
+      config = configHelpers.loadConfigFile();
+      assert(config.dumbKey);
     });
   });
 
