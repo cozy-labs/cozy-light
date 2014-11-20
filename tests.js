@@ -38,7 +38,7 @@ describe('Config Helpers', function () {
 
   describe('init', function () {
     it('should initialize Home directory', function () {
-      this.timeout(10000);
+      this.timeout(50000);
       configHelpers.init(HOME);
       assert(fs.existsSync(HOME), 'HOME directory not created');
       assert(fs.existsSync(pathExtra.join(cozyHOME, 'config.json')),
