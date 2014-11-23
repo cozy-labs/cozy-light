@@ -501,11 +501,6 @@ describe('Functional tests', function () {
       var opt = {port: 8090};
       actions.start(opt, done);
     });
-    it('install fake app manually.', function (done) {
-      console.log("test")
-      // Nothing to do test app is still in the cozy-light folder.
-      done();
-    });
     it('wait 1s.', function (done) {
       setTimeout(done, 1000);
     });
