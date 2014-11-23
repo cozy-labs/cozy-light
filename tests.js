@@ -502,6 +502,7 @@ describe('Functional tests', function () {
       actions.start(opt, done);
     });
     it('install fake app manually.', function (done) {
+      console.log("test")
       // Nothing to do test app is still in the cozy-light folder.
       done();
     });
