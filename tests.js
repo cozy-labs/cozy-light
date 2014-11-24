@@ -56,9 +56,8 @@ describe('Config Helpers', function () {
 
   describe('modulePath', function () {
     it('return the absolute path of the given app module', function () {
-      var workingDir = pathExtra.resolve(HOME);
       assert.equal(pathExtra.join(
-        workingDir, '.cozy-light', 'node_modules', 'app'),
+          pathExtra.resolve(HOME), '.cozy-light', 'node_modules', 'app'),
         configHelpers.modulePath('app'));
     });
   });
@@ -103,9 +102,9 @@ describe('Config Helpers', function () {
   describe('exportApps', function(){
     it('return apps object from config file', function () {
       var manifest = {
-        'name': 'cozy-labs/cozy-test',
+        'name': 'cozy-test',
         'displayName': 'Cozy Test',
-        'version': '1.1.13',
+        'version': '1.1.13'
       };
       var app = 'cozy-labs/cozy-test';
       var appsConfig = configHelpers.exportApps();
@@ -146,9 +145,9 @@ describe('Config Helpers', function () {
   describe('exportPlugins', function () {
     it('return plugins object from config file', function () {
       var manifest = {
-        'name': 'cozy-labs/cozy-test-plugin',
+        'name': 'cozy-test-plugin',
         'displayName': 'Cozy Test Plugin',
-        'version': '1.1.13',
+        'version': '1.1.13'
       };
       var plugin = 'cozy-labs/cozy-test-plugin';
       var pluginsConfig = configHelpers.exportPlugins();
@@ -454,9 +453,30 @@ describe('actions', function () {
     });
   });
 
-  it.skip('addPlugin', function () {});
+  describe('addPlugin', function () {
+    it('should add plugin folder and update configuration. ', function (done) {
+      var testPlugin = pathExtra.join('fixtures/', 'test-plugin/');
+      actions.installPlugin(testPlugin, function (err) {
+        assert.equal(err, null, 'Cannot install plugin.');
+        var config = configHelpers.loadConfigFile();
+        assert.equal('test-plugin', config.plugins[testPlugin].name);
+        done();
+      });
+    });
+  });
 
-  it.skip('removePlugin', function () {});
+  describe('removePlugin', function () {
+    it('should remove plugin and update configuration. ', function (done) {
+      var testPlugin = pathExtra.join('fixtures/', 'test-plugin/');
+      actions.uninstallPlugin(testPlugin, function (err) {
+        assert.equal(err, null, 'Cannot uninstall plugin.');
+        var config = configHelpers.loadConfigFile();
+        console.log(config.plugins);
+        assert.equal(config.plugins[testPlugin], undefined);
+        done();
+      });
+    });
+  });
 
   after(function(done){
     actions.stop(done);

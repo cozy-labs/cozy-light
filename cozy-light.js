@@ -15,6 +15,7 @@ var async = require('async');
 var printit = require('printit');
 var Pouchdb = require('pouchdb');
 var httpProxy = require('http-proxy');
+var symbols = require('./symbols.js');
 
 // Constants
 const LOGGER = printit({ prefix: 'Cozy Light' });
@@ -208,6 +209,7 @@ var configHelpers = {
 
     var watchOptions = {persistent: false, interval: 1000};
     var onConfigChanged = function () {
+      LOGGER.info('Config changed..');
       configHelpers.watchers.forEach(function (watcher) {
         watcher();
       });
@@ -262,7 +264,7 @@ var configHelpers = {
         template = loadedPlugins[name].getTemplate(config);
       }
       plugins[name] = {
-        name: name,
+        name: config.plugins[name].name,
         displayName: config.plugins[name].displayName,
         version: config.plugins[name].version,
         template: template
@@ -281,7 +283,7 @@ var configHelpers = {
     var baseUrl = configHelpers.getServerUrl();
     Object.keys(config.apps || {}).forEach(function(name){
       apps[name] = {
-        name: name,
+        name: config.apps[name].name,
         displayName: config.apps[name].displayName,
         version: config.apps[name].version,
         url: baseUrl + '/apps/' + config.apps[name].name + '/'
@@ -321,9 +323,9 @@ var configHelpers = {
    * TODO: refactor with url module.
    */
   getServerUrl: function (options) {
-    var host = configHelpers.getHost(options);
-    var port = configHelpers.getServerPort(options);
-    var serverUrl = '://' + host + ':' + port;
+    var resolvedHost = configHelpers.getHost(options);
+    var resolvedPort = configHelpers.getServerPort(options);
+    var serverUrl = '://' + resolvedHost + ':' + resolvedPort;
     if (config.ssl !== undefined) {
       serverUrl = 'https' + serverUrl;
     } else  {
@@ -331,7 +333,7 @@ var configHelpers = {
     }
 
     return serverUrl;
-  },
+  }
 };
 
 
@@ -486,7 +488,7 @@ var pluginHelpers = {
       var pluginPath = configHelpers.modulePath(pluginConfig.name);
       var pluginModule = require(pluginPath);
       var options = {
-        name: pluginConfig.name,
+        name: pluginModule.name,
         displayName: pluginConfig.displayName,
         version: pluginConfig.version,
         description: pluginConfig.description,
@@ -498,7 +500,10 @@ var pluginHelpers = {
         npmHelpers: npmHelpers,
         proxy: proxy
       };
-      pluginModule.configure(options, config, program);
+
+      if (pluginModule.configure){
+        pluginModule.configure(options, config, program);
+      }
 
       loadedPlugins[pluginName] = pluginModule;
 
@@ -518,12 +523,10 @@ var pluginHelpers = {
       LOGGER.error('Plugin ' + pluginName + ' not installed !');
     } else {
       try {
-        var plugin;
         if (loadedPlugins[pluginName] === undefined) {
-          plugin = pluginHelpers.loadPlugin(pluginName);
-        } else {
-          plugin = loadedPlugins[pluginName];
-        };
+          pluginHelpers.loadPlugin(pluginName);
+        }
+        var plugin = loadedPlugins[pluginName];
 
         if (plugin.configureAppServer !== undefined) {
           LOGGER.info('Configuring plugin ' + pluginName + '...');
@@ -565,19 +568,22 @@ var pluginHelpers = {
           return plugin.onExit(options, config, function (err) {
             if (err) {
               LOGGER.raw(err);
-              LOGGER.error('Plugin ' + pluginName + ' failed for termination.');
+              LOGGER.info('\t' + symbols.err + '\t' + pluginName + '');
+            } else {
+              LOGGER.info('\t' + symbols.ok + '\t' + pluginName + '');
             }
             callback(err);
           });
-        } else {
-          callback();
         }
+        LOGGER.info('\t' + symbols.ok + '\t' + pluginName + '');
+        return callback();
       } catch(err) {
         LOGGER.raw(err);
         LOGGER.error('Plugin ' + pluginName + ' failed for termination.');
+        return callback(err);
       }
-      callback();
     }
+    return callback();
   },
 
   /**
@@ -601,7 +607,7 @@ var pluginHelpers = {
    * @param callback Termination.
    */
   stopAll: function (callback) {
-    var plugins = Object.keys(loadedPlugins || {});
+    var plugins = Object.keys(config.plugins || {});
     async.eachSeries(plugins, pluginHelpers.stop, callback);
   }
 };
@@ -692,13 +698,12 @@ var applicationHelpers = {
       var closeServer = function () {
         try {
           if (loadedApps[name].server !== undefined ){
-            LOGGER.info('Application ' + name + ' is now stopping.');
             loadedApps[name].server.close(function logInfo (err) {
               if (err) {
                 LOGGER.raw(err);
-                LOGGER.warn('An error occurred while stopping ' + name);
+                LOGGER.info('\t' + symbols.err + '\t' + name + '');
               } else {
-                LOGGER.info('...done');
+                LOGGER.info('\t' + symbols.ok + '\t' + name + '');
               }
               callback();
             });
@@ -785,7 +790,7 @@ var controllers = {
     } else {
       res.send(404);
     }
-  },
+  }
 
 };
 
@@ -892,7 +897,7 @@ var mainAppHelper = {
     }
     if (proxy) {
       list.push(function (callback) {
-        if(proxy.close !== undefined) {
+        if (proxy.close !== undefined) {
           proxy.close(); // does not work well, or has no callback
         }
         callback();
@@ -968,12 +973,14 @@ var actions = {
    * @param {Function} callback Termination.
    */
   stop: function (callback) {
+    LOGGER.info('Stopping apps...');
     applicationHelpers.stopAll(function (err) {
-      if (err) { LOGGER.raw(err); }
+      LOGGER.info('Stopping plugins...');
       pluginHelpers.stopAll(function (err) {
-        if (err) { LOGGER.raw(err); }
+        LOGGER.info('Stopping server...');
         mainAppHelper.stop(function(){
           port = defaultAppsPort;
+          LOGGER.info('\t'+symbols.ok+'\tmain server');
           if (callback) { callback(); }
         });
       });
@@ -985,16 +992,15 @@ var actions = {
    * reload everyone, then restart everyone
    */
   restart: function (callback) {
-    LOGGER.info('Stopping apps...');
+    LOGGER.info('Restarting...');
     actions.stop(function(){
-      LOGGER.info('Apps stopped.');
       configHelpers.loadConfigFile();
       loadedPlugins = {};
       loadedApps = {};
       routes = {};
-      LOGGER.info('Restarting all apps...');
+      LOGGER.info('Starting all apps...');
       actions.start(program, function(){
-        LOGGER.info('Cozy Light was properly restarted.');
+        LOGGER.info('...Cozy Light was properly restarted.');
         if (callback){ callback(); }
         restartWatcher.trigger();
       });
@@ -1075,6 +1081,7 @@ var actions = {
           callback(err);
         } else {
           configHelpers.removeApp(app);
+          delete loadedApps[app];
           LOGGER.info(app + ' successfully uninstalled.');
           restartWatcher.one(function(){
             if (callback !== undefined && typeof(callback) === 'function') {
@@ -1108,6 +1115,7 @@ var actions = {
         callback(err);
       } else {
         configHelpers.addPlugin(plugin, manifest);
+        pluginHelpers.loadPlugin(plugin);
         LOGGER.info(plugin + ' installed. Enjoy!');
         restartWatcher.one(function(){
           if (callback !== undefined && typeof(callback) === 'function') {
@@ -1138,6 +1146,7 @@ var actions = {
         } else {
           LOGGER.info(plugin + ' successfully uninstalled.');
           configHelpers.removePlugin(plugin);
+          delete loadedPlugins[plugin];
           restartWatcher.one(function(){
             if (callback !== undefined && typeof(callback) === 'function') {
               callback(err);
