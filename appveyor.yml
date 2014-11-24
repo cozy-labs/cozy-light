@@ -29,7 +29,7 @@ test_script:
   # Output useful info for debugging.
   - node --version
   - npm --version
-  - cmd: npm appveyor
+  - cmd: npm run appveyor
 
 # Don't actually build.
 build: off
