@@ -26,7 +26,11 @@ before(function(){
 
 
 after(function(){
-  fs.removeSync(workingDir);
+  try{
+    fs.removeSync(workingDir);
+  }catch(ex){
+    console.log(ex);
+  }
 });
 
 
