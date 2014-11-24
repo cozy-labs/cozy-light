@@ -647,7 +647,10 @@ var applicationHelpers = {
           watchers: []
         };
 
-        // TODO understand getPort and configChanged.
+        // TODO understand getPort
+        // use getPort from hosted application
+        // to grab more than one port,
+        // still ensure no app port conflict
         var options = {
           db: db,
           port: port,
@@ -661,6 +664,8 @@ var applicationHelpers = {
 
           if (server !== undefined ){
             // TODO understand why this operation is required.
+            // to properly close the server,
+            // and release all its resources
             nodeHelpers.clearCloseServer(server);
             loadedApps[name].server = server;
           }
