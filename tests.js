@@ -38,11 +38,11 @@ describe('Config Helpers', function () {
 
   describe('init', function () {
     it('should initialize Home directory', function () {
-      this.timeout(10000);
+      this.timeout(50000);
       configHelpers.init(HOME);
       assert(fs.existsSync(HOME), 'HOME directory not created');
       assert(fs.existsSync(pathExtra.join(cozyHOME, 'config.json')),
-             'configuration file not created');
+        'configuration file not created');
     });
   });
 
@@ -64,8 +64,8 @@ describe('Config Helpers', function () {
 
   describe('loadConfigFile', function () {
     it('should return config file content', function(){
-        var config = configHelpers.loadConfigFile();
-        assert(config.devices !== null);
+      var config = configHelpers.loadConfigFile();
+      assert(config.devices !== null);
     });
   });
 
@@ -161,7 +161,7 @@ describe('Config Helpers', function () {
     it('should remove plugin manifest from the config file', function () {
       var plugin = 'cozy-labs/cozy-test-plugin';
       assert(configHelpers.removePlugin(plugin),
-             'did not remove plugin correctly.');
+        'did not remove plugin correctly.');
       var config = configHelpers.loadConfigFile();
       assert.equal(undefined, config.plugins[plugin]);
     });
@@ -298,7 +298,7 @@ describe('NPM Helpers', function () {
           assert.equal('url', type);
           assert.equal('hello', manifest.name);
           done();
-      });
+        });
     });
     it('should fetch then install an absolute module path.', function (done) {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
@@ -386,7 +386,7 @@ describe('Application Helpers', function () {
         var client = requestJSON.newClient('http://localhost:18001');
         client.get('', function assertResponse(err) {
           assert.notEqual(err, null,
-                          'Application should not be accessible anymore.');
+            'Application should not be accessible anymore.');
           done();
         });
       });
@@ -415,7 +415,7 @@ describe('actions', function () {
     it('should listen and respond to http requests.', function (done) {
       var opt = {port: 8090};
       actions.start(opt, function(err) {
-       assert.equal(err, null, 'Cannot start server');
+        assert.equal(err, null, 'Cannot start server');
         request('http://localhost:' + opt.port + '/',
           function(error, response){
             assert.equal(error, null,
@@ -423,7 +423,7 @@ describe('actions', function () {
             assert.equal(response.statusCode, 404,
               'Wrong return code for test app.');
             done();
-        });
+          });
       });
     });
   });
