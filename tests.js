@@ -31,6 +31,7 @@ after(function(){
   }catch(ex){
     console.log(ex);
   }
+  process.exit(0);
 });
 
 
@@ -536,7 +537,7 @@ describe('Functional tests', function () {
       var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
         assert.equal(err, null,
-          'An error occured while accessing test app.');
+          'An error occurred while accessing test app.');
         assert.equal(res.statusCode, 200,
           'Wrong return code for test app.');
         assert.equal(body.ok, false,
