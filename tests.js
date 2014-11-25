@@ -487,6 +487,10 @@ describe('actions', function () {
 
 describe('Functional tests', function () {
 
+  after(function(done){
+    actions.stop(done);
+  });
+
   describe('Hot app install', function () {
     it('starts the main server.', function (done) {
       var opt = {port: 8090};

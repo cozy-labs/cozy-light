@@ -1019,13 +1019,16 @@ var actions = {
         LOGGER.info('Cozy Light was properly terminated.');
       }
 
+      if ( configHelpers.mainWatcher ) {
+        configHelpers.mainWatcher.release();
+      }
+
       /*eslint-disable */
       if (process._getActiveHandles().length
         || process._getActiveRequests().length ) {
+        process.exit(err ? 1 : 0);
       }
-      process.exit(err ? 1 : 0);
       /*eslint-enable */
-
     };
     actions.stop(endProcess);
   },
