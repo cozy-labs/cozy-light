@@ -26,7 +26,13 @@ before(function(){
 
 
 after(function(){
-  fs.removeSync(workingDir);
+  try{
+    fs.removeSync(workingDir);
+    process.exit(0);
+  } catch(ex) {
+    console.log(ex);
+    process.exit(1);
+  }
 });
 
 
