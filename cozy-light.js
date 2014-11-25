@@ -1023,6 +1023,10 @@ var actions = {
         fs.unwatchFile( 'config.json' );
       }
 
+      if ( db ) {
+        db.close();
+      }
+
       if (callback) {
         callback();
       }
