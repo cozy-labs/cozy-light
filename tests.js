@@ -488,7 +488,7 @@ describe('actions', function () {
 describe('Functional tests', function () {
 
   after(function(done){
-    actions.stop(done);
+    actions.exit(done);
   });
 
   describe('Hot app install', function () {

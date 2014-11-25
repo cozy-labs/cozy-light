@@ -1011,7 +1011,7 @@ var actions = {
    * Manage properly exit of the process when SIGINT signal is triggered.
    * It asks to every plugin to end properly.
    */
-  exit: function () {
+  exit: function (callback) {
     var endProcess = function (err) {
       if (err) {
         LOGGER.error('Cozy Light was not properly terminated.');
@@ -1020,11 +1020,14 @@ var actions = {
       }
 
       if ( configHelpers.mainWatcher ) {
-        configHelpers.mainWatcher.release();
+        fs.unwatchFile( 'config.json' );
       }
 
+      if (callback) {
+        callback();
+      }
       /*eslint-disable */
-      if (process._getActiveHandles().length
+      else if (process._getActiveHandles().length
         || process._getActiveRequests().length ) {
         process.exit(err ? 1 : 0);
       }
