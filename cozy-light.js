@@ -947,10 +947,6 @@ var actions = {
 
     var app = express();
     app.use(morgan('combined'));
-    var jsonParser = bodyParser.json();
-    var urlencodedParser = bodyParser.urlencoded({ extended: false });
-    app.use(urlencodedParser);
-    app.use(jsonParser);
 
     config.pouchdb = Pouchdb;
     config.appPort = port;
@@ -958,6 +954,13 @@ var actions = {
     pluginHelpers.startAll(app, function(){
       mainAppHelper.start(program, app);
       applicationHelpers.startAll(db, function() {
+        // always connect it after he proxy
+        // http://andrewkelley.me/post/do-not-use-bodyparser-with-express-js.html
+        // https://github.com/nodejitsu/node-http-proxy/issues/180
+        var jsonParser = bodyParser.json();
+        var urlencodedParser = bodyParser.urlencoded({ extended: false });
+        app.use(urlencodedParser);
+        app.use(jsonParser);
         // Reload apps when file configuration is modified
         configHelpers.watchConfig(actions.restart);
         if (callback !== undefined && typeof(callback) === 'function') {
