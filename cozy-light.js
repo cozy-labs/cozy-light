@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var http = require('http');
 var https = require('https');
 var url = require('url');
@@ -556,8 +554,10 @@ var pluginHelpers = {
   stop: function (pluginName, callback) {
     if (config.plugins[pluginName] === undefined) {
       LOGGER.error('Plugin ' + pluginName + ' not installed!');
+      callback();
     } else if (loadedPlugins[pluginName] === undefined) {
       LOGGER.error('Plugin ' + pluginName + ' not started!');
+      callback();
     } else {
       var options = config.plugins[pluginName];
       delete loadedPlugins[pluginName];
@@ -565,7 +565,7 @@ var pluginHelpers = {
         var plugin = require(configHelpers.modulePath(options.name));
         nodeHelpers.clearRequireCache(options.name);
         if (plugin.onExit !== undefined) {
-          return plugin.onExit(options, config, function (err) {
+          plugin.onExit(options, config, function (err) {
             if (err) {
               LOGGER.raw(err);
               LOGGER.info('\t' + symbols.err + '\t' + pluginName + '');
@@ -574,16 +574,16 @@ var pluginHelpers = {
             }
             callback(err);
           });
+        } else {
+          LOGGER.info('\t' + symbols.ok + '\t' + pluginName + '');
+          return callback();
         }
-        LOGGER.info('\t' + symbols.ok + '\t' + pluginName + '');
-        return callback();
       } catch(err) {
         LOGGER.raw(err);
         LOGGER.error('Plugin ' + pluginName + ' failed for termination.');
-        return callback(err);
+        callback(err);
       }
     }
-    return callback();
   },
 
   /**
@@ -653,7 +653,6 @@ var applicationHelpers = {
           watchers: []
         };
 
-        // TODO understand getPort and configChanged.
         var options = {
           db: db,
           port: port,
@@ -662,11 +661,11 @@ var applicationHelpers = {
           },
           silent: true
         };
+
         appModule.start(options, function (err, app, server) {
           if (err) { LOGGER.error(err); }
 
           if (server !== undefined ){
-            // TODO understand why this operation is required.
             nodeHelpers.clearCloseServer(server);
             loadedApps[name].server = server;
           }
@@ -705,14 +704,20 @@ var applicationHelpers = {
               } else {
                 LOGGER.info('\t' + symbols.ok + '\t' + name + '');
               }
+              nodeHelpers.clearRequireCache(name);
+              delete loadedApps[name];
               callback();
             });
           } else {
+            nodeHelpers.clearRequireCache(name);
+            delete loadedApps[name];
             callback();
           }
         } catch (err) {
           LOGGER.raw(err);
           LOGGER.warn('An error occurred while stopping ' + name);
+          nodeHelpers.clearRequireCache(name);
+          delete loadedApps[name];
           callback();
         }
       };
@@ -726,9 +731,6 @@ var applicationHelpers = {
       } else {
         appModule.stop(closeServer);
       }
-      nodeHelpers.clearRequireCache(name);
-      delete loadedApps[name];
-
     } else {
       callback();
     }
@@ -1022,11 +1024,11 @@ var actions = {
         LOGGER.info('Cozy Light was properly terminated.');
       }
 
-      if ( configHelpers.mainWatcher ) {
+      if (configHelpers.mainWatcher) {
         fs.unwatchFile( 'config.json' );
       }
 
-      if ( db ) {
+      if (db) {
         db.close();
       }
 
@@ -1035,7 +1037,7 @@ var actions = {
       }
       /*eslint-disable */
       else if (process._getActiveHandles().length
-        || process._getActiveRequests().length ) {
+               || process._getActiveRequests().length ) {
         process.exit(err ? 1 : 0);
       }
       /*eslint-enable */
