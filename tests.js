@@ -29,12 +29,9 @@ before(function(){
 after(function(){
   try {
     fs.removeSync(workingDir);
-    process.exit(0);
   } catch(err) {
     console.log(err);
-    process.exit(1);
   }
-  process.exit(0);
 });
 
 
@@ -217,7 +214,6 @@ describe('Node Helpers', function () {
     assert(
       require.cache[__dirname + '/fixtures/test-app/server.js'] !== undefined);
     nodeHelpers.clearRequireCache('test-app');
-    console.log(require.cache[__dirname + '/fixtures/test-app/server.js']);
     assert(
       require.cache[__dirname + '/fixtures/test-app/server.js'] === undefined);
   });
@@ -244,6 +240,7 @@ describe('NPM Helpers', function () {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       var destPath = configHelpers.modulePath('hello');
       npmHelpers.link(testapp, function (err) {
+        console.log(err);
         assert.equal(err, null, 'Cannot link module.');
         assert(fs.existsSync(destPath),
           'Module is not linked in the cozy-light folder.');
@@ -488,7 +485,6 @@ describe('actions', function () {
       actions.uninstallPlugin(testPlugin, function (err) {
         assert.equal(err, null, 'Cannot uninstall plugin.');
         var config = configHelpers.loadConfigFile();
-        console.log(config.plugins);
         assert.equal(config.plugins[testPlugin], undefined);
         done();
       });
