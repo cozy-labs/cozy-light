@@ -10,6 +10,7 @@ var actions = cozyLight.actions;
 //var controllers = cozyLight.controllers;
 var configHelpers = cozyLight.configHelpers;
 var npmHelpers = cozyLight.npmHelpers;
+var nodeHelpers = cozyLight.nodeHelpers;
 var applicationHelpers = cozyLight.applicationHelpers;
 //var mainAppHelper = cozyLight.mainAppHelper;
 
@@ -204,7 +205,16 @@ describe('Config Helpers', function () {
 
 
 describe('Node Helpers', function () {
-  it.skip('clearRequireCache', function(){});
+  it('clearRequireCache', function () {
+    var appModule = './fixtures/test-app';
+    require(appModule);
+    assert(
+      require.cache[__dirname + '/fixtures/test-app/server.js'] !== undefined);
+    nodeHelpers.clearRequireCache('test-app');
+    console.log(require.cache[__dirname + '/fixtures/test-app/server.js']);
+    assert(
+      require.cache[__dirname + '/fixtures/test-app/server.js'] === undefined);
+  });
   it.skip('clearCloseServer', function(){});
 });
 
@@ -223,7 +233,7 @@ describe('NPM Helpers', function () {
         done();
       });
     });
-    it('should link a  module.', function (done) {
+    it('should link a module.', function (done) {
       process.chdir(cozyHOME);
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       var destPath = configHelpers.modulePath('hello');
