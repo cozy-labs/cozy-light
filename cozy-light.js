@@ -536,7 +536,7 @@ var pluginHelpers = {
         }
 
       } catch(err) {
-        console.log(err);
+        LOGGER.raw(err);
         LOGGER.error('Plugin ' + pluginName + ' loading failed.');
         return callback(err);
       }

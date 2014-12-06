@@ -209,13 +209,18 @@ describe('Config Helpers', function () {
 
 describe('Node Helpers', function () {
   it('clearRequireCache', function () {
-    var appModule = './fixtures/test-app';
-    require(appModule);
+    var baseModulePath = pathExtra.join(__dirname, 'fixtures', 'test-app');
+    var modulePath = configHelpers.modulePath('test-app');
+    fs.mkdirsSync(modulePath);
+    fs.copySync(baseModulePath, modulePath);
+    require(modulePath);
     assert(
-      require.cache[__dirname + '/fixtures/test-app/server.js'] !== undefined);
+      require.cache[pathExtra.join(modulePath,'/server.js')] !== undefined,
+      'Module should be cached before clearing it.');
     nodeHelpers.clearRequireCache('test-app');
     assert(
-      require.cache[__dirname + '/fixtures/test-app/server.js'] === undefined);
+      require.cache[pathExtra.join(modulePath,'/server.js')] === undefined,
+      'Module should not be cached anymore after clearing it.');
   });
   it.skip('clearCloseServer', function(){});
 });
