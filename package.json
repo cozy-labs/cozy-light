@@ -56,7 +56,8 @@
     "supertest": "^0.14.0"
   },
   "scripts": {
-    "test": "mocha --no-exit --verbose --globals s --reporter spec tests.js",
+    "test": "mocha --globals s --reporter spec tests.js",
+    "appveyor": "mocha --no-exit --globals s --reporter spec tests.js",
     "lint": "eslint bin.js cozy-light.js tests.js",
     "start": "node bin.js start"
   },

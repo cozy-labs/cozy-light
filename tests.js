@@ -27,13 +27,14 @@ before(function(){
 
 
 after(function(){
-  try{
+  try {
     fs.removeSync(workingDir);
     process.exit(0);
-  } catch(ex) {
-    console.log(ex);
+  } catch(err) {
+    console.log(err);
     process.exit(1);
   }
+  process.exit(0);
 });
 
 
@@ -49,7 +50,7 @@ describe('Config Helpers', function () {
       configHelpers.init(HOME);
       assert(fs.existsSync(HOME), 'HOME directory not created');
       assert(fs.existsSync(pathExtra.join(cozyHOME, 'config.json')),
-        'configuration file not created');
+             'configuration file not created');
     });
   });
 
@@ -57,7 +58,7 @@ describe('Config Helpers', function () {
     it('should create an empty config file', function () {
       configHelpers.createConfigFile();
       assert(fs.existsSync(pathExtra.join(cozyHOME, 'config.json')),
-        'configuration file not created');
+             'configuration file not created');
     });
   });
 
@@ -572,7 +573,7 @@ describe('Functional tests', function () {
       var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
         assert.equal(err, null,
-          'An error occured while accessing test app.');
+          'An error occurred while accessing test app.');
         assert.equal(res.statusCode, 200,
           'Wrong return code for test app.');
         assert.equal(body.ok, false,

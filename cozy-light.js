@@ -653,6 +653,9 @@ var applicationHelpers = {
           watchers: []
         };
 
+        // use getPort from hosted application
+        // to grab more than one port,
+        // still ensure no app port conflict
         var options = {
           db: db,
           port: port,
@@ -666,6 +669,8 @@ var applicationHelpers = {
           if (err) { LOGGER.error(err); }
 
           if (server !== undefined ){
+            // to properly close the server,
+            // and release all its resources
             nodeHelpers.clearCloseServer(server);
             loadedApps[name].server = server;
           }
