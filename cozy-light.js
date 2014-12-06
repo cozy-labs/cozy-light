@@ -1,6 +1,5 @@
 var http = require('http');
 var https = require('https');
-var url = require('url');
 var fs = require('fs');
 var fsExtra = require('fs-extra');
 var pathExtra = require('path-extra');
@@ -962,7 +961,6 @@ var actions = {
       mainAppHelper.start(program, app);
       applicationHelpers.startAll(db, function() {
         // always connect it after he proxy
-        // http://andrewkelley.me/post/do-not-use-bodyparser-with-express-js.html
         // https://github.com/nodejitsu/node-http-proxy/issues/180
         var jsonParser = bodyParser.json();
         var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -985,12 +983,22 @@ var actions = {
   stop: function (callback) {
     LOGGER.info('Stopping apps...');
     applicationHelpers.stopAll(function (err) {
+      if (err) {
+        LOGGER.error('An error occured while stopping applications');
+        LOGGER.raw(err);
+      }
+
       LOGGER.info('Stopping plugins...');
       pluginHelpers.stopAll(function (err) {
+        if (err) {
+          LOGGER.error('An error occured while stopping plugins');
+          LOGGER.raw(err);
+        }
+
         LOGGER.info('Stopping server...');
         mainAppHelper.stop(function(){
           port = defaultAppsPort;
-          LOGGER.info('\t'+symbols.ok+'\tmain server');
+          LOGGER.info('\t' + symbols.ok + '\tmain server');
           if (callback) { callback(); }
         });
       });
