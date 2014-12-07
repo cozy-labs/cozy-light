@@ -149,6 +149,44 @@ var configHelpers = {
     return ret;
   },
 
+
+  /**
+   * Remove from given app or plugin the disabled field.
+   *
+   * @param {String} apporplugin The plugin/app name as it's typed by the user.
+   */
+  enable: function (apporplugin) {
+    if (config.plugins[apporplugin] !== undefined) {
+      config.plugins[apporplugin].disabled = undefined;
+      configHelpers.saveConfig();
+    } else if (config.apps[apporplugin] !== undefined) {
+      config.apps[apporplugin].disabled = undefined;
+      configHelpers.saveConfig();
+    } else {
+      throw new Error(
+          'Cannot disable, given app or plugin is not configured.');
+    }
+
+  },
+
+  /**
+   * Add to given app or plugin a disabled field.
+   *
+   * @param {String} apporplugin The plugin/app name as it's typed by the user.
+   */
+  disable: function (apporplugin) {
+    if (config.plugins[apporplugin] !== undefined) {
+      config.plugins[apporplugin].disabled = true;
+      configHelpers.saveConfig();
+    } else if (config.apps[apporplugin] !== undefined) {
+      config.apps[apporplugin].disabled = true;
+      configHelpers.saveConfig();
+    } else {
+      throw new Error(
+          'Cannot disable, given app or plugin is not configured.');
+    }
+  },
+
   /**
    * Create config file if it doesn't exist
    */
@@ -482,34 +520,39 @@ var pluginHelpers = {
 
   loadPlugin: function (pluginName) {
       var pluginConfig = config.plugins[pluginName];
-      var pluginPath = configHelpers.modulePath(pluginConfig.name);
-      var pluginModule = require(pluginPath);
-      var options = {
-        name: pluginModule.name,
-        displayName: pluginConfig.displayName,
-        version: pluginConfig.version,
-        description: pluginConfig.description,
-        configPath: configPath,
-        /*eslint-disable */
-        config_path: configPath, // for backward compatibility
-        /*eslint-enable */
-        home: home,
-        npmHelpers: npmHelpers,
-        proxy: proxy
-      };
+      if (pluginConfig.disabled !== true) {
+        var pluginPath = configHelpers.modulePath(pluginConfig.name);
+        var pluginModule = require(pluginPath);
+        var options = {
+          name: pluginModule.name,
+          displayName: pluginConfig.displayName,
+          version: pluginConfig.version,
+          description: pluginConfig.description,
+          configPath: configPath,
+          /*eslint-disable */
+          config_path: configPath, // for backward compatibility
+          /*eslint-enable */
+          home: home,
+          npmHelpers: npmHelpers,
+          proxy: proxy
+        };
 
-      if (pluginModule.configure){
-        pluginModule.configure(options, config, program);
-      }
+        if (pluginModule.configure){
+          pluginModule.configure(options, config, program);
+        }
 
-      loadedPlugins[pluginName] = pluginModule;
+        loadedPlugins[pluginName] = pluginModule;
 
-      return pluginModule;
+        return pluginModule;
+    } else {
+      return null;
+    }
   },
 
   /**
    * Start given plugin (require it, run configuration and apply change to
    * cozy light server).
+   * NB: Do not load given plugin if it is disabled.
    *
    * @param pluginName The plugin name to start.
    * @param applicationServer The application server to connect the plugin on.
@@ -525,15 +568,19 @@ var pluginHelpers = {
         }
         var plugin = loadedPlugins[pluginName];
 
-        if (plugin.configureAppServer !== undefined) {
-          LOGGER.info('Configuring plugin ' + pluginName + '...');
-          var logResult = function(){
-            LOGGER.info('Plugin ' + pluginName + ' configured.');
-            callback();
-          };
-          return plugin.configureAppServer(applicationServer, config, routes,
-            logResult);
-        }
+        if (plugin !== null) {
+          if (plugin.configureAppServer !== undefined) {
+            LOGGER.info('Configuring plugin ' + pluginName + '...');
+            var logResult = function(){
+              LOGGER.info('Plugin ' + pluginName + ' configured.');
+              callback();
+            };
+            return plugin.configureAppServer(applicationServer, config, routes,
+              logResult);
+          }
+        } else {
+          callback();
+        };
 
       } catch(err) {
         LOGGER.raw(err);
@@ -618,6 +665,7 @@ var applicationHelpers = {
    * Start given classic application as a new listening server. List of
    * function to run on when configuration file is changed. List of function to
    * run on when configuration file is changed.
+   * NB: Do not start given app if it is disabled.
    *
    * @param {Object} application The application to start.
    * @param {Object} db The database to give as parameter to the application
@@ -626,7 +674,8 @@ var applicationHelpers = {
    */
   start: function (application, db, callback) {
 
-    if (application.type === undefined || application.type === 'classic') {
+    if ((application.type === undefined || application.type === 'classic')
+        && application.disabled !== true) {
 
       var name = application.name;
 
@@ -973,6 +1022,35 @@ var actions = {
         }
       });
     });
+  },
+
+  /**
+   * Remove disabled mark from config file for given app or plugin.
+   */
+  enable: function (apporplugin) {
+    try {
+      configHelpers.enable(apporplugin);
+      LOGGER.info(apporplugin + ' enabled');
+    } catch (err) {
+      LOGGER.error(
+        'Cannot enable given app or plugin, ' +
+        'cannot find it in the config file.');
+    }
+  },
+
+  /**
+   * Mark given app or plugin as disabled. It won't be activated or started
+   * in that case.
+   */
+  disable: function (appormodule) {
+    try {
+      configHelpers.disable(appormodule);
+      LOGGER.info(apporplugin + ' disabled');
+    } catch (err) {
+      LOGGER.error(
+        'Cannot disable given app or plugin, ' +
+        'cannot find it in the config file.');
+    }
   },
 
   /**
