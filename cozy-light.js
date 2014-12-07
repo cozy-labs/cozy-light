@@ -12,7 +12,8 @@ var async = require('async');
 var printit = require('printit');
 var Pouchdb = require('pouchdb');
 var httpProxy = require('http-proxy');
-var symbols = require('./symbols.js');
+var symbols = require('./lib/symbols');
+var distrib = require('./lib/distrib');
 
 // Constants
 const LOGGER = printit({ prefix: 'Cozy Light' });
@@ -244,7 +245,7 @@ var configHelpers = {
 
     var watchOptions = {persistent: false, interval: 1000};
     var onConfigChanged = function () {
-      LOGGER.info('Config changed..');
+      LOGGER.info('Config changed...');
       configHelpers.watchers.forEach(function (watcher) {
         watcher();
       });
@@ -1159,11 +1160,15 @@ var actions = {
       } else {
         configHelpers.addApp(app, manifest);
         LOGGER.info(app + ' installed. Enjoy!');
-        restartWatcher.one(function(){
-          if (callback !== undefined && typeof(callback) === 'function') {
-            callback(err);
-          }
-        });
+        if (restartWatcher.watchers.length > 0) {
+          restartWatcher.one(function(){
+            if (callback !== undefined && typeof(callback) === 'function') {
+              callback(err);
+            }
+          });
+        } else {
+          callback();
+        }
       }
     });
   },
@@ -1223,11 +1228,15 @@ var actions = {
         configHelpers.addPlugin(plugin, manifest);
         pluginHelpers.loadPlugin(plugin);
         LOGGER.info(plugin + ' installed. Enjoy!');
-        restartWatcher.one(function(){
-          if (callback !== undefined && typeof(callback) === 'function') {
-            callback(err);
-          }
-        });
+        if (restartWatcher.watchers.length > 0) {
+          restartWatcher.one(function(){
+            if (callback !== undefined && typeof(callback) === 'function') {
+              callback(err);
+            }
+          });
+        } else {
+          callback()
+        }
       }
     });
   },
@@ -1260,6 +1269,36 @@ var actions = {
           });
         }
       });
+    }
+  },
+
+  installDistro: function (distro, callback) {
+    if (distro !== undefined && distro !== '') {
+      try {
+        LOGGER.info('Start distribution installation for ' + distro);
+        distrib.installDistro(distro, actions, function(err) {
+          if (err) {
+            LOGGER.raw(err.message);
+            LOGGER.error(
+              'An error occured while installing your distribution');
+            if (callback !== undefined && typeof(callback) === 'function') {
+              callback(err);
+            }
+          } else {
+            LOGGER.info('Distribution ' + distro + 'successfully installed');
+            if (callback !== undefined && typeof(callback) === 'function') {
+              callback();
+            }
+          }
+        });
+      } catch (err) {
+        console.log(err);
+        LOGGER.error('An error occured while installing your distribution');
+      }
+    } else {
+      LOGGER.info(
+        'install-distro requires a distro name, here are the ones avalaible:');
+      distrib.displayDistros();
     }
   },
 

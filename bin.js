@@ -60,6 +60,11 @@ program
   .action(actions.enable);
 
 program
+  .command('install-distro [distro]')
+  .description('Select a distro from a list and install it')
+  .action(actions.installDistro);
+
+program
   .command('*')
   .description('display help')
   .action(program.outputHelp);
