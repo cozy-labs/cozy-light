@@ -1,0 +1,47 @@
+{
+  "simple": {
+    "plugins": [
+      "cozy-labs/cozy-light-simple-dashboard"
+    ],
+    "apps": []
+  },
+  "personal-cloud": {
+    "plugins": [
+      "cozy-labs/cozy-home-page",
+      "boiteaspam/cozy-light-dashboard",
+      "cozy-labs/cozy-light-auth"
+    ],
+    "apps": [
+      "cozy-labs/tasky", 
+      "cozy-labs/contacts", 
+      "cozy-labs/files", 
+      "cozy-labs/calendar",
+      "maboiteaspam/ma-clef-usb"
+    ]
+  },
+  "website": {
+    "plugins": [
+      "cozy-labs/cozy-light-html5-apps",
+      "cozy-labs/cozy-light-domains",
+      "cozy-labs/cozy-light-githooks"
+    ],
+    "apps": []
+  },
+  "video-games": {
+    "plugins": [
+      "cozy-labs/cozy-light-html5-apps"
+    ],
+    "apps": [
+      "frankrousseau/coffee-snake",
+      "frankrousseau/CrappyBird"
+    ]
+  },
+  "docker": {
+    "plugins": [
+      "cozy-labs/cozy-light-docker",
+      "cozy-labs/cozy-light-domains",
+      "cozy-labs/cozy-light-simple-dashboard"
+    ],
+    "apps": []
+  }
+}
