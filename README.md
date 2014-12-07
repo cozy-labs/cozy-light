@@ -104,7 +104,8 @@ install and run them separately:
 * cozy-labs/tasky: simple and efficient task manager;
 * cozy-labs/cozy-calendar: alarm and events manager;
 * cozy-labs/cozy-files: file storage;
-* cozy-labs/cozy-contacts: contact book.
+* cozy-labs/cozy-contacts: contact book;
+* maboiteaspam/ma-clef-usb: another file storage.
 
 *HTML5 apps (require html5-apps plugin)*
 
