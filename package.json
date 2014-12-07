@@ -33,7 +33,7 @@
   "engines": {
     "node": "*"
   },
-  "main": "./cozy-light.js",
+  "main": "./lib/cozy-light.js",
   "dependencies": {
     "americano": "0.3.7",
     "async": "0.9.0",

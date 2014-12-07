@@ -4,7 +4,7 @@ var assert = require('assert');
 var requestJSON = require('request-json-light');
 var request = require('request');
 var PouchDB = require('pouchdb');
-var cozyLight = require('./cozy-light');
+var cozyLight = require('./lib/cozy-light');
 
 var actions = cozyLight.actions;
 //var controllers = cozyLight.controllers;
