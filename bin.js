@@ -50,6 +50,16 @@ program
   .action(actions.displayConfig);
 
 program
+  .command('disable <apporplugin>')
+  .description('Disable given app or plugin')
+  .action(actions.disable);
+
+program
+  .command('enable <apporplugin>')
+  .description('Enable given disabled app or plugin')
+  .action(actions.enable);
+
+program
   .command('*')
   .description('display help')
   .action(program.outputHelp);
