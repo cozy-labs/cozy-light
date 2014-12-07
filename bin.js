@@ -61,7 +61,8 @@ program
 
 program
   .command('install-distro [distro]')
-  .description('Select a distro from a list and install it')
+  .description(
+    'Install given distro. If none is give, it displays the distro list')
   .action(actions.installDistro);
 
 program

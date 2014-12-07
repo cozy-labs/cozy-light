@@ -43,12 +43,17 @@ Because of its very flexible architecture Cozy Light can satisfy many usages
 related to self-hosting. Here are some examples:
 
 * Static blog deployer 
-* Personal cloud (file storage) 
+* Personal cloud (calendars, files, contacts and tasks) 
 * Simple Docker container manager
-* Productivity suite (task, calendar and contact managers)
 * Video game console
-* Reverse-proxy
-* ...
+
+For each use case a distribution is availabe. Just run the following command:
+
+    cozy-light install-distro personal-cloud
+
+Display all available distributions:
+
+    cozy-light install-distro
 
 # Benefits
 
