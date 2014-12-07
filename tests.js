@@ -460,18 +460,6 @@ describe('actions', function () {
     });
   });
 
-  describe('uninstallApp', function () {
-    it('should remove app folder and update configuration. ', function (done) {
-      var app = 'cozy-labs/hello';
-      actions.uninstallApp(app, function (err) {
-        assert.equal(err, null, 'Cannot uninstallApp app.');
-        var config = configHelpers.loadConfigFile();
-        assert.equal(config.apps[app], undefined);
-        done();
-      });
-    });
-  });
-
   describe('addPlugin', function () {
     it('should add plugin folder and update configuration. ', function (done) {
       var testPlugin = pathExtra.join('fixtures/', 'test-plugin/');
@@ -479,6 +467,60 @@ describe('actions', function () {
         assert.equal(err, null, 'Cannot install plugin.');
         var config = configHelpers.loadConfigFile();
         assert.equal('test-plugin', config.plugins[testPlugin].name);
+        done();
+      });
+    });
+  });
+
+  describe('disable', function () {
+
+    it('should mark app as disabled in the config file.', function (done) {
+      var app = 'cozy-labs/hello';
+      actions.disable(app);
+      var config = configHelpers.loadConfigFile();
+      assert(config.apps[app].disabled === true);
+      done();
+    });
+
+    it('should mark plugin as disabled in the config file.', function (done) {
+      var plugin = 'test-plugin';
+      actions.disable(plugin);
+      var config = configHelpers.loadConfigFile();
+      assert(config.plugins[plugin].disabled === true);
+      done();
+    });
+
+  });
+
+  describe('enable', function () {
+
+    it('should remove disabled from the config file (app).',
+       function (done) {
+      var app = 'cozy-labs/hello';
+      actions.enable(app);
+      var config = configHelpers.loadConfigFile();
+      assert(config.apps[app].disabled === undefined);
+      done();
+    });
+
+    it('should remove disabled from the config file (plugin).',
+       function (done) {
+      var plugin = 'test-plugin';
+      actions.disable(plugin);
+      var config = configHelpers.loadConfigFile();
+      assert(config.plugins[plugin].disabled === undefined);
+      done();
+    });
+
+  });
+
+  describe('uninstallApp', function () {
+    it('should remove app folder and update configuration. ', function (done) {
+      var app = 'cozy-labs/hello';
+      actions.uninstallApp(app, function (err) {
+        assert.equal(err, null, 'Cannot uninstallApp app.');
+        var config = configHelpers.loadConfigFile();
+        assert.equal(config.apps[app], undefined);
         done();
       });
     });
@@ -510,23 +552,28 @@ describe('Functional tests', function () {
   });
 
   describe('Hot app install', function () {
+
     it('starts the main server.', function (done) {
       var opt = {port: 8090};
       actions.start(opt, done);
     });
+
     it('install fake app manually.', function (done) {
       // Nothing to do test app is still in the cozy-light folder.
       done();
     });
+
     it('change configuration file.', function (done) {
       var appHome = configHelpers.modulePath('test-app');
       var manifest = require(pathExtra.join(appHome, 'package.json'));
       configHelpers.addApp('test-app', manifest);
       done();
     });
+
     it('wait 1s.', function (done) {
       setTimeout(done, 1000);
     });
+
     it('fake app should be started.', function (done) {
       var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res) {
@@ -537,19 +584,54 @@ describe('Functional tests', function () {
     });
   });
 
+  describe('Do not start disabled app', function () {
+
+    after(function (done) {
+      actions.enable('test-app');
+      actions.stop(done);
+    });
+
+    it('install an app.', function (done) {
+      // Nothing to do test app is still in the cozy-light folder.
+      done();
+    });
+
+    it('disable it.', function (done) {
+      actions.disable('test-app');
+      done();
+    });
+
+    it('starts the main server.', function (done) {
+      var opt = {port: 8090};
+      actions.start(opt, done);
+    });
+
+    it('disabled app should not be started.', function (done) {
+      var client = requestJSON.newClient('http://localhost:18001');
+      client.get('', function assertResponse (err, res) {
+        assert(err !== null);
+        done();
+      });
+    });
+
+  });
+
   describe('Hot app reload', function () {
 
     it('starts the main server.', function (done) {
       var opt = {port: 8090};
       actions.start(opt, done);
     });
+
     it('install fake app manually.', function (done) {
       // Nothing to do test app is still in the cozy-light folder.
       done();
     });
+
     it('wait 1s.', function (done) {
       setTimeout(done, 1000);
     });
+
     it('ensure initial source code.', function (done) {
       var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
@@ -559,6 +641,7 @@ describe('Functional tests', function () {
         done();
       });
     });
+
     it('change application code.', function (done) {
       var appHome = configHelpers.modulePath('test-app');
       var serverFile = appHome + '/server.js';
@@ -567,9 +650,11 @@ describe('Functional tests', function () {
       fs.writeFileSync(serverFile, content);
       done();
     });
+
     it('restart cozy-light.', function (done) {
       actions.restart(done);
     });
+
     it('fake app should be started.', function (done) {
       var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
