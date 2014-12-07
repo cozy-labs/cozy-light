@@ -1,3 +1,11 @@
+### 0.4.0
+
+* Remove Dashboard from default installation
+* app/plugin enable/disable commands
+* Hot app/plugin install/uninstall
+* Install distribution command
+* Distribution descriptor file
+
 ### 0.3.1
 
 * Allow to install folders as app or plugins.
