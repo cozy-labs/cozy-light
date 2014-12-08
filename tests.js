@@ -483,7 +483,7 @@ describe('actions', function () {
     });
 
     it('should mark plugin as disabled in the config file.', function (done) {
-      var plugin = 'test-plugin';
+      var plugin = 'fixtures/test-plugin/';
       actions.disable(plugin);
       var config = configHelpers.loadConfigFile();
       assert(config.plugins[plugin].disabled === true);
@@ -505,8 +505,8 @@ describe('actions', function () {
 
     it('should remove disabled from the config file (plugin).',
        function (done) {
-      var plugin = 'test-plugin';
-      actions.disable(plugin);
+      var plugin = 'fixtures/test-plugin/';
+      actions.enable(plugin);
       var config = configHelpers.loadConfigFile();
       assert(config.plugins[plugin].disabled === undefined);
       done();
