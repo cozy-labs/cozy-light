@@ -608,7 +608,7 @@ describe('Functional tests', function () {
 
     it('disabled app should not be started.', function (done) {
       var client = requestJSON.newClient('http://localhost:18001');
-      client.get('', function assertResponse (err, res) {
+      client.get('', function assertResponse (err) {
         assert(err !== null);
         done();
       });
@@ -677,7 +677,7 @@ describe('Functional tests', function () {
 
   describe('Distro install', function () {
 
-    it.skip('install a new distro.', function (done) {
+    it.skip('install a new distro.', function () {
     });
   });
 });
