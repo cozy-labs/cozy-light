@@ -19,11 +19,19 @@
       "maboiteaspam/ma-clef-usb"
     ]
   },
-  "website": {
+  "pouchdb": {
     "plugins": [
       "cozy-labs/cozy-light-html5-apps",
-      "cozy-labs/cozy-light-domains",
+      "cozy-labs/cozy-light-pouchdb-api",
       "cozy-labs/cozy-light-githooks"
+    ],
+    "apps": []
+  },
+  "website": {
+    "plugins": [
+        "cozy-labs/cozy-light-html5-apps",
+        "cozy-labs/cozy-light-domains",
+        "cozy-labs/cozy-light-githooks"
     ],
     "apps": []
   },
