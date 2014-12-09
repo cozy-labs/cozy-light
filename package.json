@@ -58,7 +58,7 @@
   "scripts": {
     "test": "mocha --globals s,cooked --reporter spec tests.js",
     "appveyor": "mocha --no-exit --globals s,cooked --reporter spec tests.js",
-    "lint": "eslint bin.js cozy-light.js tests.js",
+    "lint": "eslint bin.js lib/cozy-light.js lib/distrib.js lib/symbols.js tests.js",
     "start": "node bin.js start"
   },
   "repository": {
