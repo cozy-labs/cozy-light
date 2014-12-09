@@ -674,4 +674,10 @@ describe('Functional tests', function () {
       });
     });
   });
+
+  describe('Distro install', function () {
+
+    it.skip('install a new distro.', function (done) {
+    });
+  });
 });
