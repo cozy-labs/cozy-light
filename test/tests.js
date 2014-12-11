@@ -4,7 +4,7 @@ var assert = require('assert');
 var requestJSON = require('request-json-light');
 var request = require('request');
 var PouchDB = require('pouchdb');
-var cozyLight = require('./lib/cozy-light');
+var cozyLight = require('../lib/cozy-light');
 
 var actions = cozyLight.actions;
 //var controllers = cozyLight.controllers;
@@ -14,8 +14,8 @@ var nodeHelpers = cozyLight.nodeHelpers;
 var applicationHelpers = cozyLight.applicationHelpers;
 //var mainAppHelper = cozyLight.mainAppHelper;
 
-var workingDir = pathExtra.join( __dirname, '/.test-working_dir/');
-var fixturesDir = pathExtra.join( __dirname, '/fixtures/');
+var workingDir = pathExtra.join( __dirname, '.test-working_dir');
+var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 var HOME = workingDir;
 var cozyHOME = pathExtra.join(HOME, '.cozy-light' );
 
@@ -298,7 +298,7 @@ describe('NPM Helpers', function () {
       });
     });
     it('should fetch manifest from a relative module path.', function (done) {
-      var testapp = pathExtra.join('fixtures/', 'test-app/');
+      var testapp = pathExtra.join(fixturesDir, 'test-app');
       npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
         assert.equal(err, null, 'Cannot fetch from ' + testapp + '.');
         assert.equal('file', type);
@@ -329,7 +329,7 @@ describe('NPM Helpers', function () {
       });
     });
     it('should fetch then install a relative module path.', function (done) {
-      var testapp = pathExtra.join('fixtures/', 'test-app/');
+      var testapp = pathExtra.join(fixturesDir, 'test-app');
       npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
         assert.equal(err, null, 'Cannot install from ' + testapp + '.');
         assert.equal('file', type);
@@ -370,11 +370,12 @@ describe('Application Helpers', function () {
   describe('start', function () {
     it('should start a server for given application', function (done) {
       this.timeout(10000);
-      var source = pathExtra.join(__dirname, 'fixtures', 'test-app');
+      var source = pathExtra.join(fixturesDir, 'test-app');
       var dest = configHelpers.modulePath('test-app');
       fs.copySync(source, dest);
 
-      var sourceExpress = pathExtra.join(__dirname, 'node_modules', 'express');
+      var sourceExpress = pathExtra.join(
+        __dirname, '..', 'node_modules', 'express');
       var destExpress = pathExtra.join(dest, 'node_modules', 'express');
       fs.copySync(sourceExpress, destExpress);
 
@@ -454,6 +455,7 @@ describe('actions', function () {
       actions.installApp(app, function (err) {
         assert.equal(err, null, 'Cannot install app.');
         var config = configHelpers.loadConfigFile();
+        console.log(config.apps);
         assert.equal('hello', config.apps[app].name);
         done();
       });
@@ -462,7 +464,7 @@ describe('actions', function () {
 
   describe('addPlugin', function () {
     it('should add plugin folder and update configuration. ', function (done) {
-      var testPlugin = pathExtra.join('fixtures/', 'test-plugin/');
+      var testPlugin = pathExtra.join(fixturesDir, 'test-plugin');
       actions.installPlugin(testPlugin, function (err) {
         assert.equal(err, null, 'Cannot install plugin.');
         var config = configHelpers.loadConfigFile();
@@ -483,7 +485,7 @@ describe('actions', function () {
     });
 
     it('should mark plugin as disabled in the config file.', function (done) {
-      var plugin = 'fixtures/test-plugin/';
+      var plugin = pathExtra.join(fixturesDir, 'test-plugin');
       actions.disable(plugin);
       var config = configHelpers.loadConfigFile();
       assert(config.plugins[plugin].disabled === true);
@@ -505,7 +507,7 @@ describe('actions', function () {
 
     it('should remove disabled from the config file (plugin).',
        function (done) {
-      var plugin = 'fixtures/test-plugin/';
+      var plugin = pathExtra.join(fixturesDir, 'test-plugin');
       actions.enable(plugin);
       var config = configHelpers.loadConfigFile();
       assert(config.plugins[plugin].disabled === undefined);
@@ -528,7 +530,7 @@ describe('actions', function () {
 
   describe('removePlugin', function () {
     it('should remove plugin and update configuration. ', function (done) {
-      var testPlugin = pathExtra.join('fixtures/', 'test-plugin/');
+      var testPlugin = pathExtra.join(fixturesDir, 'test-plugin');
       actions.uninstallPlugin(testPlugin, function (err) {
         assert.equal(err, null, 'Cannot uninstall plugin.');
         var config = configHelpers.loadConfigFile();
