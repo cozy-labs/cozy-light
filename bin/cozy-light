@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+var path = require('path-extra');
+var cliPath = path.join(__dirname, '..', 'lib', 'cli');
+
+require(cliPath).start();
