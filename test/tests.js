@@ -455,7 +455,6 @@ describe('actions', function () {
       actions.installApp(app, function (err) {
         assert.equal(err, null, 'Cannot install app.');
         var config = configHelpers.loadConfigFile();
-        console.log(config.apps);
         assert.equal('hello', config.apps[app].name);
         done();
       });

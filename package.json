@@ -49,16 +49,17 @@
     "path-extra": "0.2.1",
     "pouchdb": "3.0.5",
     "printit": "0.1.4",
-    "request-json-light": "0.5.6"
+    "request-json-light": "0.5.6",
+    "underscore": "^1.7.0"
   },
   "devDependencies": {
     "request": "^2.47.0",
     "supertest": "^0.14.0"
   },
   "scripts": {
-    "test": "mocha --globals s,cooked --reporter spec tests.js",
-    "appveyor": "mocha --no-exit --globals s,cooked --reporter spec tests/tests.js",
-    "lint": "eslint lib/cli.js lib/cozy-light.js lib/distrib.js lib/symbols.js tests/tests.js",
+    "test": "mocha --globals s,cooked --reporter spec test/tests.js",
+    "appveyor": "mocha --no-exit --globals s,cooked --reporter spec test/tests.js",
+    "lint": "eslint lib/cli.js lib/cozy-light.js lib/distrib.js lib/symbols.js test/tests.js",
     "start": "bin/cozy-light start"
   },
   "repository": {
