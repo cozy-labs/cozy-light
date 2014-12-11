@@ -1,3 +1,7 @@
+### 0.4.1
+
+* Fix hot reloading
+
 ### 0.4.0
 
 * Remove Dashboard from default installation
