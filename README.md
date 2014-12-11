@@ -5,6 +5,8 @@
 
 Cozy Light is a micro PaaS that makes self-hosting easy.
 
+**Tests status**: ![Travis Badge](https://travis-ci.org/cozy-labs/cozy-light.svg)
+
 Through its various plugins Cozy Light allows you to deal without effort with
 many self-hosting use cases like deploying your static website, managing
 dockerized web apps or use simple Node.js apps to store your calendars and
@@ -193,8 +195,6 @@ Before you push your PR
 
     npm test
     npm run lint
-
-**Tests status**: ![Travis Badge](https://travis-ci.org/cozy-labs/cozy-light.svg)
 
 # FAQ
 
