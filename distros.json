@@ -8,7 +8,7 @@
   "personal-cloud": {
     "plugins": [
       "maboiteaspam/cozy-homepage",
-      "cozy-labs/cozy-light-dashboard",
+      "maboiteaspam/cozy-dashboard",
       "cozy-labs/cozy-light-auth"
     ],
     "apps": [
@@ -23,7 +23,8 @@
     "plugins": [
       "cozy-labs/cozy-light-html5-apps",
       "cozy-labs/cozy-light-pouchdb-api",
-      "cozy-labs/cozy-light-githooks"
+      "cozy-labs/cozy-light-githooks",
+      "cozy-labs/cozy-light-simple-dashboard"
     ],
     "apps": []
   },
@@ -37,7 +38,8 @@
   },
   "video-games": {
     "plugins": [
-      "cozy-labs/cozy-light-html5-apps"
+      "cozy-labs/cozy-light-html5-apps",
+      "cozy-labs/cozy-light-simple-dashboard"
     ],
     "apps": [
       "frankrousseau/coffee-snake",
