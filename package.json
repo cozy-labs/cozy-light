@@ -56,7 +56,7 @@
     "supertest": "^0.14.0"
   },
   "scripts": {
-    "test": "mocha --globals s,cooked --reporter spec tests.js",
+    "test": "mocha --globals s,cooked --reporter spec",
     "appveyor": "mocha --no-exit --globals s,cooked --reporter spec tests/tests.js",
     "lint": "eslint lib/cli.js lib/cozy-light.js lib/distrib.js lib/symbols.js tests/tests.js",
     "start": "bin/cozy-light start"

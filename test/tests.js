@@ -455,7 +455,6 @@ describe('actions', function () {
       actions.installApp(app, function (err) {
         assert.equal(err, null, 'Cannot install app.');
         var config = configHelpers.loadConfigFile();
-        console.log(config.apps);
         assert.equal('hello', config.apps[app].name);
         done();
       });
@@ -573,7 +572,9 @@ describe('Functional tests', function () {
     });
 
     it('wait 1s.', function (done) {
-      setTimeout(done, 1000);
+      setTimeout(function () {
+        done();
+      }, 1000);
     });
 
     it('fake app should be started.', function (done) {
