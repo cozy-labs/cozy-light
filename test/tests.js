@@ -233,7 +233,7 @@ describe('NPM Helpers', function () {
       this.timeout(60000);
       process.chdir(cozyHOME);
       var destPath = configHelpers.modulePath('hello');
-      npmHelpers.install('cozy-labs/hello', function (err) {
+      npmHelpers.install(cozyHOME, 'cozy-labs/hello', function (err) {
         assert.equal(err, null, 'Cannot install module.');
         assert(fs.existsSync(destPath),
           'Module is not installed in the cozy-light folder.');
@@ -245,7 +245,6 @@ describe('NPM Helpers', function () {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       var destPath = configHelpers.modulePath('hello');
       npmHelpers.link(testapp, function (err) {
-        console.log(err);
         assert.equal(err, null, 'Cannot link module.');
         assert(fs.existsSync(destPath),
           'Module is not linked in the cozy-light folder.');
@@ -311,7 +310,7 @@ describe('NPM Helpers', function () {
   describe('fetchInstall', function(){
     it('should fetch then install remote module.', function (done) {
       this.timeout(60000);
-      npmHelpers.fetchInstall('cozy-labs/hello',
+      npmHelpers.fetchInstall(cozyHOME, 'cozy-labs/hello',
         function (err, manifest, type) {
           assert.equal(err, null, 'Cannot install module.');
           assert.equal('url', type);
