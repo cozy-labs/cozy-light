@@ -4,7 +4,7 @@ var application = module.exports.start = function(options, callback) {
   if (options == null) {
     options = {};
   }
-  options.name = 'test';
+  options.name = 'test-app';
   options.root = options.root || __dirname;
   options.port = options.port || process.env.PORT;
 

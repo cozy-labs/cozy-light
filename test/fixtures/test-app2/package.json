@@ -1,0 +1,17 @@
+{
+  "name": "test-app2",
+  "displayName": "Test app 2",
+  "version": "1.1.13",
+  "engines": [
+    "node = 0.10.x"
+  ],
+  "description": "Application needed by Cozy Light tests",
+  "main": "application.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "scripts": {
+    "start": "node bin.js"
+  }
+}
