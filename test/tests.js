@@ -217,7 +217,7 @@ describe('Node Helpers', function () {
     assert(
       require.cache[pathExtra.join(modulePath,'/server.js')] !== undefined,
       'Module should be cached before clearing it.');
-    nodeHelpers.clearRequireCache('test-app');
+    nodeHelpers.clearRequireCache(configHelpers.modulePath('test-app'));
     assert(
       require.cache[pathExtra.join(modulePath,'/server.js')] === undefined,
       'Module should not be cached anymore after clearing it.');
