@@ -5,14 +5,13 @@ var requestJSON = require('request-json-light');
 var request = require('request');
 var PouchDB = require('pouchdb');
 var cozyLight = require('../lib/cozy-light');
+var configWatcher = require('../lib/config-watcher');
 
 var actions = cozyLight.actions;
-//var controllers = cozyLight.controllers;
 var configHelpers = cozyLight.configHelpers;
 var npmHelpers = cozyLight.npmHelpers;
 var nodeHelpers = cozyLight.nodeHelpers;
 var applicationHelpers = cozyLight.applicationHelpers;
-//var mainAppHelper = cozyLight.mainAppHelper;
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
@@ -184,12 +183,12 @@ describe('Config Helpers', function () {
     it('should add watchers to watcher list on adding', function () {
       this.watcher = function () {};
       configHelpers.watchConfig(this.watcher);
-      assert.equal(this.watcher, configHelpers.watchers[0]);
+      assert.equal(this.watcher, configWatcher.watchers[0]);
     });
 
     it('should remove watchers to watcher list on adding', function () {
       configHelpers.unwatchConfig(this.watcher);
-      assert(configHelpers.watchers.length === 0);
+      assert(configWatcher.watchers.length === 0);
     });
   });
 
