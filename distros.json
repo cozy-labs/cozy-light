@@ -7,8 +7,7 @@
   },
   "personal-cloud": {
     "plugins": [
-      "maboiteaspam/cozy-homepage",
-      "maboiteaspam/cozy-dashboard",
+      "cozy-labs/cozy-light-simple-dashboard",
       "cozy-labs/cozy-light-auth"
     ],
     "apps": [
