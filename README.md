@@ -49,7 +49,7 @@ related to self-hosting. Here are some examples:
 * Simple Docker container manager
 * Video game console
 
-For each use case a distribution is availabe. Just run the following command:
+For each use case a distribution is available. Just run the following command:
 
     cozy-light install-distro personal-cloud
 

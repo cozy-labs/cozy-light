@@ -217,7 +217,7 @@ describe('Node Helpers', function () {
     assert(
       require.cache[pathExtra.join(modulePath,'/server.js')] !== undefined,
       'Module should be cached before clearing it.');
-    nodeHelpers.clearRequireCache('test-app');
+    nodeHelpers.clearRequireCache(configHelpers.modulePath('test-app'));
     assert(
       require.cache[pathExtra.join(modulePath,'/server.js')] === undefined,
       'Module should not be cached anymore after clearing it.');
@@ -245,7 +245,6 @@ describe('NPM Helpers', function () {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       var destPath = configHelpers.modulePath('hello');
       npmHelpers.link(testapp, function (err) {
-        console.log(err);
         assert.equal(err, null, 'Cannot link module.');
         assert(fs.existsSync(destPath),
           'Module is not linked in the cozy-light folder.');
@@ -564,6 +563,15 @@ describe('Functional tests', function () {
       done();
     });
 
+    it('install test-app2 manually.', function (done) {
+      this.timeout(60000);
+      var testapp2 = pathExtra.join(fixturesDir, 'test-app2');
+      actions.installApp(testapp2, function (err) {
+        assert.equal(err, null, 'Cannot install test-app2.');
+        done();
+      });
+    });
+
     it('change configuration file.', function (done) {
       var appHome = configHelpers.modulePath('test-app');
       var manifest = require(pathExtra.join(appHome, 'package.json'));
@@ -578,12 +586,34 @@ describe('Functional tests', function () {
     });
 
     it('fake app should be started.', function (done) {
+      var client = requestJSON.newClient('http://localhost:18002');
+      client.get('', function assertResponse (err, res) {
+        assert.equal(err, null, 'An error occurred while accessing test app.');
+        assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
+        done();
+      });
+    });
+
+    it('test-app2 should be started.', function (done) {
       var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res) {
         assert.equal(err, null, 'An error occurred while accessing test app.');
         assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
         actions.stop(done);
       });
+    });
+
+    it('should uninstall.', function (done) {
+      this.timeout(60000);
+      var testapp2 = pathExtra.join(fixturesDir, 'test-app2');
+      actions.uninstallApp(testapp2, function (err) {
+        assert.equal(err, null, 'Cannot uninstall test-app2.');
+        done();
+      });
+    });
+
+    it('should stop.', function (done) {
+      actions.stop(done);
     });
   });
 

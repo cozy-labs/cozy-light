@@ -1,0 +1,3 @@
+Demonstrate an app that declare its cozy handlers
+ in the main field from package.json file,
+instead of using a cozy.js file at package root.
