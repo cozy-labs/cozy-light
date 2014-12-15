@@ -1,14 +1,22 @@
+### 0.4.2
+
+* Clean hot reloading code.
+* Extract NPM Helpers, Node Helpers and watchers from main file.
+* Fix Personal Cloud distro.
+* Improve exiting.
+* Give the full library as parameter of running applications.
+
 ### 0.4.1
 
-* Fix hot reloading
+* Fix hot reloading.
 
 ### 0.4.0
 
-* Remove Dashboard from default installation
-* app/plugin enable/disable commands
-* Hot app/plugin install/uninstall
-* Install distribution command
-* Distribution descriptor file
+* Remove Dashboard from default installation.
+* app/plugin enable/disable commands.
+* Hot app/plugin install/uninstall.
+* Install distribution command.
+* Distribution descriptor file.
 
 ### 0.3.1
 
