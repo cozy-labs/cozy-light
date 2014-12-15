@@ -13,7 +13,31 @@ dockerized web apps or use simple Node.js apps to store your calendars and
 your files. Because it's lightweight, it performs well on cheap hardwares like
 the Raspberry Pi or small Digital Ocean VPS.
 
-As an illustration here is how you handle the Static Website use case. The goal is
+# Use cases and distributions
+
+Because of its very flexible architecture Cozy Light can satisfy many usages
+related to self-hosting. Here are some examples:
+
+* Static blog deployer 
+* Personal cloud (calendars, files, contacts and tasks) 
+* Simple Docker container manager
+* Video game console
+
+For each use case a distribution is available. A distribution is a set 
+of plugins and apps that works well together to satisfy a use case.
+
+As an example, just run the following command to install the Personal Cloud
+distribution.
+
+    cozy-light install-distro personal-cloud
+
+Display all available distributions:
+
+    cozy-light install-distro
+
+# Make your own configuration
+
+As an illustration, here is how you handle the Static Website use case. The goal is
 to publish a website made of static files that is updated every time you commit on
 the Github repository:
 
@@ -38,24 +62,6 @@ cozy-light start --port 80
 
 * [Screencast d'introduction (French)](https://vimeo.com/110419102) (Vimeo Link)
 * [Introduction Screencast](https://vimeo.com/108332389) (Vimeo Link)
-
-# Use cases
-
-Because of its very flexible architecture Cozy Light can satisfy many usages
-related to self-hosting. Here are some examples:
-
-* Static blog deployer 
-* Personal cloud (calendars, files, contacts and tasks) 
-* Simple Docker container manager
-* Video game console
-
-For each use case a distribution is available. Just run the following command:
-
-    cozy-light install-distro personal-cloud
-
-Display all available distributions:
-
-    cozy-light install-distro
 
 # Benefits
 
