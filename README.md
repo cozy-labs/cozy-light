@@ -26,7 +26,7 @@ related to self-hosting. Here are some examples:
 For each use case a distribution is available. A distribution is a set 
 of plugins and apps that works well together to satisfy a use case.
 
-As an example, once Cozy Light is [installed](#install), just run the following
+As an example, once Cozy Light is [installed](#install), run the following
 command to install the Personal Cloud distribution.
 
     cozy-light install-distro personal-cloud
