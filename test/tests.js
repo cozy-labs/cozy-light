@@ -429,23 +429,6 @@ describe('Controllers', function () {
 
 describe('actions', function () {
 
-  describe('start', function () {
-    it('should listen and respond to http requests.', function (done) {
-      var opt = {port: 8090};
-      actions.start(opt, function(err) {
-        assert.equal(err, null, 'Cannot start server');
-        request('http://localhost:' + opt.port + '/',
-          function(error, response){
-            assert.equal(error, null,
-              'An error occurred while accessing test app.');
-            assert.equal(response.statusCode, 404,
-              'Wrong return code for test app.');
-            done();
-          });
-      });
-    });
-  });
-
   describe('installApp', function () {
     it('should add app folders and update configuration.', function (done) {
       this.timeout(60000);
@@ -533,6 +516,23 @@ describe('actions', function () {
         var config = configHelpers.loadConfigFile();
         assert.equal(config.plugins[testPlugin], undefined);
         done();
+      });
+    });
+  });
+
+  describe('start', function () {
+    it('should listen and respond to http requests.', function (done) {
+      var opt = {port: 8090};
+      actions.start(opt, function(err) {
+        assert.equal(err, null, 'Cannot start server');
+        request('http://localhost:' + opt.port + '/',
+          function(error, response){
+            assert.equal(error, null,
+              'An error occurred while accessing test app.');
+            assert.equal(response.statusCode, 404,
+              'Wrong return code for test app.');
+            done();
+          });
       });
     });
   });
