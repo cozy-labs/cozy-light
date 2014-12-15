@@ -7,6 +7,7 @@ var cozy = require('../lib/cozy-light');
 var actions = cozy.actions;
 var configHelpers = cozy.configHelpers;
 
+var logger = printit({ prefix: 'Cozy Light'});
 var pkg = require('../package.json');
 
 
@@ -89,9 +90,9 @@ if (!process.argv.slice(2).length) {
 
 process.on('uncaughtException', function (err) {
   if (err) {
-    LOGGER.warn('An exception is uncaught');
-    LOGGER.raw(err);
-    LOGGER.raw(err.stack);
+    logger.warn('An exception is uncaught');
+    logger.raw(err);
+    logger.raw(err.stack);
     actions.exit();
   }
 });
@@ -99,4 +100,4 @@ process.on('uncaughtException', function (err) {
 
 // Manage termination
 
-process.on('SIGINT', actions.exit);
+process.on('SIGINT', actions.exitNow);
