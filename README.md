@@ -3,15 +3,12 @@
 
 ![Cozy Logo](https://raw.github.com/cozy/cozy-setup/gh-pages/assets/images/happycloud.png)
 
-Cozy Light is a micro PaaS that makes self-hosting easy.
+Personal Server Made Easy.
 
 **Tests status**: ![Travis Badge](https://travis-ci.org/cozy-labs/cozy-light.svg)
 
-Through its various plugins Cozy Light allows you to deal without effort with
-many self-hosting use cases like deploying your static website, managing
-dockerized web apps or use simple Node.js apps to store your calendars and
-your files. Because it's lightweight, it performs well on cheap hardwares like
-the Raspberry Pi or small Digital Ocean VPS.
+Cozy Light allows you to deal, without effort, with many self-hosting use cases like turning your server into a file storage, hosting your static website or managing dockerized web apps. You can try it on your desktop or directly set it up on your own server. It performs well on cheap hardwares like the Raspberry Pi or small Digital Ocean VPS. 
+
 
 # Use cases and distributions
 
