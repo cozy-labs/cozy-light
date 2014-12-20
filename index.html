@@ -676,6 +676,241 @@ source https://github.com/stubbornella/oocss/blob/master/core/spacing/space.css
 }
 
 </style><style type="text/css">@font-face {
+  font-family: 'octicons';
+  src: url('octicons.eot?#iefix') format('embedded-opentype'),
+       url('octicons.woff') format('woff'),
+       url('octicons.ttf') format('truetype'),
+       url('octicons.svg#octicons') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*
+
+.octicon is optimized for 16px.
+.mega-octicon is optimized for 32px but can be used larger.
+
+*/
+.octicon, .mega-octicon {
+  font: normal normal normal 16px/1 octicons;
+  display: inline-block;
+  text-decoration: none;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.mega-octicon { font-size: 32px; }
+
+
+.octicon-alert:before { content: '\f02d'} /*  */
+.octicon-alignment-align:before { content: '\f08a'} /*  */
+.octicon-alignment-aligned-to:before { content: '\f08e'} /*  */
+.octicon-alignment-unalign:before { content: '\f08b'} /*  */
+.octicon-arrow-down:before { content: '\f03f'} /*  */
+.octicon-arrow-left:before { content: '\f040'} /*  */
+.octicon-arrow-right:before { content: '\f03e'} /*  */
+.octicon-arrow-small-down:before { content: '\f0a0'} /*  */
+.octicon-arrow-small-left:before { content: '\f0a1'} /*  */
+.octicon-arrow-small-right:before { content: '\f071'} /*  */
+.octicon-arrow-small-up:before { content: '\f09f'} /*  */
+.octicon-arrow-up:before { content: '\f03d'} /*  */
+.octicon-beer:before { content: '\f069'} /*  */
+.octicon-book:before { content: '\f007'} /*  */
+.octicon-bookmark:before { content: '\f07b'} /*  */
+.octicon-briefcase:before { content: '\f0d3'} /*  */
+.octicon-broadcast:before { content: '\f048'} /*  */
+.octicon-browser:before { content: '\f0c5'} /*  */
+.octicon-bug:before { content: '\f091'} /*  */
+.octicon-calendar:before { content: '\f068'} /*  */
+.octicon-check:before { content: '\f03a'} /*  */
+.octicon-checklist:before { content: '\f076'} /*  */
+.octicon-chevron-down:before { content: '\f0a3'} /*  */
+.octicon-chevron-left:before { content: '\f0a4'} /*  */
+.octicon-chevron-right:before { content: '\f078'} /*  */
+.octicon-chevron-up:before { content: '\f0a2'} /*  */
+.octicon-circle-slash:before { content: '\f084'} /*  */
+.octicon-circuit-board:before { content: '\f0d6'} /*  */
+.octicon-clippy:before { content: '\f035'} /*  */
+.octicon-clock:before { content: '\f046'} /*  */
+.octicon-cloud-download:before { content: '\f00b'} /*  */
+.octicon-cloud-upload:before { content: '\f00c'} /*  */
+.octicon-code:before { content: '\f05f'} /*  */
+.octicon-color-mode:before { content: '\f065'} /*  */
+.octicon-comment-add:before,
+.octicon-comment:before { content: '\f02b'} /*  */
+.octicon-comment-discussion:before { content: '\f04f'} /*  */
+.octicon-credit-card:before { content: '\f045'} /*  */
+.octicon-dash:before { content: '\f0ca'} /*  */
+.octicon-dashboard:before { content: '\f07d'} /*  */
+.octicon-database:before { content: '\f096'} /*  */
+.octicon-device-camera:before { content: '\f056'} /*  */
+.octicon-device-camera-video:before { content: '\f057'} /*  */
+.octicon-device-desktop:before { content: '\f27c'} /*  */
+.octicon-device-mobile:before { content: '\f038'} /*  */
+.octicon-diff:before { content: '\f04d'} /*  */
+.octicon-diff-added:before { content: '\f06b'} /*  */
+.octicon-diff-ignored:before { content: '\f099'} /*  */
+.octicon-diff-modified:before { content: '\f06d'} /*  */
+.octicon-diff-removed:before { content: '\f06c'} /*  */
+.octicon-diff-renamed:before { content: '\f06e'} /*  */
+.octicon-ellipsis:before { content: '\f09a'} /*  */
+.octicon-eye-unwatch:before,
+.octicon-eye-watch:before,
+.octicon-eye:before { content: '\f04e'} /*  */
+.octicon-file-binary:before { content: '\f094'} /*  */
+.octicon-file-code:before { content: '\f010'} /*  */
+.octicon-file-directory:before { content: '\f016'} /*  */
+.octicon-file-media:before { content: '\f012'} /*  */
+.octicon-file-pdf:before { content: '\f014'} /*  */
+.octicon-file-submodule:before { content: '\f017'} /*  */
+.octicon-file-symlink-directory:before { content: '\f0b1'} /*  */
+.octicon-file-symlink-file:before { content: '\f0b0'} /*  */
+.octicon-file-text:before { content: '\f011'} /*  */
+.octicon-file-zip:before { content: '\f013'} /*  */
+.octicon-flame:before { content: '\f0d2'} /*  */
+.octicon-fold:before { content: '\f0cc'} /*  */
+.octicon-gear:before { content: '\f02f'} /*  */
+.octicon-gift:before { content: '\f042'} /*  */
+.octicon-gist:before { content: '\f00e'} /*  */
+.octicon-gist-secret:before { content: '\f08c'} /*  */
+.octicon-git-branch-create:before,
+.octicon-git-branch-delete:before,
+.octicon-git-branch:before { content: '\f020'} /*  */
+.octicon-git-commit:before { content: '\f01f'} /*  */
+.octicon-git-compare:before { content: '\f0ac'} /*  */
+.octicon-git-merge:before { content: '\f023'} /*  */
+.octicon-git-pull-request-abandoned:before,
+.octicon-git-pull-request:before { content: '\f009'} /*  */
+.octicon-globe:before { content: '\f0b6'} /*  */
+.octicon-graph:before { content: '\f043'} /*  */
+.octicon-heart:before { content: '\2665'} /* ♥ */
+.octicon-history:before { content: '\f07e'} /*  */
+.octicon-home:before { content: '\f08d'} /*  */
+.octicon-horizontal-rule:before { content: '\f070'} /*  */
+.octicon-hourglass:before { content: '\f09e'} /*  */
+.octicon-hubot:before { content: '\f09d'} /*  */
+.octicon-inbox:before { content: '\f0cf'} /*  */
+.octicon-info:before { content: '\f059'} /*  */
+.octicon-issue-closed:before { content: '\f028'} /*  */
+.octicon-issue-opened:before { content: '\f026'} /*  */
+.octicon-issue-reopened:before { content: '\f027'} /*  */
+.octicon-jersey:before { content: '\f019'} /*  */
+.octicon-jump-down:before { content: '\f072'} /*  */
+.octicon-jump-left:before { content: '\f0a5'} /*  */
+.octicon-jump-right:before { content: '\f0a6'} /*  */
+.octicon-jump-up:before { content: '\f073'} /*  */
+.octicon-key:before { content: '\f049'} /*  */
+.octicon-keyboard:before { content: '\f00d'} /*  */
+.octicon-law:before { content: '\f0d8'} /*  */
+.octicon-light-bulb:before { content: '\f000'} /*  */
+.octicon-link:before { content: '\f05c'} /*  */
+.octicon-link-external:before { content: '\f07f'} /*  */
+.octicon-list-ordered:before { content: '\f062'} /*  */
+.octicon-list-unordered:before { content: '\f061'} /*  */
+.octicon-location:before { content: '\f060'} /*  */
+.octicon-gist-private:before,
+.octicon-mirror-private:before,
+.octicon-git-fork-private:before,
+.octicon-lock:before { content: '\f06a'} /*  */
+.octicon-logo-github:before { content: '\f092'} /*  */
+.octicon-mail:before { content: '\f03b'} /*  */
+.octicon-mail-read:before { content: '\f03c'} /*  */
+.octicon-mail-reply:before { content: '\f051'} /*  */
+.octicon-mark-github:before { content: '\f00a'} /*  */
+.octicon-markdown:before { content: '\f0c9'} /*  */
+.octicon-megaphone:before { content: '\f077'} /*  */
+.octicon-mention:before { content: '\f0be'} /*  */
+.octicon-microscope:before { content: '\f089'} /*  */
+.octicon-milestone:before { content: '\f075'} /*  */
+.octicon-mirror-public:before,
+.octicon-mirror:before { content: '\f024'} /*  */
+.octicon-mortar-board:before { content: '\f0d7'} /*  */
+.octicon-move-down:before { content: '\f0a8'} /*  */
+.octicon-move-left:before { content: '\f074'} /*  */
+.octicon-move-right:before { content: '\f0a9'} /*  */
+.octicon-move-up:before { content: '\f0a7'} /*  */
+.octicon-mute:before { content: '\f080'} /*  */
+.octicon-no-newline:before { content: '\f09c'} /*  */
+.octicon-octoface:before { content: '\f008'} /*  */
+.octicon-organization:before { content: '\f037'} /*  */
+.octicon-package:before { content: '\f0c4'} /*  */
+.octicon-paintcan:before { content: '\f0d1'} /*  */
+.octicon-pencil:before { content: '\f058'} /*  */
+.octicon-person-add:before,
+.octicon-person-follow:before,
+.octicon-person:before { content: '\f018'} /*  */
+.octicon-pin:before { content: '\f041'} /*  */
+.octicon-playback-fast-forward:before { content: '\f0bd'} /*  */
+.octicon-playback-pause:before { content: '\f0bb'} /*  */
+.octicon-playback-play:before { content: '\f0bf'} /*  */
+.octicon-playback-rewind:before { content: '\f0bc'} /*  */
+.octicon-plug:before { content: '\f0d4'} /*  */
+.octicon-repo-create:before,
+.octicon-gist-new:before,
+.octicon-file-directory-create:before,
+.octicon-file-add:before,
+.octicon-plus:before { content: '\f05d'} /*  */
+.octicon-podium:before { content: '\f0af'} /*  */
+.octicon-primitive-dot:before { content: '\f052'} /*  */
+.octicon-primitive-square:before { content: '\f053'} /*  */
+.octicon-pulse:before { content: '\f085'} /*  */
+.octicon-puzzle:before { content: '\f0c0'} /*  */
+.octicon-question:before { content: '\f02c'} /*  */
+.octicon-quote:before { content: '\f063'} /*  */
+.octicon-radio-tower:before { content: '\f030'} /*  */
+.octicon-repo-delete:before,
+.octicon-repo:before { content: '\f001'} /*  */
+.octicon-repo-clone:before { content: '\f04c'} /*  */
+.octicon-repo-force-push:before { content: '\f04a'} /*  */
+.octicon-gist-fork:before,
+.octicon-repo-forked:before { content: '\f002'} /*  */
+.octicon-repo-pull:before { content: '\f006'} /*  */
+.octicon-repo-push:before { content: '\f005'} /*  */
+.octicon-rocket:before { content: '\f033'} /*  */
+.octicon-rss:before { content: '\f034'} /*  */
+.octicon-ruby:before { content: '\f047'} /*  */
+.octicon-screen-full:before { content: '\f066'} /*  */
+.octicon-screen-normal:before { content: '\f067'} /*  */
+.octicon-search-save:before,
+.octicon-search:before { content: '\f02e'} /*  */
+.octicon-server:before { content: '\f097'} /*  */
+.octicon-settings:before { content: '\f07c'} /*  */
+.octicon-log-in:before,
+.octicon-sign-in:before { content: '\f036'} /*  */
+.octicon-log-out:before,
+.octicon-sign-out:before { content: '\f032'} /*  */
+.octicon-split:before { content: '\f0c6'} /*  */
+.octicon-squirrel:before { content: '\f0b2'} /*  */
+.octicon-star-add:before,
+.octicon-star-delete:before,
+.octicon-star:before { content: '\f02a'} /*  */
+.octicon-steps:before { content: '\f0c7'} /*  */
+.octicon-stop:before { content: '\f08f'} /*  */
+.octicon-repo-sync:before,
+.octicon-sync:before { content: '\f087'} /*  */
+.octicon-tag-remove:before,
+.octicon-tag-add:before,
+.octicon-tag:before { content: '\f015'} /*  */
+.octicon-telescope:before { content: '\f088'} /*  */
+.octicon-terminal:before { content: '\f0c8'} /*  */
+.octicon-three-bars:before { content: '\f05e'} /*  */
+.octicon-tools:before { content: '\f031'} /*  */
+.octicon-trashcan:before { content: '\f0d0'} /*  */
+.octicon-triangle-down:before { content: '\f05b'} /*  */
+.octicon-triangle-left:before { content: '\f044'} /*  */
+.octicon-triangle-right:before { content: '\f05a'} /*  */
+.octicon-triangle-up:before { content: '\f0aa'} /*  */
+.octicon-unfold:before { content: '\f039'} /*  */
+.octicon-unmute:before { content: '\f0ba'} /*  */
+.octicon-versions:before { content: '\f064'} /*  */
+.octicon-remove-close:before,
+.octicon-x:before { content: '\f081'} /*  */
+.octicon-zap:before { content: '\26A1'} /* ⚡ */
+</style><style type="text/css">@font-face {
   font-family: title;
   src: url("fonts/maven-pro-light-200.otf");
 }
@@ -685,7 +920,7 @@ source https://github.com/stubbornella/oocss/blob/master/core/spacing/space.css
 }
 @font-face {
   font-family: main;
-  src: url("fonts/signika-light.ttf");
+  src: url("fonts/raleway-regular.ttf");
 }
 html,
 body {
@@ -695,33 +930,70 @@ body {
 body {
   text-rendering: optimizeLegibility;
   font-family: main;
-  background: url("background.jpg") no-repeat top center fixed;
-  background-color: #f3f9fd;
-  color: #444;
+  background-color: #f8f8f8;
+  color: #222;
+}
+.content {
+  max-width: 780px;
+  margin: auto;
+  font-size: 18px;
+}
+.header {
+  background: #19414d;
+  background: #fff;
+  border-bottom: 1px solid #19414d;
+  padding-top: 50px;
+  margin-bottom: 60px;
+  padding-bottom: 70px;
+  color: #fff;
+  color: #222;
+  border-bottom: 3px solid #ccc;
+}
+h1 {
+  font-family: title;
+  font-weight: normal;
+  font-size: 70px;
+  margin-bottom: 0;
+  line-height: 52px;
+  margin-top: 60px;
+  padding-top: 10px;
 }
 h2 {
-  font-family: titlelight;
-  font-size: 28px;
+  font-family: title;
+  font-weight: normal;
+  font-size: 54px;
+  margin-top: 0px;
+}
+div.code {
+  text-align: center;
+}
+div.code span {
+  font-family: DejaVu Sans Mono;
+  font-size: 20px;
+  color: #fff;
+  width: auto;
+  padding: 10px 20px;
+  border-radius: 20px;
+  background-color: #999;
 }
 h3,
 h4 {
   font-family: main;
   font-weight: normal;
-  color: #444;
+  font-variant: small-caps;
+  text-transform: uppercase;
+  color: #222;
 }
 h3 {
   padding-left: 0px;
   padding-right: 10px;
-  font-size: 20px;
   margin-bottom: 10px;
   margin-top: 10px;
-  color: #444;
+  color: #222;
 }
-body,
-input {
-  color: #444;
-  font: 300 16px Geneva, Verdana, "Lucida Sans", "Lucida Grande", sans-serif;
-  line-height: 1.2;
+h4 {
+  font-size: 20px;
+  margin-top: 60px;
 }
 a,
 a:visited {
@@ -733,20 +1005,10 @@ a:visited:hover {
   text-decoration: underline;
   color: #fe8800;
 }
-h1 {
-  font-family: title;
-  font-weight: normal;
-  font-size: 52px;
-  margin-bottom: 0;
-  margin-top: 10px;
-  line-height: 52px;
-  color: #444;
-  color: #852;
-}
 button {
   border: 0;
   border-radius: 3px;
-  background-color: #31b3f2;
+  background-color: #578dc7;
   color: #fff;
   padding: 10px;
   margin-right: 5px;
@@ -768,5 +1030,81 @@ button:active {
 a,
 button {
   cursor: pointer;
+  transition: 0.3s color ease;
 }
-</style><link rel="shortcut icon" href="favicon.png"><title>Cozy Contacts, The CRM for Individuals</title><meta name="description" content=""><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="content-type" content="text/html; charset=utf-8"><script src="jquery-2.0.0.min.js"></script><script src="jquery.prettyPhoto.js"></script><script type="text/javascript">console.log('ok');</script></head><body><div class="step first-step"><h1 class="main-title">Cozy Light</h1></div></body></html>
+td {
+  width: 50%;
+  border-bottom: 1px solid #ddd;
+  font-size: 15px;
+  padding: 5px 0;
+}
+tr td:first-child {
+  font-weight: bold;
+}
+table em {
+  font-weight: normal;
+}
+.mt3 {
+  margin-top: 30px;
+}
+.mt6 {
+  margin-top: 60px;
+}
+.mt9 {
+  margin-top: 90px;
+}
+</style><link rel="shortcut icon" href="favicon.png"><title>Cozy Light, Personal Server Made Easy</title><meta name="description" content=""><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="content-type" content="text/html; charset=utf-8"><script src="jquery-2.0.0.min.js"></script><script src="two.min.js"></script></head><body><div class="header"><div class="content cleafix"><img src="logo.png" width="130" class="left"><h1 class="main-title mt9 pat1">Cozy Light</h1><h2>Personal server made easy
+</h2><p class="mt6">Cozy Light allows you to deal,
+without effort, with many self-hosting use cases like
+turning your server into a file storage, hosting
+your static website or managing dockerized web apps.
+You can try it on your desktop or directly set it up on
+your own server. It performs well on cheap
+hardwares like the Raspberry Pi or small Digital Ocean VPS.
+</p><div class="txtcenter mt6"><a href="https://github.com/cozy-labs/cozy-light"><span class="mega-octicon octicon-mark-github"></span></a></div></div></div><div class="content"><h3 class="mt6">Install
+</h3><p>Cozy Light requires Node.js to be installed. Once Node is
+setup, a single command line is required:
+</p><div class="code mt6"><span>npm install cozy-light -g
+</span></div><h3 class="mt6">Distros
+</h3><p>Cozy Light allows you to configure your server by installing
+apps and adding plugins. To help you start with common use
+cases of personal servers, Cozy Light provide you with set of
+apps and plugins called distributions.
+</p><h4>Personal Cloud
+</h4><div class="txtcenter"><svg width="600" height="400"><circle cx="30px" cy="370px" r="30" fill="#666"></circle><text x="13px" y="375px" fill="white">you</text><rect x="200px" y="340px" width="60" height="60" fill="#578DC7"></rect><text x="211px" y="375px" fill="white">auth</text><rect x="400px" y="60px" width="60" height="60" fill="#578DC7"></rect><text x="470px" y="95px" fill="#222">dashboard</text><rect x="400px" y="130px" width="60" height="60" fill="#60C85B"></rect><text x="470px" y="165px" fill="#222">file storage</text><rect x="400px" y="200px" width="60" height="60" fill="#60C85B"></rect><text x="470px" y="235px" fill="#222">calendar</text><rect x="400px" y="270px" width="60" height="60" fill="#60C85B"></rect><text x="470px" y="305px" fill="#222">contact book</text><rect x="400px" y="340px" width="60" height="60" fill="#60C85B"></rect><text x="470px" y="375px" fill="#222">task manager</text><path d="M 60, 370 L 200, 370" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 370" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 300" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 230" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 160" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 90" style="fill:none; stroke:#222"></path></svg></div><div class="code mt6"><span>cozy-light install-distro personal-cloud</span><br><br><span>cozy-light --set-password
+</span></div><h4 class="mt6"><Static>website</Static></h4><div class="txtcenter"><svg width="600" height="200"><circle cx="30px" cy="170px" r="30" fill="#666"></circle><text x="11px" y="175px" fill="white">user</text><circle cx="30px" cy="100px" r="30" fill="#666"></circle><text x="15px" y="105px" fill="white">you</text><rect x="200px" y="140px" width="60" height="60" fill="#578DC7"></rect><text x="209px" y="172px" fill="white" style="font-size: 12px">domain</text><rect x="200px" y="70px" width="60" height="60" fill="#578DC7"></rect><text x="209px" y="102px" fill="white" style="font-size: 12px">githook</text><rect x="320px" y="140px" width="60" height="60" fill="#578DC7"></rect><text x="330px" y="175px" fill="white" style="font-size: 14px">html5</text><rect x="450px" y="140px" width="60" height="60" fill="#60C85B"></rect><text x="520px" y="175px" fill="#222">your site</text><path d="M 60, 170 L 200, 170" style="fill:none; stroke:#222"></path><path d="M 60, 100 L 200, 100" style="fill:none; stroke:#222"></path><path d="M 260, 170 L 320, 170" style="fill:none; stroke:#222"></path><path d="M 380, 170 L 450, 170" style="fill:none; stroke:#222"></path><path d="M 260, 100 L 320 100 L 450, 170" style="fill:none; stroke:#222"></path></svg></div><div class="code mt6"><span>cozy-light install-distro website</span></div><h4>Docker PaaS
+</h4><div class="txtcenter"><svg width="600" height="200"><circle cx="30px" cy="170px" r="30" fill="#666"></circle><text x="11px" y="175px" fill="white">user</text><circle cx="30px" cy="100px" r="30" fill="#666"></circle><text x="13px" y="105px" fill="white">you</text><rect x="150px" y="140px" width="60" height="60" fill="#578DC7"></rect><text x="159px" y="172px" fill="white" style="font-size: 12px">domain</text><rect x="270px" y="140px" width="60" height="60" fill="#578DC7"></rect><text x="280px" y="172px" fill="white" style="font-size :12px">docker</text><rect x="400px" y="70px" width="60" height="60" fill="#578DC7"></rect><text x="470px" y="105px" fill="#222">dashboard</text><rect x="400px" y="140px" width="60" height="60" fill="#60C85B"></rect><text x="470px" y="175px" fill="#222">your container</text><path d="M 60, 100 L 400 100" style="fill:none; stroke:#222"></path><path d="M 60, 170 L 150, 170" style="fill:none; stroke:#222"></path><path d="M 210, 170 L 270, 170" style="fill:none; stroke:#222"></path><path d="M 330, 170 L 400, 170" style="fill:none; stroke:#222"></path></svg></div><div class="code mt6"><span>cozy-light install-distro docker
+</span></div><h4>Video Games
+</h4><div class="txtcenter"><svg width="600" height="250"><circle cx="30px" cy="220px" r="30" fill="#666"></circle><text x="13px" y="225px" fill="white">you</text><rect x="220px" y="190px" width="60" height="60" fill="#578DC7"></rect><text x="233px" y="222px" fill="white" style="font-size: 12px">html5</text><rect x="400px" y="50px" width="60" height="60" fill="#578DC7"></rect><text x="470px" y="85px" fill="#222">dashboard</text><rect x="400px" y="120px" width="60" height="60" fill="#60C85B"></rect><text x="470px" y="155px" fill="#222">snake </text><rect x="400px" y="190px" width="60" height="60" fill="#60C85B"></rect><text x="470px" y="225px" fill="#222">crappy bird</text><path d="M 60, 220 L 150, 80 L 400 80" style="fill:none; stroke:#222"></path><path d="M 60, 220 L 220, 220" style="fill:none; stroke:#222"></path><path d="M 280, 220 L 400, 220" style="fill:none; stroke:#222"></path><path d="M 280, 220 L 400, 170" style="fill:none; stroke:#222"></path></svg></div><div class="code mt6"><span>cozy-light install-distro video-games
+</span></div><h4>PouchDB PaaS
+</h4><div class="txtcenter"><svg width="600" height="250"><circle cx="30px" cy="220px" r="30" fill="#666"></circle><text x="11px" y="225px" fill="white">user</text><circle cx="30px" cy="80px" r="30" fill="#666"></circle><text x="15px" y="85px" fill="white">you</text><rect x="220px" y="190px" width="60" height="60" fill="#578DC7"></rect><text x="233px" y="222px" fill="white" style="font-size: 12px">html5</text><rect x="220px" y="110px" width="60" height="60" fill="#578DC7"></rect><text x="229px" y="142px" fill="white" style="font-size: 12px">githook</text><rect x="400px" y="50px" width="60" height="60" fill="#578DC7"></rect><text x="470px" y="85px" fill="#222">dashboard</text><rect x="400px" y="120px" width="60" height="60" fill="#578DC7"></rect><text x="470px" y="155px" fill="#222">PouchDB API</text><rect x="400px" y="190px" width="60" height="60" fill="#60C85B"></rect><text x="470px" y="225px" fill="#222">your app</text><path d="M 60, 80 L 400 80" style="fill:none; stroke:#222"></path><path d="M 60, 80 L 220 140" style="fill:none; stroke:#222"></path><path d="M 280, 140 L 400 220" style="fill:none; stroke:#222"></path><path d="M 60, 220 L 220, 220" style="fill:none; stroke:#222"></path><path d="M 280, 220 L 400, 220" style="fill:none; stroke:#222"></path><path d="M 430, 190 L 430, 180" style="fill:none; stroke:#222"></path></svg></div><div class="code mt6"><span>cozy-light install-distro pouchdb
+</span></div><h3 class="mt3">Run
+</h3><p>To run Cozy Light server, execute the following command.
+By default, it will listen on the 19104 port.
+</p><div class="code mt6"><span>cozy-light start
+</span></div><h3 class="mt3">Apps
+</h3><p>Here is a list of available applications for the Cozy Light
+platform.
+</p><table class="mt3"><tr><td>cozy-labs/cozy-calendar</td><td>Alarm and events manager</td></tr><tr> <td>cozy-labs/cozy-files</td><td>File storage</td></tr><tr><td>cozy-labs/cozy-contacts</td><td>Contact book</td></tr><tr><td>cozy-labs/tasky</td><td>Simple and efficient task manager;</td></tr><tr><td>maboiteaspam/ma-clef-usb</td><td>Another file storage.</td></tr><tr> <td> &nbsp;</td><td> </td></tr><tr><td> <em>require html5-apps plugin</em></td><td></td></tr><tr><td>frankrousseau/coffee-snake</td><td>Snake game</td></tr><tr><td>frankrousseau/CrappyBird</td><td>Flappy bird clone.</td></tr><tr> <td> &nbsp;</td><td> </td></tr><tr class="mt3"><td> <em>require docker plugin</em></td><td></td></tr><tr> <td>frankrousseau/couchdb</td><td>Couchdb database, can be useful for your PouchDB-based apps</td></tr><tr><td>frankrousseau/wordpress</td><td>Wordpress blog engine.</td></tr><tr><td>frankrousseau/ghost</td><td>Ghost blog engine.</td></tr></table><h3 class="mt3">Plugins
+</h3><p>Here is a list of available plugins for the Cozy Light
+platform.
+</p><table class="mt3"><tr><td>cozy-labs/cozy-light-simple-dashboard</td><td>Minimalist dashboard for the platform.</td></tr><tr><td>maboiteaspam/cozy-homepage</td><td>Redirect root url to Cozy Dashboard app.</td></tr><tr><td>cozy-labs/cozy-light-auth</td><td>Add auth capabilities to Cozy Light.</td></tr><tr><td>cozy-labs/cozy-light-basic-auth</td><td>Add basic auth capabilities to Cozy Light.</td></tr><tr><td>cozy-labs/cozy-light-html5-apps</td><td>To manage HTML5 apps like classic apps.</td></tr><tr><td>cozy-labs/cozy-light-docker</td><td>Experimental plugin to manage docker containers like classic apps.</td></tr><tr><td>cozy-labs/cozy-light-domains</td><td>Link a domain name to a static app.</td></tr><tr><td>cozy-labs/cozy-light-githook</td><td>Reinstall an app when a commit occurs on the Github repository.</td></tr></table><h3 class="mt3">Commands
+
+</h3><table class="mt3"><tr><td>install </td><td>Install given application.</td></tr><tr><td>uninstall </td><td>Uninstall given application.</td></tr><tr><td>add-plugin</td><td>Install given plugin.</td></tr><tr><td>remove-plugin</td><td>Uninstall given plugin.</td></tr><tr><td>install-distro</td><td>Install given distribution.</td></tr><tr><td>enable</td><td>Enable given application/plugin.</td></tr><tr><td>disable</td><td>Disable given application/plugin.</td></tr><tr><td>display-config</td><td>Display Current configuration.</td></tr></table><p class="small mt3"><em>Cozy Light is brought to you by Cozy Cloud and the <a href="http://cozy.io">Cozy Community</a></em></p><div class="pa3"></div></div></body><script>$(function() {
+    var elem = document.getElementById('personal-cloud-diagram');
+    console.log(elem);
+    var params = { width: 600, height: 400 };
+    var two = new Two(params).appendTo(elem);
+    
+    var rect = two.makeRectangle(200, 260, 60, 60);
+    rect.fill = '#578DC7';
+    rect.noStroke();
+    var rect = two.makeRectangle(200, 340, 60, 60);
+    rect.fill = '#578DC7';
+    rect.noStroke();
+    var rect = two.makeRectangle(300, 340, 60, 60);
+    rect.fill = '#60C85B';
+    rect.noStroke();
+    
+    two.update();
+});</script></html>

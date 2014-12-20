@@ -3,11 +3,12 @@ rounded-border()
     -moz-border-radius: arguments
     border-radius: arguments
             
-dark-grey = #444
+dark-grey = #222
 light-blue = #F3F9FD
 light-grey = #DDD
-blue = #31B3F2
+blue = #578DC7
 orange = #FE8800
+green = #60C85B
 
 @font-face
     font-family: title
@@ -19,7 +20,7 @@ orange = #FE8800
 
 @font-face
     font-family: main
-    src: url('fonts/signika-light.ttf')
+    src: url('fonts/raleway-regular.ttf')
 
 html,
 body
@@ -29,33 +30,72 @@ body
 body
     text-rendering optimizeLegibility
     font-family: main
-    background: url(background.jpg) no-repeat top center fixed 
-    background-color: light-blue
+    background-color: #F8F8F8
     color: dark-grey
 
+.content
+    max-width: 780px
+    margin: auto
+    font-size: 18px
+
+.header
+    //background: #323795
+    background: #19414D
+    background: white
+    border-bottom: 1px solid #19414D
+    padding-top: 50px
+    margin-bottom: 60px
+    padding-bottom: 70px
+    color: white
+    color: dark-grey
+    //box-shadow: 0 3px 3px #999
+    border-bottom: 3px solid #CCC
+
+h1
+    font-family: title
+    font-weight: normal
+    font-size: 70px
+    margin-bottom: 0
+    line-height: 52px
+    margin-top: 60px
+    padding-top: 10px
+
 h2
-    font-family: titlelight
-    font-size: 28px
+    font-family: title
+    font-weight: normal
+    font-size: 54px
+    margin-top: 0px
+
+div.code
+    text-align: center
+
+    span
+        font-family: DejaVu Sans Mono
+        font-size: 20px
+        color: white
+        width: auto
+        padding: 10px 20px
+        border-radius: 20px
+        background-color: #999
 
 h3
 h4
     font-family: main
     font-weight: normal
+    font-variant: small-caps
+    text-transform: uppercase
     color: dark-grey
 
 h3
     padding-left: 0px
     padding-right: 10px
-    font-size: 20px
     margin-bottom: 10px
     margin-top: 10px
     color: dark-grey
 
-body,
-input
-    color dark-grey
-    font 300 16px Geneva, Verdana, "Lucida Sans", "Lucida Grande", sans-serif
-    line-height 1.2
+h4
+    font-size: 20px
+    margin-top: 60px
 
 a,
 a:visited
@@ -65,16 +105,6 @@ a:visited
     &:hover
         text-decoration underline
         color: orange
-
-h1
-    font-family: title
-    font-weight: normal
-    font-size: 52px
-    margin-bottom: 0
-    margin-top: 10px
-    line-height: 52px
-    color: dark-grey
-    color: #852
 
 button
     border: 0
@@ -101,3 +131,27 @@ button:active
 a
 button
     cursor: pointer
+    transition: 0.3s color ease
+
+td 
+    width 50%
+    border-bottom: 1px solid #DDD
+    font-size: 15px
+    padding 5px 0
+
+tr
+    td:first-child
+        font-weight: bold
+
+table
+    em
+        font-weight: normal
+
+.mt3
+    margin-top: 30px
+
+.mt6
+    margin-top: 60px
+
+.mt9
+    margin-top: 90px

@@ -2,17 +2,374 @@ doctype 5
 html(lang="en")
     head
         include knacss.css
+        include octicons.css 
         include style.css 
         link(rel="shortcut icon", href="favicon.png")
-        title="Cozy Light, personal server management made easy"
+        title="Cozy Light, Personal Server Made Easy"
         meta(name="description", content="")
         meta(name="viewport", content="width=device-width,initial-scale=1")
         meta(http-equiv="content-type", content="text/html; charset=utf-8")
         script(src='jquery-2.0.0.min.js')
-        script(src='jquery.prettyPhoto.js')
-        script(type='text/javascript').
-          console.log('ok');
+        script(src='two.min.js')
     body
-        .step.first-step
-            h1.main-title
-                | Cozy Light
+        .header
+            .content.cleafix
+                img.left(src="logo.png", width="130")
+                h1.main-title.mt9.pat1
+                    | Cozy Light
+                h2.
+                    Personal server made easy
+
+                p.mt6.
+                    Cozy Light allows you to deal,
+                    without effort, with many self-hosting use cases like
+                    turning your server into a file storage, hosting
+                    your static website or managing dockerized web apps.
+                    You can try it on your desktop or directly set it up on
+                    your own server. It performs well on cheap
+                    hardwares like the Raspberry Pi or small Digital Ocean VPS.
+
+                div.txtcenter.mt6
+                    a(href="https://github.com/cozy-labs/cozy-light")
+                        span.mega-octicon.octicon-mark-github
+
+        .content
+
+
+            h3.mt6.
+                Install
+
+            p.
+                Cozy Light requires Node.js to be installed. Once Node is
+                setup, a single command line is required:
+
+            div.code.mt6
+                span.
+                    npm install cozy-light -g
+
+            h3.mt6.
+                Distros
+
+            p.
+                Cozy Light allows you to configure your server by installing
+                apps and adding plugins. To help you start with common use
+                cases of personal servers, Cozy Light provide you with set of
+                apps and plugins called distributions.
+
+            h4.
+                Personal Cloud
+
+            div.txtcenter
+                svg(width="600", height="400")
+                    circle(cx="30px", cy="370px", r="30", fill="#666")
+                    text(x="13px", y="375px", fill="white") you
+
+                    rect(x="200px", y="340px", width="60", height="60", fill="#578DC7")
+                    text(x="211px", y="375px", fill="white") auth
+
+                    rect(x="400px", y="60px", width="60", height="60", fill="#578DC7")
+                    text(x="470px", y="95px", fill="#222") dashboard
+                    rect(x="400px", y="130px", width="60", height="60", fill="#60C85B")
+                    text(x="470px", y="165px", fill="#222") file storage
+                    rect(x="400px", y="200px", width="60", height="60", fill="#60C85B")
+                    text(x="470px", y="235px", fill="#222") calendar
+                    rect(x="400px", y="270px", width="60", height="60", fill="#60C85B")
+                    text(x="470px", y="305px", fill="#222") contact book
+                    rect(x="400px", y="340px", width="60", height="60", fill="#60C85B")
+                    text(x="470px", y="375px", fill="#222") task manager
+
+                    path(d="M 60, 370 L 200, 370", style="fill:none; stroke:#222")
+
+                    path(d="M 260, 370 L 400, 370", style="fill:none; stroke:#222")
+                    path(d="M 260, 370 L 400, 300", style="fill:none; stroke:#222")
+                    path(d="M 260, 370 L 400, 230", style="fill:none; stroke:#222")
+                    path(d="M 260, 370 L 400, 160", style="fill:none; stroke:#222")
+                    path(d="M 260, 370 L 400, 90", style="fill:none; stroke:#222")
+
+            div.code.mt6
+                span.
+                    cozy-light install-distro personal-cloud
+                br
+                br
+                span.
+                    cozy-light --set-password
+
+            h4.mt6
+                Static website
+
+            div.txtcenter
+                svg(width="600", height="200")
+                    circle(cx="30px", cy="170px", r="30", fill="#666")
+                    text(x="11px", y="175px", fill="white") user
+
+                    circle(cx="30px", cy="100px", r="30", fill="#666")
+                    text(x="15px", y="105px", fill="white") you
+
+                    rect(x="200px", y="140px", width="60", height="60", fill="#578DC7")
+                    text(x="209px", y="172px", fill="white", style="font-size: 12px") domain
+
+                    rect(x="200px", y="70px", width="60", height="60", fill="#578DC7")
+                    text(x="209px", y="102px", fill="white", style="font-size: 12px") githook
+
+                    rect(x="320px", y="140px", width="60", height="60", fill="#578DC7")
+                    text(x="330px", y="175px", fill="white", style="font-size: 14px") html5
+
+                    rect(x="450px", y="140px", width="60", height="60", fill="#60C85B")
+                    text(x="520px", y="175px", fill="#222") your site
+
+                    path(d="M 60, 170 L 200, 170", style="fill:none; stroke:#222")
+                    path(d="M 60, 100 L 200, 100", style="fill:none; stroke:#222")
+                    path(d="M 260, 170 L 320, 170", style="fill:none; stroke:#222")
+                    path(d="M 380, 170 L 450, 170", style="fill:none; stroke:#222")
+                    path(d="M 260, 100 L 320 100 L 450, 170", style="fill:none; stroke:#222")
+            div.code.mt6
+                span.
+                    cozy-light install-distro website
+            h4.
+                Docker PaaS
+
+            div.txtcenter
+                svg(width="600", height="200")
+                    circle(cx="30px", cy="170px", r="30", fill="#666")
+                    text(x="11px", y="175px", fill="white") user
+
+                    circle(cx="30px", cy="100px", r="30", fill="#666")
+                    text(x="13px", y="105px", fill="white") you
+
+                    rect(x="150px", y="140px", width="60", height="60", fill="#578DC7")
+                    text(x="159px", y="172px", fill="white", style="font-size: 12px") domain
+                    rect(x="270px", y="140px", width="60", height="60", fill="#578DC7")
+                    text(x="280px", y="172px", fill="white", style="font-size :12px") docker
+
+                    rect(x="400px", y="70px", width="60", height="60", fill="#578DC7")
+                    text(x="470px", y="105px", fill="#222") dashboard
+                    rect(x="400px", y="140px", width="60", height="60", fill="#60C85B")
+                    text(x="470px", y="175px", fill="#222") your container
+
+                    path(d="M 60, 100 L 400 100", style="fill:none; stroke:#222")
+                    path(d="M 60, 170 L 150, 170", style="fill:none; stroke:#222")
+                    path(d="M 210, 170 L 270, 170", style="fill:none; stroke:#222")
+                    path(d="M 330, 170 L 400, 170", style="fill:none; stroke:#222")
+
+            div.code.mt6
+                span.
+                    cozy-light install-distro docker
+
+            h4.
+                Video Games
+
+            div.txtcenter
+                svg(width="600", height="250")
+                    circle(cx="30px", cy="220px", r="30", fill="#666")
+                    text(x="13px", y="225px", fill="white") you
+
+                    rect(x="220px", y="190px", width="60", height="60", fill="#578DC7")
+                    text(x="233px", y="222px", fill="white", style="font-size: 12px") html5
+
+                    rect(x="400px", y="50px", width="60", height="60", fill="#578DC7")
+                    text(x="470px", y="85px", fill="#222") dashboard
+                    rect(x="400px", y="120px", width="60", height="60", fill="#60C85B")
+                    text(x="470px", y="155px", fill="#222") snake 
+                    rect(x="400px", y="190px", width="60", height="60", fill="#60C85B")
+                    text(x="470px", y="225px", fill="#222") crappy bird
+
+                    path(d="M 60, 220 L 150, 80 L 400 80", style="fill:none; stroke:#222")
+                    path(d="M 60, 220 L 220, 220", style="fill:none; stroke:#222")
+                    path(d="M 280, 220 L 400, 220", style="fill:none; stroke:#222")
+                    path(d="M 280, 220 L 400, 170", style="fill:none; stroke:#222")
+
+            div.code.mt6
+                span.
+                    cozy-light install-distro video-games
+
+            h4.
+                PouchDB PaaS
+
+            div.txtcenter
+                svg(width="600", height="250")
+                    circle(cx="30px", cy="220px", r="30", fill="#666")
+                    text(x="11px", y="225px", fill="white") user
+
+                    circle(cx="30px", cy="80px", r="30", fill="#666")
+                    text(x="15px", y="85px", fill="white") you
+
+                    rect(x="220px", y="190px", width="60", height="60", fill="#578DC7")
+                    text(x="233px", y="222px", fill="white", style="font-size: 12px") html5
+
+                    rect(x="220px", y="110px", width="60", height="60", fill="#578DC7")
+                    text(x="229px", y="142px", fill="white", style="font-size: 12px") githook
+
+                    rect(x="400px", y="50px", width="60", height="60", fill="#578DC7")
+                    text(x="470px", y="85px", fill="#222") dashboard
+                    rect(x="400px", y="120px", width="60", height="60", fill="#578DC7")
+                    text(x="470px", y="155px", fill="#222") PouchDB API
+                    rect(x="400px", y="190px", width="60", height="60", fill="#60C85B")
+                    text(x="470px", y="225px", fill="#222") your app
+
+                    path(d="M 60, 80 L 400 80", style="fill:none; stroke:#222")
+                    path(d="M 60, 80 L 220 140", style="fill:none; stroke:#222")
+                    path(d="M 280, 140 L 400 220", style="fill:none; stroke:#222")
+                    path(d="M 60, 220 L 220, 220", style="fill:none; stroke:#222")
+                    path(d="M 280, 220 L 400, 220", style="fill:none; stroke:#222")
+                    path(d="M 430, 190 L 430, 180", style="fill:none; stroke:#222")
+
+            div.code.mt6
+                span.
+                    cozy-light install-distro pouchdb
+
+            h3.mt3.
+                Run
+
+            p.
+                To run Cozy Light server, execute the following command.
+                By default, it will listen on the 19104 port.
+
+            div.code.mt6
+                span.
+                    cozy-light start
+
+            h3.mt3.
+                Apps
+
+            p.
+                Here is a list of available applications for the Cozy Light
+                platform.
+
+            table.mt3
+                tr
+                    td cozy-labs/cozy-calendar
+                    td Alarm and events manager
+                tr 
+                    td cozy-labs/cozy-files
+                    td File storage
+                tr
+                    td cozy-labs/cozy-contacts
+                    td Contact book
+                tr
+                    td cozy-labs/tasky
+                    td Simple and efficient task manager;
+                tr
+                    td maboiteaspam/ma-clef-usb
+                    td Another file storage.
+                tr 
+                    td  &nbsp;
+                    td 
+                tr
+                    td 
+                        em require html5-apps plugin
+                    td
+                tr
+                    td frankrousseau/coffee-snake
+                    td Snake game
+                tr
+                    td frankrousseau/CrappyBird
+                    td Flappy bird clone.
+                tr 
+                    td  &nbsp;
+                    td 
+                tr.mt3
+                    td 
+                        em require docker plugin
+                    td
+                tr 
+                    td frankrousseau/couchdb
+                    td Couchdb database, can be useful for your PouchDB-based apps
+                tr
+                    td frankrousseau/wordpress
+                    td Wordpress blog engine.
+                tr
+                    td frankrousseau/ghost
+                    td Ghost blog engine.
+
+            h3.mt3.
+                Plugins
+
+            p.
+                Here is a list of available plugins for the Cozy Light
+                platform.
+
+            table.mt3
+
+                tr
+                    td cozy-labs/cozy-light-simple-dashboard
+                    td Minimalist dashboard for the platform.
+                tr
+                    td maboiteaspam/cozy-homepage
+                    td Redirect root url to Cozy Dashboard app.
+                tr
+                    td cozy-labs/cozy-light-auth
+                    td Add auth capabilities to Cozy Light.
+                tr
+                    td cozy-labs/cozy-light-basic-auth
+                    td Add basic auth capabilities to Cozy Light.
+                tr
+                    td cozy-labs/cozy-light-html5-apps
+                    td To manage HTML5 apps like classic apps.
+                tr
+                    td cozy-labs/cozy-light-docker
+                    td Experimental plugin to manage docker containers like classic apps.
+                tr
+                    td cozy-labs/cozy-light-domains
+                    td Link a domain name to a static app.
+                tr
+                    td cozy-labs/cozy-light-githook
+                    td Reinstall an app when a commit occurs on the Github repository.
+
+
+            h3.mt3.
+                Commands
+
+
+            table.mt3
+
+                tr
+                    td install 
+                    td Install given application.
+                tr
+                    td uninstall 
+                    td Uninstall given application.
+                tr
+                    td add-plugin
+                    td Install given plugin.
+                tr
+                    td remove-plugin
+                    td Uninstall given plugin.
+                tr
+                    td install-distro
+                    td Install given distribution.
+                tr
+                    td enable
+                    td Enable given application/plugin.
+                tr
+                    td disable
+                    td Disable given application/plugin.
+                tr
+                    td display-config
+                    td Display Current configuration.
+
+            p.small.mt3
+                em
+                    | Cozy Light is brought to you by Cozy Cloud and the 
+                    a(href="http://cozy.io") Cozy Community
+
+            div.pa3
+
+    script
+        $(function() {
+            var elem = document.getElementById('personal-cloud-diagram');
+            console.log(elem);
+            var params = { width: 600, height: 400 };
+            var two = new Two(params).appendTo(elem);
+
+            var rect = two.makeRectangle(200, 260, 60, 60);
+            rect.fill = '#578DC7';
+            rect.noStroke();
+            var rect = two.makeRectangle(200, 340, 60, 60);
+            rect.fill = '#578DC7';
+            rect.noStroke();
+            var rect = two.makeRectangle(300, 340, 60, 60);
+            rect.fill = '#60C85B';
+            rect.noStroke();
+
+            two.update();
+        });

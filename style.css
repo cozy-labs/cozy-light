@@ -8,7 +8,7 @@
 }
 @font-face {
   font-family: main;
-  src: url("fonts/signika-light.ttf");
+  src: url("fonts/raleway-regular.ttf");
 }
 html,
 body {
@@ -18,33 +18,70 @@ body {
 body {
   text-rendering: optimizeLegibility;
   font-family: main;
-  background: url("background.jpg") no-repeat top center fixed;
-  background-color: #f3f9fd;
-  color: #444;
+  background-color: #f8f8f8;
+  color: #222;
+}
+.content {
+  max-width: 780px;
+  margin: auto;
+  font-size: 18px;
+}
+.header {
+  background: #19414d;
+  background: #fff;
+  border-bottom: 1px solid #19414d;
+  padding-top: 50px;
+  margin-bottom: 60px;
+  padding-bottom: 70px;
+  color: #fff;
+  color: #222;
+  border-bottom: 3px solid #ccc;
+}
+h1 {
+  font-family: title;
+  font-weight: normal;
+  font-size: 70px;
+  margin-bottom: 0;
+  line-height: 52px;
+  margin-top: 60px;
+  padding-top: 10px;
 }
 h2 {
-  font-family: titlelight;
-  font-size: 28px;
+  font-family: title;
+  font-weight: normal;
+  font-size: 54px;
+  margin-top: 0px;
+}
+div.code {
+  text-align: center;
+}
+div.code span {
+  font-family: DejaVu Sans Mono;
+  font-size: 20px;
+  color: #fff;
+  width: auto;
+  padding: 10px 20px;
+  border-radius: 20px;
+  background-color: #999;
 }
 h3,
 h4 {
   font-family: main;
   font-weight: normal;
-  color: #444;
+  font-variant: small-caps;
+  text-transform: uppercase;
+  color: #222;
 }
 h3 {
   padding-left: 0px;
   padding-right: 10px;
-  font-size: 20px;
   margin-bottom: 10px;
   margin-top: 10px;
-  color: #444;
+  color: #222;
 }
-body,
-input {
-  color: #444;
-  font: 300 16px Geneva, Verdana, "Lucida Sans", "Lucida Grande", sans-serif;
-  line-height: 1.2;
+h4 {
+  font-size: 20px;
+  margin-top: 60px;
 }
 a,
 a:visited {
@@ -56,20 +93,10 @@ a:visited:hover {
   text-decoration: underline;
   color: #fe8800;
 }
-h1 {
-  font-family: title;
-  font-weight: normal;
-  font-size: 52px;
-  margin-bottom: 0;
-  margin-top: 10px;
-  line-height: 52px;
-  color: #444;
-  color: #852;
-}
 button {
   border: 0;
   border-radius: 3px;
-  background-color: #31b3f2;
+  background-color: #578dc7;
   color: #fff;
   padding: 10px;
   margin-right: 5px;
@@ -91,4 +118,26 @@ button:active {
 a,
 button {
   cursor: pointer;
+  transition: 0.3s color ease;
+}
+td {
+  width: 50%;
+  border-bottom: 1px solid #ddd;
+  font-size: 15px;
+  padding: 5px 0;
+}
+tr td:first-child {
+  font-weight: bold;
+}
+table em {
+  font-weight: normal;
+}
+.mt3 {
+  margin-top: 30px;
+}
+.mt6 {
+  margin-top: 60px;
+}
+.mt9 {
+  margin-top: 90px;
 }
