@@ -10,13 +10,15 @@ html(lang="en")
         meta(name="viewport", content="width=device-width,initial-scale=1")
         meta(http-equiv="content-type", content="text/html; charset=utf-8")
         script(src='jquery-2.0.0.min.js')
+        script(src='two.min.js')
     body
         .header
             .content.cleafix
-                svg.left(width="130", height="130").mr2
-                    rect(x="0px", y="70px", width="60", height="60", fill="#3fc53f")
-                    rect(x="70px", y="70px", width="60", height="60", fill="#34a6ff")
-                    rect(x="70px", y="0px", width="60", height="60", fill="#34a6ff")
+                #logo.left.mr2
+                //-svg.left(width="130", height="130").mr2
+                    //-rect(x="0px", y="70px", width="60", height="60", fill="#3fc53f")
+                    //-rect(x="70px", y="70px", width="60", height="60", fill="#34a6ff")
+                    //-rect(x="70px", y="0px", width="60", height="60", fill="#34a6ff")
 
                 h1.main-title.mt9.pat1
                     | Cozy Light
@@ -350,10 +352,44 @@ html(lang="en")
                     td display-config
                     td Display Current configuration.
 
-            p.small.mt3
+            p.small.mt9.txtcenter
+                a(href="http://cozy.io")
+                    img(src="https://camo.githubusercontent.com/716f6b3c9549a1524ffb94cde31fbe4496f2cef5/68747470733a2f2f7261772e6769746875622e636f6d2f636f7a792f636f7a792d73657475702f67682d70616765732f6173736574732f696d616765732f6861707079636c6f75642e706e67")
+                br
+                br
                 em
-                    | Cozy Light is brought to you by Cozy Cloud and the 
+                    | Cozy Light is brought to you by 
+                    a(href="http://cozycloud.cc") Cozy Cloud 
+                    | and the 
                     a(href="http://cozy.io") Cozy Community
 
             div.pa3
 
+        script
+            var elem = document.getElementById('logo');
+            var params = { width: 130, height: 130 };
+            var two = new Two(params).appendTo(elem);
+
+            var rect1 = two.makeRectangle(30, 100, 60, 60);
+            rect1.fill = '#34a6ff';
+            rect1.noStroke();
+            var rect2 = two.makeRectangle(100, 100, 60, 60);
+            rect2.fill = '#3fc53f';
+            rect2.noStroke();
+            var rect3 = two.makeRectangle(100, 30, 60, 60);
+            rect3.fill = '#3fc53f';
+            rect3.noStroke();
+
+            rect1.scale = 0;
+            rect2.scale = 0;
+            rect3.scale = 0;
+            two.bind('update', function(frameCount) {
+              var t1 = (1 - rect1.scale) * 0.1;
+              var t2 = (1 - rect2.scale) * 0.07;
+              var t3 = (1 - rect3.scale) * 0.05;
+              rect1.scale += t1;
+              rect2.scale += t2;
+              rect3.scale += t3;
+            }).play();
+
+            two.update();

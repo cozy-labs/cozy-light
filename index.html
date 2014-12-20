@@ -1053,7 +1053,7 @@ table em {
 .mt9 {
   margin-top: 90px;
 }
-</style><link rel="shortcut icon" href="favicon.png"><title>Cozy Light, Personal Server Made Easy</title><meta name="description" content=""><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="content-type" content="text/html; charset=utf-8"><script src="jquery-2.0.0.min.js"></script></head><body><div class="header"><div class="content cleafix"><svg width="130" height="130" class="left mr2"><rect x="0px" y="70px" width="60" height="60" fill="#3fc53f"><animateTransform attributeName="transform" begin="0s" dur="0.3s" type="scale" from="0" to="1" repeatCount="1"></animateTransform></rect><rect x="70px" y="70px" width="60" height="60" fill="#34a6ff"><animateTransform attributeName="transform" begin="0.1s" dur="0.4s" type="scale" from="0" to="1" repeatCount="1"></animateTransform></rect><rect x="70px" y="0px" width="60" height="60" fill="#34a6ff"><animateTransform attributeName="transform" begin="0.2s" dur="0.5s" type="scale" from="0" to="1" repeatCount="1"></animateTransform></rect></svg><h1 class="main-title mt9 pat1">Cozy Light</h1><h2>Personal server made easy
+</style><link rel="shortcut icon" href="favicon.png"><title>Cozy Light, Personal Server Made Easy</title><meta name="description" content=""><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="content-type" content="text/html; charset=utf-8"><script src="jquery-2.0.0.min.js"></script><script src="two.min.js"></script></head><body><div class="header"><div class="content cleafix"><div id="logo" class="left mr2"></div><h1 class="main-title mt9 pat1">Cozy Light</h1><h2>Personal server made easy
 </h2><p class="mt6">Cozy Light allows you to deal,
 without effort, with many self-hosting use cases like
 turning your server into a file storage, hosting
@@ -1090,4 +1090,30 @@ platform.
 platform.
 </p><table class="mt3"><tr><td>cozy-labs/cozy-light-simple-dashboard</td><td>Minimalist dashboard for the platform.</td></tr><tr><td>maboiteaspam/cozy-homepage</td><td>Redirect root url to Cozy Dashboard app.</td></tr><tr><td>cozy-labs/cozy-light-auth</td><td>Add auth capabilities to Cozy Light.</td></tr><tr><td>cozy-labs/cozy-light-basic-auth</td><td>Add basic auth capabilities to Cozy Light.</td></tr><tr><td>cozy-labs/cozy-light-html5-apps</td><td>To manage HTML5 apps like classic apps.</td></tr><tr><td>cozy-labs/cozy-light-docker</td><td>Experimental plugin to manage docker containers like classic apps.</td></tr><tr><td>cozy-labs/cozy-light-domains</td><td>Link a domain name to a static app.</td></tr><tr><td>cozy-labs/cozy-light-githook</td><td>Reinstall an app when a commit occurs on the Github repository.</td></tr></table><h3 class="mt3">Commands
 
-</h3><table class="mt3"><tr><td>install </td><td>Install given application.</td></tr><tr><td>uninstall </td><td>Uninstall given application.</td></tr><tr><td>add-plugin</td><td>Install given plugin.</td></tr><tr><td>remove-plugin</td><td>Uninstall given plugin.</td></tr><tr><td>install-distro</td><td>Install given distribution.</td></tr><tr><td>enable</td><td>Enable given application/plugin.</td></tr><tr><td>disable</td><td>Disable given application/plugin.</td></tr><tr><td>display-config</td><td>Display Current configuration.</td></tr></table><p class="small mt3"><em>Cozy Light is brought to you by Cozy Cloud and the <a href="http://cozy.io">Cozy Community</a></em></p><div class="pa3"></div></div></body></html>
+</h3><table class="mt3"><tr><td>install </td><td>Install given application.</td></tr><tr><td>uninstall </td><td>Uninstall given application.</td></tr><tr><td>add-plugin</td><td>Install given plugin.</td></tr><tr><td>remove-plugin</td><td>Uninstall given plugin.</td></tr><tr><td>install-distro</td><td>Install given distribution.</td></tr><tr><td>enable</td><td>Enable given application/plugin.</td></tr><tr><td>disable</td><td>Disable given application/plugin.</td></tr><tr><td>display-config</td><td>Display Current configuration.</td></tr></table><p class="small mt9 txtcenter"><a href="http://cozy.io"><img src="https://camo.githubusercontent.com/716f6b3c9549a1524ffb94cde31fbe4496f2cef5/68747470733a2f2f7261772e6769746875622e636f6d2f636f7a792f636f7a792d73657475702f67682d70616765732f6173736574732f696d616765732f6861707079636c6f75642e706e67"></a><br><br><em>Cozy Light is brought to you by <a href="http://cozycloud.cc">Cozy Cloud </a>and the <a href="http://cozy.io">Cozy Community</a></em></p><div class="pa3"></div></div><script>var elem = document.getElementById('logo');
+var params = { width: 130, height: 130 };
+var two = new Two(params).appendTo(elem);
+
+var rect1 = two.makeRectangle(30, 100, 60, 60);
+rect1.fill = '#34a6ff';
+rect1.noStroke();
+var rect2 = two.makeRectangle(100, 100, 60, 60);
+rect2.fill = '#3fc53f';
+rect2.noStroke();
+var rect3 = two.makeRectangle(100, 30, 60, 60);
+rect3.fill = '#3fc53f';
+rect3.noStroke();
+
+rect1.scale = 0;
+rect2.scale = 0;
+rect3.scale = 0;
+two.bind('update', function(frameCount) {
+  var t1 = (1 - rect1.scale) * 0.1;
+  var t2 = (1 - rect2.scale) * 0.07;
+  var t3 = (1 - rect3.scale) * 0.05;
+  rect1.scale += t1;
+  rect2.scale += t2;
+  rect3.scale += t3;
+}).play();
+
+two.update();</script></body></html>
