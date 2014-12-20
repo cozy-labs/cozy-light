@@ -85,7 +85,7 @@ h4 {
 }
 a,
 a:visited {
-  color: #0086cc;
+  color: #34a6ff;
   text-decoration: none;
 }
 a:hover,
@@ -96,7 +96,7 @@ a:visited:hover {
 button {
   border: 0;
   border-radius: 3px;
-  background-color: #578dc7;
+  background-color: #1babf4;
   color: #fff;
   padding: 10px;
   margin-right: 5px;
