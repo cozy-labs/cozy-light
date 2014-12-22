@@ -14,7 +14,8 @@ describe('Port Controller', function () {
   });
 
   after(function(done) {
-    server.close(done);
+    server.close();
+    done();
   });
 
   it('should find open port 8081', function () {
