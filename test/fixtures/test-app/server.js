@@ -1,6 +1,6 @@
 var express = require('express');
 
-var application = module.exports.start = function(options, callback) {
+var application = function(options, callback){
   if (options == null) {
     options = {};
   }
@@ -14,9 +14,12 @@ var application = module.exports.start = function(options, callback) {
       res.status(200).send({ok: true});
     });
     var server = app.listen(options.port, function (err) {
-      callback(err, app, server);
+      if (callback) callback(err, app, server);
     });
   }
+};
+module.exports = {
+  start: application
 };
 
 if (!module.parent) {
