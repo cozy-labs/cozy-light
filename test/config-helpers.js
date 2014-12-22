@@ -6,12 +6,13 @@ var configWatcher = require('../lib/config-watcher');
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var cozyHOME = pathExtra.join(workingDir, '.cozy-light' );
 
-var configHelpers = require('../lib/config-helper')(cozyHOME);
+var configHelpers = require('../lib/config-helper')();
 
 before(function(){
   fs.removeSync(workingDir);
   fs.mkdirSync(workingDir);
   fs.mkdirSync(cozyHOME);
+  configHelpers.setHomePath(cozyHOME);
 });
 
 
@@ -169,7 +170,7 @@ describe('Config Helpers', function () {
 
   describe('getHost', function () {
     it('returns localhost', function () {
-      assert.equal(configHelpers.getHost(), 'localhost');
+      assert.equal(configHelpers.getMainAppHost(), 'localhost');
     });
   });
 
