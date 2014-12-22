@@ -8,11 +8,10 @@ var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var cozyHOME = pathExtra.join(workingDir, '.cozy-light' );
 
-var cozyKernel = require('../lib/cozy-kernel');
-cozyKernel.setHome(cozyHOME);
-var configHelpers = cozyKernel.configHelpers;
-var npmHelpers = require('../lib/npm-helpers')(cozyKernel);
-
+var configHelpers = require('../lib/config-helper')();
+configHelpers.setHomePath(cozyHOME);
+var npmHelpers = require('../lib/npm-helpers')(configHelpers);
+npmHelpers.initialWd = process.cwd();
 
 describe('NPM Helpers', function () {
 
