@@ -5,7 +5,6 @@ var printit = require('printit');
 
 var cozy = require('../lib/cozy-light');
 var actions = cozy.actions;
-var configHelpers = cozy.configHelpers;
 
 var logger = printit({ prefix: 'Cozy Light'});
 var pkg = require('../package.json');

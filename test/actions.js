@@ -1,17 +1,22 @@
+
+var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var assert = require('assert');
 var request = require('request');
+var should = require('should');
 
 var cozyLight = require('../lib/cozy-light');
+var actions = cozyLight.actions;
+var configHelpers = cozyLight.configHelpers;
+var npmHelpers = cozyLight.npmHelpers;
+var pluginHelpers = cozyLight.pluginHelpers;
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 fs.removeSync(workingDir);
 fs.mkdirSync(workingDir);
 
-var actions = cozyLight(workingDir,{});
-
-var configHelpers = actions.helpers.configHelpers;
+cozyLight.init( workingDir );
 
 describe('actions', function () {
 
