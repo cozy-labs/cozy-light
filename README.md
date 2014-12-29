@@ -88,10 +88,11 @@ Then, with your browser, connect to: `http://localhost:19104/`
 
 ### Daemonize
 
-To run Cozy Light in the background at each startup, it requires you daemonize
-it with a system tool.  The simpler way is to use a platform agnostic
-daemonizer tool. We recommend [supervisor](http://supervisord.org/). Install it
-that way:
+To run Cozy Light in the background at each startup, it requires you to daemonize
+it with a system tool. To achieve that, the simplest way is to use a platform
+agnostic daemonizer tool. We recommend [supervisor](http://supervisord.org/).
+
+Install it that way:
 
     sudo apt-get install supervisor
 
