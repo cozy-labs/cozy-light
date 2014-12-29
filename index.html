@@ -1057,7 +1057,7 @@ table em {
   .content {
     padding: 20px;
   }
-  svg {
+  .docs svg {
     transform: scale(0.9);
     position: relative;
     left: -20px;
@@ -1066,7 +1066,7 @@ table em {
     margin-top: 0;
   }
   h2 {
-    font-size: 40px;
+    font-size: 38px;
     margin-top: 20px;
   }
   h3.mt6:first-child {
@@ -1086,6 +1086,10 @@ table em {
   }
 }
 @media (max-width: 650px) {
+  #logo {
+    float: none;
+    margin-bottom: 20px;
+  }
   td {
     width: 100%;
     display: block;
@@ -1093,21 +1097,33 @@ table em {
   div.code span {
     font-size: 12px;
   }
-  svg {
+  .docs svg {
     transform: scale(0.8);
     position: relative;
     left: -40px;
   }
 }
 @media (max-width: 550px) {
-  svg {
+  .docs svg {
     transform: scale(0.6);
     position: relative;
     left: -60px;
   }
 }
-@media (max-width: 400px) {
-  svg {
+@media (max-width: 500px) {
+  h1.mt9 {
+    font-size: 45px;
+  }
+  h2 {
+    font-size: 32px;
+  }
+}
+@media (max-width: 420px) {
+  h2 {
+    font-size: 24px;
+    margin-top: 10px;
+  }
+  .docs svg {
     transform: scale(0.5);
     position: relative;
     left: -140px;
@@ -1121,7 +1137,7 @@ your static website or managing dockerized web apps.
 You can try it on your desktop or directly set it up on
 your own server. It performs well on cheap
 hardwares like the Raspberry Pi or small Digital Ocean VPS.
-</p><div class="txtcenter mt6"><a href="https://github.com/cozy-labs/cozy-light"><span class="mega-octicon octicon-mark-github"></span></a></div></div></div><div class="content"><h3 class="mt6">Install
+</p><div class="txtcenter mt6"><a href="https://github.com/cozy-labs/cozy-light"><span class="mega-octicon octicon-mark-github"></span></a></div></div></div><div class="content docs"><h3 class="mt6">Install
 </h3><p>Cozy Light requires Node.js to be installed. Once Node is
 setup, a single command line is required:
 </p><div class="code mt6"><span>npm install cozy-light -g

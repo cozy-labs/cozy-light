@@ -162,7 +162,7 @@ table
     .content
         padding: 20px
 
-    svg
+    .docs svg
         transform: scale(0.9)
         position: relative
         left: -20px
@@ -171,7 +171,7 @@ table
         margin-top: 0
 
     h2
-        font-size: 40px
+        font-size: 38px
         margin-top: 20px
 
     h3.mt6:first-child
@@ -192,6 +192,9 @@ table
      
 @media (max-width: 650px) 
 
+    #logo
+        float: none
+        margin-bottom: 20px
 
     td
         width: 100%
@@ -201,20 +204,33 @@ table
         span
             font-size: 12px
 
-    svg
+    .docs svg
         transform: scale(0.8)
         position: relative
         left: -40px
 
 @media (max-width: 550px) 
 
-    svg
+
+    .docs svg
         transform: scale(0.6)
         position: relative
         left: -60px
 
-@media (max-width: 400px) 
-    svg
+@media (max-width: 500px) 
+    h1.mt9
+        font-size: 45px
+
+    h2
+        font-size: 32px
+
+@media (max-width: 420px) 
+
+    h2
+        font-size: 24px
+        margin-top: 10px
+
+    .docs svg
         transform: scale(0.5)
         position: relative
         left: -140px
