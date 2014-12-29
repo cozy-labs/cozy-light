@@ -192,6 +192,12 @@ table em {
   }
 }
 @media (max-width: 550px) {
+  h4:first-child {
+    margin-bottom: 0;
+  }
+  svg:first-child {
+    height: 300px;
+  }
   .docs svg {
     transform: scale(0.6);
     position: relative;
