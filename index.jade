@@ -61,6 +61,9 @@ html(lang="en")
                 cases of personal servers, Cozy Light provide you with set of
                 apps and plugins called distributions.
 
+            p
+                em Blue blocks are applications and green blocks are plugins.
+
             h4.
                 Personal Cloud
 
@@ -286,6 +289,12 @@ html(lang="en")
                     td frankrousseau/ghost
                     td Ghost blog engine.
 
+            div.code.mt6
+                p.mb2
+                    em Example:
+                span.
+                    cozy-labs install cozy-labs/files
+
             h3.mt3.
                 Plugins
 
@@ -320,10 +329,14 @@ html(lang="en")
                     td cozy-labs/cozy-light-githook
                     td Reinstall an app when a commit occurs on the Github repository.
 
+            div.code.mt6
+                p.mb2
+                    em Example:
+                span.
+                    cozy-light add-plugin cozy-labs/cozy-light-auth
 
             h3.mt3.
                 Commands
-
 
             table.mt3
 
@@ -351,6 +364,43 @@ html(lang="en")
                 tr
                     td display-config
                     td Display Current configuration.
+
+            h3.mt3.
+                About
+
+            p.
+                Cozy Light is the result of the many feedback we get about
+                Cozy, a full-featured personal cloud. Many developers asked
+                for the same thing: less friction at install, less friction to
+                build new apps and the capability to run it on the Raspberry Pi.
+            p.
+                Because of the many features of Cozy we were not able to
+                provide that without removing a lot of things. 
+                To not deceive our current users, we decided to
+                build a new project dedicated to developers and hackers.
+            p.
+                It takes the basics of Cozy to make it super simple to start
+                with. Only Node.js and NPM is required to install and run
+                it. Its memory consumption makes it good for low resource
+                computers. Finally, the fact it relies on an embedded database
+                make application development possible with a minimalist
+                development environment (just Node.js).
+            p.
+                Last but not least, we wanted to allow the community to get
+                deeply involved in the project. We made the codebase short (<
+                2000 lines of code) and we integrated a plugin system.
+            p.
+                The first results are good, many people enjoy using it.
+                About contribution, the community send us
+                bug/enhancement reports, we got several nice pull requests and
+                one contributor was so active that he joined us as a core
+                contributor! And all of that with close to zero promotion.
+            p.
+                So, if you like that project and want to share thoughts about
+                it, feel free to open an
+                <a href="https://github.com/cozy-labs/cozy-light/issues">
+                issue</a> or a post on our <a href="https://forum.cozy.io/">
+                forum</a>.
 
             p.small.mt9.txtcenter
                 a(href="http://cozy.io")
