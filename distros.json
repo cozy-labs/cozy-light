@@ -15,6 +15,7 @@
       "cozy-labs/contacts", 
       "cozy-labs/files", 
       "cozy-labs/calendar",
+      "cozy-labs/webmail",
       "maboiteaspam/ma-clef-usb"
     ]
   },

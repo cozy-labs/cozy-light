@@ -140,6 +140,7 @@ install and run them separately:
 * cozy-labs/tasky: simple and efficient task manager;
 * cozy-labs/calendar: alarm and events manager;
 * cozy-labs/files: file storage;
+* cozy-labs/webmails: webmail;
 * cozy-labs/contacts: contact book;
 * maboiteaspam/ma-clef-usb: another file storage.
 
