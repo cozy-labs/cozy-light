@@ -86,6 +86,31 @@ cozy-light from the NPM package manager:
 
 Then, with your browser, connect to: `http://localhost:19104/`
 
+### Daemonize
+
+To run Cozy Light in the background at each startup, it requires you daemonize
+it with a system tool.  The simpler way is to use a platform agnostic
+daemonizer tool. We recommend [supervisor](http://supervisord.org/). Install it
+that way:
+
+    sudo apt-get install supervisor
+
+Then create a new configuration file `/etc/supervisor/conf.d/cozy-light.conf`
+with the following content (don't forget to put the right user in the user
+field):
+
+    [program:cozy-light]
+    autorestart=true
+    autostart=true
+    command=cozy-light start
+    redirect_stderr=true
+    user=youruser
+
+Finally refresh Supervisor configuration and enjoy your Cozy Light:
+
+    supervisorctl update
+
+
 # Platform applications
 
 By default the platform handles only apps based on Node.js and PouchDB.
