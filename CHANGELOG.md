@@ -1,3 +1,7 @@
+### 0.4.3
+
+* README fixes and improvements 
+
 ### 0.4.2
 
 * Clean hot reloading code.
