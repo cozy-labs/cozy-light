@@ -1053,6 +1053,66 @@ table em {
 .mt9 {
   margin-top: 90px;
 }
+@media (max-width: 800px) {
+  .content {
+    padding: 20px;
+  }
+  svg {
+    transform: scale(0.9);
+    position: relative;
+    left: -20px;
+  }
+  h1.mt9 {
+    margin-top: 0;
+  }
+  h2 {
+    font-size: 40px;
+    margin-top: 20px;
+  }
+  h3.mt6:first-child {
+    margin-top: 0px;
+  }
+  h3.mt3 {
+    margin-top: 90px;
+  }
+  h3.mt6 {
+    margin-top: 60px;
+  }
+  div.code.mt6 {
+    margin-top: 20px;
+  }
+  div.code span {
+    font-size: 14px;
+  }
+}
+@media (max-width: 650px) {
+  td {
+    width: 100%;
+    display: block;
+  }
+  div.code span {
+    font-size: 12px;
+  }
+  svg {
+    transform: scale(0.8);
+    position: relative;
+    left: -40px;
+  }
+}
+@media (max-width: 550px) {
+  svg {
+    transform: scale(0.6);
+    position: relative;
+    left: -60px;
+  }
+}
+@media (max-width: 400px) {
+  svg {
+    transform: scale(0.5);
+    position: relative;
+    left: -140px;
+  }
+}
 </style><link rel="shortcut icon" href="favicon.png"><title>Cozy Light, Personal Server Made Easy</title><meta name="description" content=""><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="content-type" content="text/html; charset=utf-8"><script src="jquery-2.0.0.min.js"></script><script src="two.min.js"></script></head><body><div class="header"><div class="content cleafix"><div id="logo" class="left mr2"></div><h1 class="main-title mt9 pat1">Cozy Light</h1><h2>Personal server made easy
 </h2><p class="mt6">Cozy Light allows you to deal,
 without effort, with many self-hosting use cases like
@@ -1071,7 +1131,7 @@ apps and adding plugins. To help you start with common use
 cases of personal servers, Cozy Light provide you with set of
 apps and plugins called distributions.
 </p><p><em>Blue blocks are applications and green blocks are plugins.</em></p><h4>Personal Cloud
-</h4><div class="txtcenter"><svg width="600" height="400"><circle cx="30px" cy="370px" r="30" fill="#666"></circle><text x="13px" y="375px" fill="white">you</text><rect x="200px" y="340px" width="60" height="60" fill="#34a6ff"></rect><text x="211px" y="375px" fill="white">auth</text><rect x="400px" y="60px" width="60" height="60" fill="#34a6ff"></rect><text x="470px" y="95px" fill="#222">dashboard</text><rect x="400px" y="130px" width="60" height="60" fill="#3fc53f"></rect><text x="470px" y="165px" fill="#222">file storage</text><rect x="400px" y="200px" width="60" height="60" fill="#3fc53f"></rect><text x="470px" y="235px" fill="#222">calendar</text><rect x="400px" y="270px" width="60" height="60" fill="#3fc53f"></rect><text x="470px" y="305px" fill="#222">contact book</text><rect x="400px" y="340px" width="60" height="60" fill="#3fc53f"></rect><text x="470px" y="375px" fill="#222">task manager</text><path d="M 60, 370 L 200, 370" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 370" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 300" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 230" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 160" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 90" style="fill:none; stroke:#222"></path></svg></div><div class="code mt6"><span>cozy-light install-distro personal-cloud</span><br><br><span>cozy-light --set-password
+</h4><div class="txtcenter"><svg width="600" height="400"><circle cx="30px" cy="370px" r="30" fill="#666"></circle><text x="13px" y="375px" fill="white">you</text><rect x="200px" y="340px" width="60" height="60" fill="#34a6ff"></rect><text x="211px" y="375px" fill="white">auth</text><rect x="400px" y="60px" width="60" height="60" fill="#34a6ff"></rect><text x="470px" y="95px" fill="#222">dashboard</text><rect x="400px" y="130px" width="60" height="60" fill="#3fc53f"></rect><text x="470px" y="165px" fill="#222">file storage</text><rect x="400px" y="200px" width="60" height="60" fill="#3fc53f"></rect><text x="470px" y="235px" fill="#222">calendar</text><rect x="400px" y="270px" width="60" height="60" fill="#3fc53f"></rect><text x="470px" y="305px" fill="#222">contact book</text><rect x="400px" y="340px" width="60" height="60" fill="#3fc53f"></rect><text x="470px" y="375px" fill="#222">webmail</text><path d="M 60, 370 L 200, 370" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 370" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 300" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 230" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 160" style="fill:none; stroke:#222"></path><path d="M 260, 370 L 400, 90" style="fill:none; stroke:#222"></path></svg></div><div class="code mt6"><span>cozy-light install-distro personal-cloud</span><br><br><span>cozy-light --set-password
 </span></div><h4 class="mt6"><Static>website</Static></h4><div class="txtcenter"><svg width="600" height="200"><circle cx="30px" cy="170px" r="30" fill="#666"></circle><text x="11px" y="175px" fill="white">user</text><circle cx="30px" cy="100px" r="30" fill="#666"></circle><text x="15px" y="105px" fill="white">you</text><rect x="200px" y="140px" width="60" height="60" fill="#34a6ff"></rect><text x="209px" y="172px" fill="white" style="font-size: 12px">domain</text><rect x="200px" y="70px" width="60" height="60" fill="#34a6ff"></rect><text x="209px" y="102px" fill="white" style="font-size: 12px">githook</text><rect x="320px" y="140px" width="60" height="60" fill="#34a6ff"></rect><text x="330px" y="175px" fill="white" style="font-size: 14px">html5</text><rect x="450px" y="140px" width="60" height="60" fill="#3fc53f"></rect><text x="520px" y="175px" fill="#222">your site</text><path d="M 60, 170 L 200, 170" style="fill:none; stroke:#222"></path><path d="M 60, 100 L 200, 100" style="fill:none; stroke:#222"></path><path d="M 260, 170 L 320, 170" style="fill:none; stroke:#222"></path><path d="M 380, 170 L 450, 170" style="fill:none; stroke:#222"></path><path d="M 260, 100 L 320 100 L 450, 170" style="fill:none; stroke:#222"></path></svg></div><div class="code mt6"><span>cozy-light install-distro website</span></div><h4>Docker PaaS
 </h4><div class="txtcenter"><svg width="600" height="200"><circle cx="30px" cy="170px" r="30" fill="#666"></circle><text x="11px" y="175px" fill="white">user</text><circle cx="30px" cy="100px" r="30" fill="#666"></circle><text x="13px" y="105px" fill="white">you</text><rect x="150px" y="140px" width="60" height="60" fill="#34a6ff"></rect><text x="159px" y="172px" fill="white" style="font-size: 12px">domain</text><rect x="270px" y="140px" width="60" height="60" fill="#34a6ff"></rect><text x="280px" y="172px" fill="white" style="font-size :12px">docker</text><rect x="400px" y="70px" width="60" height="60" fill="#34a6ff"></rect><text x="470px" y="105px" fill="#222">dashboard</text><rect x="400px" y="140px" width="60" height="60" fill="#3fc53f"></rect><text x="470px" y="175px" fill="#222">your container</text><path d="M 60, 100 L 400 100" style="fill:none; stroke:#222"></path><path d="M 60, 170 L 150, 170" style="fill:none; stroke:#222"></path><path d="M 210, 170 L 270, 170" style="fill:none; stroke:#222"></path><path d="M 330, 170 L 400, 170" style="fill:none; stroke:#222"></path></svg></div><div class="code mt6"><span>cozy-light install-distro docker
 </span></div><h4>Video Games
@@ -1089,13 +1149,14 @@ platform.
 </span></div><h3 class="mt3">Plugins
 </h3><p>Here is a list of available plugins for the Cozy Light
 platform.
-</p><table class="mt3"><tr><td>cozy-labs/cozy-light-simple-dashboard</td><td>Minimalist dashboard for the platform.</td></tr><tr><td>maboiteaspam/cozy-homepage</td><td>Redirect root url to Cozy Dashboard app.</td></tr><tr><td>cozy-labs/cozy-light-auth</td><td>Add auth capabilities to Cozy Light.</td></tr><tr><td>cozy-labs/cozy-light-basic-auth</td><td>Add basic auth capabilities to Cozy Light.</td></tr><tr><td>cozy-labs/cozy-light-html5-apps</td><td>To manage HTML5 apps like classic apps.</td></tr><tr><td>cozy-labs/cozy-light-docker</td><td>Experimental plugin to manage docker containers like classic apps.</td></tr><tr><td>cozy-labs/cozy-light-domains</td><td>Link a domain name to a static app.</td></tr><tr><td>cozy-labs/cozy-light-githook</td><td>Reinstall an app when a commit occurs on the Github repository.</td></tr></table><div class="code mt6"><p class="mb2"><em>Example:</em></p><span>cozy-light add-plugin cozy-labs/cozy-light-auth
+</p><table class="mt3"><tr><td><a href="http://github.com/cozy-labs/cozy-light-simple-dashboard">cozy-labs/cozy-light-simple-dashboard</a></td><td>Minimalist dashboard for the platform.</td></tr><tr><td><a href="http://github.com/maboiteaspam/cozy-homepage">maboiteaspam/cozy-homepage</a></td><td>Redirect root url to Cozy Dashboard app.</td></tr><tr><td> <a href="http://github.com/cozy-labs/cozy-light-auth">cozy-labs/cozy-light-auth</a></td><td>Add auth capabilities to Cozy Light.</td></tr><tr><td><a href="http://github.com/cozy-labs/cozy-light-basic-auth">cozy-labs/cozy-light-basic-auth</a></td><td>Add basic auth capabilities to Cozy Light.</td></tr><tr><td> <a href="http://github.com/cozy-labs/cozy-light-html5-apps">cozy-labs/cozy-light-html5-apps</a></td><td>To manage HTML5 apps like classic apps.</td></tr><tr><td> <a href="http://github.com/cozy-labs/cozy-light-docker">cozy-labs/cozy-light-docker</a></td><td>Experimental plugin to manage docker containers like classic apps.</td></tr><tr><td> <a href="http://github.com/cozy-labs/cozy-light-domains">cozy-labs/cozy-light-domains</a></td><td>Link a domain name to a static app.</td></tr><tr><td> <a href="http://github.com/cozy-labs/cozy-light-githooks">cozy-labs/cozy-light-githooks</a></td><td>Reinstall an app when a commit occurs on the Github repository.</td></tr></table><div class="code mt6"><p class="mb2"><em>Example:</em></p><span>cozy-light add-plugin cozy-labs/cozy-light-auth
 </span></div><h3 class="mt3">Commands
 </h3><table class="mt3"><tr><td>install </td><td>Install given application.</td></tr><tr><td>uninstall </td><td>Uninstall given application.</td></tr><tr><td>add-plugin</td><td>Install given plugin.</td></tr><tr><td>remove-plugin</td><td>Uninstall given plugin.</td></tr><tr><td>install-distro</td><td>Install given distribution.</td></tr><tr><td>enable</td><td>Enable given application/plugin.</td></tr><tr><td>disable</td><td>Disable given application/plugin.</td></tr><tr><td>display-config</td><td>Display Current configuration.</td></tr></table><h3 class="mt3">About
 </h3><p>Cozy Light is the result of the many feedback we get about
-Cozy, a full-featured personal cloud. Many developers asked
-for the same thing: less friction at install, less friction to
-build new apps and the capability to run it on the Raspberry Pi.</p><p>Because of the many features of Cozy we were not able to
+Cozy (a full-featured personal cloud to host on your server).
+Many developers asked for the same thing: less friction at
+install, less friction to build new apps and the capability to
+run it on the Raspberry Pi.</p><p>Because of the many features of Cozy we were not able to
 provide that without removing a lot of things. 
 To not deceive our current users, we decided to
 build a new project dedicated to developers and hackers.</p><p>It takes the basics of Cozy to make it super simple to start

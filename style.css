@@ -141,3 +141,63 @@ table em {
 .mt9 {
   margin-top: 90px;
 }
+@media (max-width: 800px) {
+  .content {
+    padding: 20px;
+  }
+  svg {
+    transform: scale(0.9);
+    position: relative;
+    left: -20px;
+  }
+  h1.mt9 {
+    margin-top: 0;
+  }
+  h2 {
+    font-size: 40px;
+    margin-top: 20px;
+  }
+  h3.mt6:first-child {
+    margin-top: 0px;
+  }
+  h3.mt3 {
+    margin-top: 90px;
+  }
+  h3.mt6 {
+    margin-top: 60px;
+  }
+  div.code.mt6 {
+    margin-top: 20px;
+  }
+  div.code span {
+    font-size: 14px;
+  }
+}
+@media (max-width: 650px) {
+  td {
+    width: 100%;
+    display: block;
+  }
+  div.code span {
+    font-size: 12px;
+  }
+  svg {
+    transform: scale(0.8);
+    position: relative;
+    left: -40px;
+  }
+}
+@media (max-width: 550px) {
+  svg {
+    transform: scale(0.6);
+    position: relative;
+    left: -60px;
+  }
+}
+@media (max-width: 400px) {
+  svg {
+    transform: scale(0.5);
+    position: relative;
+    left: -140px;
+  }
+}
