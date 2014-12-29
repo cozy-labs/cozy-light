@@ -1,6 +1,10 @@
-### 0.4.3
+### 0.4.4
 
 * README fixes and improvements 
+
+### 0.4.3
+
+* Fix error management on exit and while loading plugins
 
 ### 0.4.2
 
