@@ -80,9 +80,21 @@ cozy-light start --port 80
 Install Node.js (>= 0.10), Git and essential build tools then install
 cozy-light from the NPM package manager:
 
+### Ubuntu
+
     sudo apt-get install build-essential
     sudo apt-get install git npm nodejs-legacy
     sudo npm install cozy-light -g
+
+### Fedora
+
+    su -
+    yum install make automake gcc gcc-c++ kernel-devel git nodejs
+    yum remove node-gyp # see https://github.com/TooTallNate/node-gyp/issues/363
+    exit
+    #npm install mocha -g # if you intend to hack the platform
+    npm install node-gyp -g # required by pouchdb / leveldown
+    npm install cozy-light -g
 
 # Run
 
