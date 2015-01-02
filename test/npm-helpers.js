@@ -1,20 +1,20 @@
 
-
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var assert = require('assert');
+
+var cozyLight = require('../lib/cozy-light');
+var actions = cozyLight.actions;
+var configHelpers = cozyLight.configHelpers;
+var npmHelpers = cozyLight.npmHelpers;
 
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var cozyHOME = pathExtra.join(workingDir, '.cozy-light' );
 
-var configHelpers = require('../lib/config-helper')();
-configHelpers.setHomePath(cozyHOME);
-var npmHelpers = require('../lib/npm-helpers')(configHelpers);
-npmHelpers.initialWd = process.cwd();
+cozyLight.init({home:workingDir});
 
 describe('NPM Helpers', function () {
-
 
   describe('install', function () {
 

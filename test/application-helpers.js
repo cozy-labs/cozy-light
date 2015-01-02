@@ -5,18 +5,17 @@ var requestJSON = require('request-json-light');
 var PouchDB = require('pouchdb');
 
 var cozyLight = require('../lib/cozy-light');
+var actions = cozyLight.actions;
+var configHelpers = cozyLight.configHelpers;
+var applicationHelpers = cozyLight.applicationHelpers;
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 fs.removeSync(workingDir);
 fs.mkdirSync(workingDir);
 
-var actions = cozyLight(workingDir,{});
-
-var configHelpers = actions.helpers.configHelpers;
-var applicationHelpers = actions.helpers.applicationHelpers;
-
 before(function(){
+  cozyLight.init({home:workingDir});
 });
 
 after(function(){

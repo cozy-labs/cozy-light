@@ -8,15 +8,13 @@ var should = require('should');
 var cozyLight = require('../lib/cozy-light');
 var actions = cozyLight.actions;
 var configHelpers = cozyLight.configHelpers;
-var npmHelpers = cozyLight.npmHelpers;
-var pluginHelpers = cozyLight.pluginHelpers;
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 fs.removeSync(workingDir);
 fs.mkdirSync(workingDir);
 
-cozyLight.init( workingDir );
+cozyLight.init({home:workingDir});
 
 describe('actions', function () {
 
