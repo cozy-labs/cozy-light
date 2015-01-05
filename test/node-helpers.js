@@ -33,5 +33,7 @@ describe('Node Helpers', function () {
       require.cache[pathExtra.join(baseModulePath,'/server.js')] === undefined,
       'Module should not be cached anymore after clearing it.');
   });
+  it.skip('clearRequireCache effectively resolve linked path', function(){});
+  it.skip('invoke', function(){});
   it.skip('clearCloseServer', function(){});
 });
