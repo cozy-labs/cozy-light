@@ -73,14 +73,14 @@ program
   .description('display help')
   .action(program.outputHelp);
 
+// Run CLI
+
+program.parse(process.argv);
+
 
 // Init Cozy Light
 
 cozyLight.init(program);
-
-// Run CLI
-
-program.parse(process.argv);
 
 
 // If arguments doesn't match any of the one set, it displays help.
