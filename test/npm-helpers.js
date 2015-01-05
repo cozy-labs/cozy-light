@@ -10,7 +10,6 @@ var npmHelpers = cozyLight.npmHelpers;
 
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
-var cozyHOME = pathExtra.join(workingDir, '.cozy-light' );
 
 cozyLight.init({home:workingDir});
 
@@ -21,8 +20,7 @@ describe('NPM Helpers', function () {
     before(function(){
       fs.removeSync(workingDir);
       fs.mkdirSync(workingDir);
-      fs.mkdirSync(cozyHOME);
-      process.chdir(cozyHOME);
+      process.chdir(workingDir);
     });
 
     after(function(){
@@ -45,7 +43,7 @@ describe('NPM Helpers', function () {
     });
     it('should link a module.', function (done) {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
-      var destPath = configHelpers.modulePath('hello');
+      var destPath = configHelpers.modulePath('test-app');
       npmHelpers.link(testapp, function (err) {
         assert.equal(err, null, 'Cannot link module.');
         assert(fs.existsSync(destPath),
@@ -60,8 +58,7 @@ describe('NPM Helpers', function () {
     before(function(){
       fs.removeSync(workingDir);
       fs.mkdirSync(workingDir);
-      fs.mkdirSync(cozyHOME);
-      process.chdir(cozyHOME);
+      process.chdir(workingDir);
     });
 
     after(function(){
@@ -76,7 +73,7 @@ describe('NPM Helpers', function () {
       this.timeout(60000);
       var destPath = configHelpers.modulePath('hello');
       var srcModule = 'cozy-labs/hello';
-      process.chdir(cozyHOME);
+      process.chdir(workingDir);
       npmHelpers.install(srcModule, function (err) {
         assert.equal(err, null, 'Cannot install module.');
         assert(fs.existsSync(destPath),
@@ -98,7 +95,7 @@ describe('NPM Helpers', function () {
         assert.equal(err, null, 'Cannot install module.');
         assert(fs.existsSync(destPath),
           'Module is not linked in the cozy-light folder.');
-        process.chdir(cozyHOME);
+        process.chdir(workingDir);
         npmHelpers.uninstall('test-app', function (err) {
           assert.equal(err, null, 'Cannot uninstall module.');
           assert(!fs.existsSync(destPath),
@@ -114,8 +111,7 @@ describe('NPM Helpers', function () {
     before(function(){
       fs.removeSync(workingDir);
       fs.mkdirSync(workingDir);
-      fs.mkdirSync(cozyHOME);
-      process.chdir(cozyHOME);
+      process.chdir(workingDir);
     });
 
     after(function(){
@@ -161,8 +157,7 @@ describe('NPM Helpers', function () {
     before(function(){
       fs.removeSync(workingDir);
       fs.mkdirSync(workingDir);
-      fs.mkdirSync(cozyHOME);
-      process.chdir(cozyHOME);
+      process.chdir(workingDir);
     });
 
     after(function(){
