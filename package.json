@@ -60,8 +60,8 @@
     "touch": "0.0.3"
   },
   "scripts": {
-    "test": "mocha --globals s,cooked --reporter spec test/tests.js",
-    "appveyor": "mocha --no-exit --globals s,cooked --reporter spec test/tests.js",
+    "test": "run-tests.sh",
+    "appveyor": "run-tests.bat",
     "lint": "eslint lib/* test/tests.js",
     "start": "bin/cozy-light start"
   },
