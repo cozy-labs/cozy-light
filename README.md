@@ -90,6 +90,7 @@ cozy-light from the NPM package manager:
 
     su -
     yum install make automake gcc gcc-c++ kernel-devel git nodejs
+    #yum install glibc-devel.i686# for 64bits arch
     yum remove node-gyp # see https://github.com/TooTallNate/node-gyp/issues/363
     exit
     #npm install mocha -g # if you intend to hack the platform
