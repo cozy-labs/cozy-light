@@ -1,27 +1,21 @@
 var fs = require('fs-extra');
+var touch = require("touch");
 var pathExtra = require('path-extra');
+var should = require('should');
 var assert = require('assert');
 var requestJSON = require('request-json-light');
-var request = require('request');
-var PouchDB = require('pouchdb');
 var cozyLight = require('../lib/cozy-light');
-var configWatcher = require('../lib/config-watcher');
 
 var actions = cozyLight.actions;
 var configHelpers = cozyLight.configHelpers;
-var npmHelpers = cozyLight.npmHelpers;
-var nodeHelpers = cozyLight.nodeHelpers;
-var applicationHelpers = cozyLight.applicationHelpers;
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
-var HOME = workingDir;
-var cozyHOME = pathExtra.join(HOME, '.cozy-light' );
-
 
 before(function(){
   fs.removeSync(workingDir);
   fs.mkdirSync(workingDir);
+  cozyLight.init({home:workingDir});
 });
 
 
@@ -32,21 +26,6 @@ after(function(){
     console.log(err);
   }
 });
-
-
-
-
-describe('Controllers', function () {
-
-  it.skip('proxyPrivate', function(){
-  });
-
-  it.skip('proxyPublic', function(){
-  });
-
-});
-
-
 
 describe('Functional tests', function () {
 
@@ -62,37 +41,33 @@ describe('Functional tests', function () {
     });
 
     it('install fake app manually.', function (done) {
-      // Nothing to do test app is still in the cozy-light folder.
-      done();
+      this.timeout(60000);
+      var testapp = pathExtra.join(fixturesDir, 'test-app');
+      actions.once('restarted', done);
+      actions.installApp(testapp, function (err) {
+        assert.equal(err, null, 'Cannot install test-app.');
+      });
     });
 
     it('install test-app2 manually.', function (done) {
       this.timeout(60000);
       var testapp2 = pathExtra.join(fixturesDir, 'test-app2');
+      actions.once('restarted',done);
       actions.installApp(testapp2, function (err) {
         assert.equal(err, null, 'Cannot install test-app2.');
-        done();
       });
     });
 
     it('change configuration file.', function (done) {
-      var appHome = configHelpers.modulePath('test-app');
-      var manifest = require(pathExtra.join(appHome, 'package.json'));
-      configHelpers.addApp('test-app', manifest);
-      done();
-    });
-
-    it('wait 1s.', function (done) {
-      setTimeout(function () {
-        done();
-      }, 1000);
+      actions.once('restarted',done);
+      touch.sync( configHelpers.getConfigPath() );
     });
 
     it('fake app should be started.', function (done) {
       var client = requestJSON.newClient('http://localhost:18002');
       client.get('', function assertResponse (err, res) {
-        assert.equal(err, null, 'An error occurred while accessing test app.');
-        assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
+        assert.equal(err, null, 'An error occurred while accessing test-app2.');
+        res.statusCode.should.eql(200, 'Wrong return code for test-app2.');
         done();
       });
     });
@@ -100,8 +75,8 @@ describe('Functional tests', function () {
     it('test-app2 should be started.', function (done) {
       var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res) {
-        assert.equal(err, null, 'An error occurred while accessing test app.');
-        assert.equal(res.statusCode, 200, 'Wrong return code for test app.');
+        assert.equal(err, null, 'An error occurred while accessing test-app.');
+        res.statusCode.should.eql(200, 'Wrong return code for test-app.');
         actions.stop(done);
       });
     });
@@ -123,17 +98,25 @@ describe('Functional tests', function () {
   describe('Do not start disabled app', function () {
 
     after(function (done) {
-      actions.enable('test-app');
-      actions.stop(done);
+      actions.stop(function(){
+        var testapp = pathExtra.join(fixturesDir, 'test-app');
+        actions.enable(testapp);
+        done();
+      });
     });
 
     it('install an app.', function (done) {
       // Nothing to do test app is still in the cozy-light folder.
-      done();
+      var testapp = pathExtra.join(fixturesDir, 'test-app');
+      actions.installApp(testapp, function (err) {
+        assert.equal(err, null, 'Cannot install test-app.');
+        done();
+      });
     });
 
     it('disable it.', function (done) {
-      actions.disable('test-app');
+      var testapp = pathExtra.join(fixturesDir, 'test-app');
+      actions.disable(testapp);
       done();
     });
 
@@ -172,8 +155,7 @@ describe('Functional tests', function () {
       var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
         assert.equal(err, null, 'An error occurred while accessing test app.');
-        assert.equal(body.ok, true,
-          'Wrong reloaded response body for test app.');
+        body.ok.should.eql(true,'Wrong reloaded response body for test app.');
         done();
       });
     });
@@ -188,24 +170,26 @@ describe('Functional tests', function () {
     });
 
     it('restart cozy-light.', function (done) {
-      actions.restart(done);
+      this.timeout(5000);
+      actions.restart({}, done);
     });
 
     it('fake app should be started.', function (done) {
       var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
-        assert.equal(err, null,
-          'An error occurred while accessing test app.');
-        assert.equal(res.statusCode, 200,
-          'Wrong return code for test app.');
-        assert.equal(body.ok, false,
-          'Wrong reloaded response body for test app.');
         var appHome = configHelpers.modulePath('test-app');
         var serverFile = appHome + '/server.js';
         var content = fs.readFileSync(serverFile,'utf-8');
         content = content.replace(
           'send({ok: false})', 'send({ok: true})');
         fs.writeFileSync(serverFile,content);
+
+        assert.equal(err, null,
+          'An error occurred while accessing test app.');
+        res.statusCode.should.eql(200,
+          'Wrong return code for test app.');
+        body.ok.should.eql(false,
+          'Wrong reloaded response body for test app.');
         done();
       });
     });
