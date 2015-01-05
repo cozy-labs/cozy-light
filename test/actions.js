@@ -111,10 +111,12 @@ describe('actions', function () {
 
   describe('start', function () {
     it('should listen and respond to http requests.', function (done) {
-      var opt = {port: 8090};
-      actions.start(opt, function(err) {
+      var port = 8090;
+      var program = {}; // should be a commander object
+      configHelpers.setMainAppPort(port);
+      actions.start(program, function(err) {
         assert.equal(err, null, 'Cannot start server');
-        request('http://localhost:' + opt.port + '/',
+        request('http://localhost:' + port + '/',
           function(error, response){
             assert.equal(error, null,
               'An error occurred while accessing test app.');
