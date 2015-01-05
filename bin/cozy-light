@@ -3,8 +3,8 @@ var pathExtra = require('path-extra');
 var program = require('commander');
 var printit = require('printit');
 
-var cozy = require('../lib/cozy-light');
-var actions = cozy.actions;
+var cozyLight = require('../lib/cozy-light');
+var actions = cozyLight.actions;
 
 var logger = printit({ prefix: 'Cozy Light'});
 var pkg = require('../package.json');
@@ -76,7 +76,7 @@ program
 
 // Init Cozy Light
 
-actions.init(program);
+cozyLight.init(program);
 
 // Run CLI
 
