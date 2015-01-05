@@ -2,7 +2,6 @@ var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var assert = require('assert');
 var requestJSON = require('request-json-light');
-var PouchDB = require('pouchdb');
 
 var cozyLight = require('../lib/cozy-light');
 var actions = cozyLight.actions;
@@ -42,8 +41,7 @@ describe('Application Helpers', function () {
 
       var manifest = require(pathExtra.join(dest, 'package.json'));
       manifest.type = 'classic';
-      var db = new PouchDB('test');
-      applicationHelpers.start(manifest, db,
+      applicationHelpers.start(manifest,
         function assertAccess () {
           var client = requestJSON.newClient('http://localhost:18001');
           client.get('', function assertResponse (err, res) {
