@@ -3,7 +3,7 @@ var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var assert = require('assert');
 var request = require('request');
-var should = require('should');
+require('should');
 
 var cozyLight = require('../lib/cozy-light');
 var actions = cozyLight.actions;
@@ -14,7 +14,7 @@ var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 fs.removeSync(workingDir);
 fs.mkdirSync(workingDir);
 
-cozyLight.init({home:workingDir});
+cozyLight.init({home: workingDir});
 
 describe('actions', function () {
 

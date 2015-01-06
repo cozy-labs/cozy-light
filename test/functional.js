@@ -1,7 +1,7 @@
 var fs = require('fs-extra');
-var touch = require("touch");
+var touch = require('touch');
 var pathExtra = require('path-extra');
-var should = require('should');
+require('should');
 var assert = require('assert');
 var requestJSON = require('request-json-light');
 var cozyLight = require('../lib/cozy-light');
@@ -15,7 +15,7 @@ var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 before(function(){
   fs.removeSync(workingDir);
   fs.mkdirSync(workingDir);
-  cozyLight.init({home:workingDir});
+  cozyLight.init({home: workingDir});
 });
 
 
@@ -52,14 +52,14 @@ describe('Functional tests', function () {
     it('install test-app2 manually.', function (done) {
       this.timeout(60000);
       var testapp2 = pathExtra.join(fixturesDir, 'test-app2');
-      actions.once('restarted',done);
+      actions.once('restarted', done);
       actions.installApp(testapp2, function (err) {
         assert.equal(err, null, 'Cannot install test-app2.');
       });
     });
 
     it('change configuration file.', function (done) {
-      actions.once('restarted',done);
+      actions.once('restarted', done);
       touch.sync( configHelpers.getConfigPath() );
     });
 
@@ -155,7 +155,7 @@ describe('Functional tests', function () {
       var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res, body) {
         assert.equal(err, null, 'An error occurred while accessing test app.');
-        body.ok.should.eql(true,'Wrong reloaded response body for test app.');
+        body.ok.should.eql(true, 'Wrong reloaded response body for test app.');
         done();
       });
     });
@@ -163,8 +163,8 @@ describe('Functional tests', function () {
     it('change application code.', function (done) {
       var appHome = configHelpers.modulePath('test-app');
       var serverFile = appHome + '/server.js';
-      var content = fs.readFileSync(serverFile,'utf-8');
-      content = content.replace('send({ok: true})','send({ok: false})');
+      var content = fs.readFileSync(serverFile, 'utf-8');
+      content = content.replace('send({ok: true})', 'send({ok: false})');
       fs.writeFileSync(serverFile, content);
       done();
     });
@@ -179,10 +179,10 @@ describe('Functional tests', function () {
       client.get('', function assertResponse (err, res, body) {
         var appHome = configHelpers.modulePath('test-app');
         var serverFile = appHome + '/server.js';
-        var content = fs.readFileSync(serverFile,'utf-8');
+        var content = fs.readFileSync(serverFile, 'utf-8');
         content = content.replace(
           'send({ok: false})', 'send({ok: true})');
-        fs.writeFileSync(serverFile,content);
+        fs.writeFileSync(serverFile, content);
 
         assert.equal(err, null,
           'An error occurred while accessing test app.');

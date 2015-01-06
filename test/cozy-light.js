@@ -1,7 +1,7 @@
 
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
-var should = require('should');
+require('should');
 
 var cozyLight = require('../lib/cozy-light');
 var configHelpers = cozyLight.configHelpers;
@@ -17,7 +17,7 @@ describe('cozyLight', function () {
   describe('init', function () {
     it('should setup the home directory.', function () {
       var initialWd = process.cwd();
-      cozyLight.init({home:workingDir});
+      cozyLight.init({home: workingDir});
 
       pathExtra.resolve(configHelpers.getHomePath())
         .should.eql(pathExtra.resolve(workingDir),

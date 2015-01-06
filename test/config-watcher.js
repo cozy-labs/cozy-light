@@ -1,6 +1,6 @@
 
 var configWatcher = require('../lib/config-watcher');
-var should = require('should');
+require('should');
 var pathExtra = require('path-extra');
 var fs = require('fs-extra');
 
@@ -12,7 +12,7 @@ before(function(){
   fs.removeSync(workingDir);
   fs.mkdirSync(workingDir);
   fs.mkdirSync(cozyHOME);
-  fs.writeFileSync(testFile,'');
+  fs.writeFileSync(testFile, '');
 });
 
 
@@ -32,39 +32,39 @@ describe('Config watcher', function () {
       watcher.release();
       done();
     });
-    fs.writeFileSync(testFile,'some changes');
+    fs.writeFileSync(testFile, 'some changes');
   });
 
   it('one', function(done){
     var watcher = configWatcher(testFile);
-    var cnt_ = 0;
+    var cnt = 0;
     watcher.one(function(){
-      cnt_++;
+      cnt++;
     });
-    fs.writeFileSync(testFile,'some more changes');
+    fs.writeFileSync(testFile, 'some more changes');
     setTimeout(function(){
-      cnt_.should.eql(1,'watcher not properly called.');
-      watcher.watchers.length.should.eql(0,'watcher not properly removed.');
+      cnt.should.eql(1, 'watcher not properly called.');
+      watcher.watchers.length.should.eql(0, 'watcher not properly removed.');
       watcher.release();
       done();
-    },1500); // not great, but works fine
+    }, 1500); // not great, but works fine
   });
 
   it('off', function(done){
     var watcher = configWatcher(testFile);
-    var cnt_ = 0;
+    var cnt = 0;
     var h = function(){
-      cnt_++;
+      cnt++;
     };
     watcher.on(h);
     watcher.off(h);
-    fs.writeFileSync(testFile,'some more changes occurred');
+    fs.writeFileSync(testFile, 'some more changes occurred');
     setTimeout(function(){
-      cnt_.should.eql(0,'watcher not properly removed.');
-      watcher.watchers.length.should.eql(0,'watcher not properly removed.');
+      cnt.should.eql(0, 'watcher not properly removed.');
+      watcher.watchers.length.should.eql(0, 'watcher not properly removed.');
       watcher.release();
       done();
-    },1500); // not great, but works fine
+    }, 1500); // not great, but works fine
   });
 
   it.skip('trigger', function(){});

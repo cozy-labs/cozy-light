@@ -2,17 +2,16 @@
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var assert = require('assert');
-var should = require('should');
+require('should');
 
 var cozyLight = require('../lib/cozy-light');
-var actions = cozyLight.actions;
 var configHelpers = cozyLight.configHelpers;
 var npmHelpers = cozyLight.npmHelpers;
 
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 
-cozyLight.init({home:workingDir});
+cozyLight.init({home: workingDir});
 
 describe('NPM Helpers', function () {
 
@@ -75,14 +74,14 @@ describe('NPM Helpers', function () {
       var destPath = configHelpers.modulePath('hello');
       var srcModule = 'cozy-labs/hello';
       process.chdir(workingDir);
-      npmHelpers.install(srcModule, function (err) {
-        assert.equal(err, null, 'Cannot install module.');
+      npmHelpers.install(srcModule, function (installErr) {
+        assert.equal(installErr, null, 'Cannot install module.');
         assert(fs.existsSync(destPath),
           'Module is not linked in the cozy-light folder.');
-        npmHelpers.uninstall('hello', function (err) {
-          assert.equal(err, null, 'Cannot uninstall module.');
+        npmHelpers.uninstall('hello', function (uninstallErr) {
+          assert.equal(uninstallErr, null, 'Cannot uninstall module.');
           assert(!fs.existsSync(destPath),
-            'Module is not removed from the cozy-light folder. '+destPath);
+            'Module is not removed from the cozy-light folder. ' + destPath);
           done();
         });
       });
@@ -92,13 +91,13 @@ describe('NPM Helpers', function () {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       assert(!fs.existsSync(destPath),
         'Module is not removed from the cozy-light folder.');
-      npmHelpers.link(testapp, function (err) {
-        assert.equal(err, null, 'Cannot install module.');
+      npmHelpers.link(testapp, function (installErr) {
+        assert.equal(installErr, null, 'Cannot install module.');
         assert(fs.existsSync(destPath),
           'Module is not linked in the cozy-light folder.');
         process.chdir(workingDir);
-        npmHelpers.uninstall('test-app', function (err) {
-          assert.equal(err, null, 'Cannot uninstall module.');
+        npmHelpers.uninstall('test-app', function (uninstallErr) {
+          assert.equal(uninstallErr, null, 'Cannot uninstall module.');
           assert(!fs.existsSync(destPath),
             'Module is not removed from the cozy-light folder.');
           done();

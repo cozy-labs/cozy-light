@@ -1,7 +1,7 @@
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var assert = require('assert');
-var should = require('should');
+require('should');
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var cozyHOME = pathExtra.join(workingDir, '.cozy-light' );
@@ -44,7 +44,8 @@ describe('Config Helpers', function () {
 
   describe('modulePath', function () {
     it('return the absolute path of the given app module', function () {
-      var p = pathExtra.join(pathExtra.resolve(workingDir), '.cozy-light', 'node_modules', 'app');
+      var p = pathExtra.join(pathExtra.resolve(workingDir),
+        '.cozy-light', 'node_modules', 'app');
       configHelpers.modulePath('app').should.eql(p,
         'wrong module path');
     });
@@ -178,4 +179,3 @@ describe('Config Helpers', function () {
     });
   });
 });
-

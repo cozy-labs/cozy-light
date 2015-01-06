@@ -2,7 +2,7 @@
 var assert = require('assert');
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
-var should = require('should');
+require('should');
 var nodeHelpers = require('../lib/node-helpers');
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
@@ -26,12 +26,11 @@ describe('Node Helpers', function () {
   it('clearRequireCache', function () {
     var baseModulePath = pathExtra.join(fixturesDir, 'test-app');
     require(baseModulePath);
-    assert(
-      require.cache[pathExtra.join(baseModulePath,'/server.js')] !== undefined,
+    var p = pathExtra.join(baseModulePath, '/server.js');
+    assert(require.cache[p] !== undefined,
       'Module should be cached before clearing it.');
     nodeHelpers.clearRequireCache(baseModulePath);
-    assert(
-      require.cache[pathExtra.join(baseModulePath,'/server.js')] === undefined,
+    assert(require.cache[p] === undefined,
       'Module should not be cached anymore after clearing it.');
   });
   it.skip('clearRequireCache effectively resolve linked path', function(){});

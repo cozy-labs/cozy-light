@@ -1,5 +1,5 @@
 
-var should = require('should');
+require('should');
 
 
 describe.skip('CLI', function () {
