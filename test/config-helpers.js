@@ -26,19 +26,27 @@ after(function(){
 
 describe('Config Helpers', function () {
 
+  describe('getConfigPath', function () {
+    it('should create config file in cozy home path', function () {
+      var p = pathExtra.join(cozyHOME, 'config.json');
+      configHelpers.getConfigPath().should.eql(p,
+        'configuration file not created');
+    });
+  });
+
   describe('createConfigFile', function () {
     it('should create an empty config file', function () {
       configHelpers.createConfigFile();
-      assert(fs.existsSync(pathExtra.join(cozyHOME, 'config.json')),
+      fs.existsSync(pathExtra.join(cozyHOME, 'config.json')).should.eql(true,
         'configuration file not created');
     });
   });
 
   describe('modulePath', function () {
     it('return the absolute path of the given app module', function () {
-      assert.equal(pathExtra.join(
-          pathExtra.resolve(workingDir), '.cozy-light', 'node_modules', 'app'),
-        configHelpers.modulePath('app'));
+      var p = pathExtra.join(pathExtra.resolve(workingDir), '.cozy-light', 'node_modules', 'app');
+      configHelpers.modulePath('app').should.eql(p,
+        'wrong module path');
     });
   });
 
@@ -55,7 +63,8 @@ describe('Config Helpers', function () {
       config.dumbKey = true;
       configHelpers.saveConfig();
       config = configHelpers.loadConfigFile();
-      assert(config.dumbKey);
+      (true).should.eql(config.dumbKey,
+        'Config was not properly updated.');
     });
   });
 
@@ -71,11 +80,11 @@ describe('Config Helpers', function () {
       var app = 'cozy-labs/cozy-test';
       configHelpers.addApp(app, manifest);
       var config = configHelpers.loadConfigFile();
-      assert.equal(manifest.name, config.apps[app].name);
-      assert.equal(manifest.displayName, config.apps[app].displayName);
-      assert.equal(manifest.version, config.apps[app].version);
-      assert.equal(manifest.description, config.apps[app].description);
-      assert.equal(manifest.type, config.apps[app].type);
+      manifest.name.should.eql(config.apps[app].name);
+      manifest.displayName.should.eql(config.apps[app].displayName);
+      manifest.version.should.eql(config.apps[app].version);
+      manifest.description.should.eql(config.apps[app].description);
+      manifest.type.should.eql(config.apps[app].type);
     });
   });
 
@@ -88,9 +97,9 @@ describe('Config Helpers', function () {
       };
       var app = 'cozy-labs/cozy-test';
       var appsConfig = configHelpers.exportApps();
-      assert.equal(manifest.name, appsConfig[app].name);
-      assert.equal(manifest.displayName, appsConfig[app].displayName);
-      assert.equal(manifest.version, appsConfig[app].version);
+      manifest.name.should.eql(appsConfig[app].name);
+      manifest.displayName.should.eql(appsConfig[app].displayName);
+      manifest.version.should.eql(appsConfig[app].version);
     });
   });
 
@@ -114,11 +123,11 @@ describe('Config Helpers', function () {
       var plugin = 'cozy-labs/cozy-test-plugin';
       var config = configHelpers.loadConfigFile();
       configHelpers.addPlugin(plugin, manifest);
-      assert.equal(manifest.name, config.plugins[plugin].name);
-      assert.equal(manifest.displayName, config.plugins[plugin].displayName);
-      assert.equal(manifest.version, config.plugins[plugin].version);
-      assert.equal(manifest.description, config.plugins[plugin].description);
-      assert.equal(manifest.type, config.plugins[plugin].type);
+      manifest.name.should.eql(config.plugins[plugin].name);
+      manifest.displayName.should.eql(config.plugins[plugin].displayName);
+      manifest.version.should.eql(config.plugins[plugin].version);
+      manifest.description.should.eql(config.plugins[plugin].description);
+      manifest.type.should.eql(config.plugins[plugin].type);
     });
   });
 
@@ -131,9 +140,9 @@ describe('Config Helpers', function () {
       };
       var plugin = 'cozy-labs/cozy-test-plugin';
       var pluginsConfig = configHelpers.exportPlugins();
-      assert.equal(manifest.name, pluginsConfig[plugin].name);
-      assert.equal(manifest.displayName, pluginsConfig[plugin].displayName);
-      assert.equal(manifest.version, pluginsConfig[plugin].version);
+      manifest.name.should.eql(pluginsConfig[plugin].name);
+      manifest.displayName.should.eql(pluginsConfig[plugin].displayName);
+      manifest.version.should.eql(pluginsConfig[plugin].version);
     });
   });
 
@@ -151,7 +160,8 @@ describe('Config Helpers', function () {
     it('should copy dependency in the cozy light folder.', function () {
       var destPath = configHelpers.modulePath('path-extra');
       configHelpers.copyDependency('path-extra');
-      assert(fs.existsSync(destPath));
+      fs.existsSync(destPath).should.eql(true,
+        'did not copy the dependency.');
     });
   });
 
@@ -170,13 +180,15 @@ describe('Config Helpers', function () {
 
   describe('getHost', function () {
     it('returns localhost', function () {
-      assert.equal(configHelpers.getMainAppHost(), 'localhost');
+      configHelpers.getMainAppHost().should.eql('localhost',
+       'default host location is wrong.');
     });
   });
 
   describe('getServerUrl', function () {
     it('returns the whole server url', function () {
-      assert.equal(configHelpers.getServerUrl(), 'http://localhost:19104');
+      configHelpers.getServerUrl().should.eql('http://localhost:19104',
+        'default server url is wrong.');
     });
   });
 });
