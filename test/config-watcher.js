@@ -29,7 +29,7 @@ describe('Config watcher', function () {
   it('on', function(done){
     var watcher = configWatcher(testFile);
     watcher.on(function(){
-      watcher.mainWatcher.close();
+      watcher.release();
       done();
     });
     fs.writeFileSync(testFile,'some changes');
@@ -45,7 +45,7 @@ describe('Config watcher', function () {
     setTimeout(function(){
       cnt_.should.eql(1,'watcher not properly called.');
       watcher.watchers.length.should.eql(0,'watcher not properly removed.');
-      watcher.mainWatcher.close();
+      watcher.release();
       done();
     },1500); // not great, but works fine
   });
@@ -62,7 +62,7 @@ describe('Config watcher', function () {
     setTimeout(function(){
       cnt_.should.eql(0,'watcher not properly removed.');
       watcher.watchers.length.should.eql(0,'watcher not properly removed.');
-      watcher.mainWatcher.close();
+      watcher.release();
       done();
     },1500); // not great, but works fine
   });
