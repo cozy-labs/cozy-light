@@ -18,7 +18,7 @@ program
 program
   .option('--home <home>',
   'home directory where Cozy Light runs',
-  pathExtra.homedir());
+  pathExtra.join(pathExtra.homedir(), 'cozy'));
 
 program
   .command('start')
