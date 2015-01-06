@@ -1,5 +1,5 @@
 
-# about '|| exit /b' see http://stackoverflow.com/a/21912169
+:: about '|| exit /b' see http://stackoverflow.com/a/21912169
 
 mocha --no-exit --globals s,cooked --reporter spec test/actions.js || exit /b
 mocha --no-exit --globals s,cooked --reporter spec test/application-helpers.js || exit /b
