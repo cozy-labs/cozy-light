@@ -127,7 +127,6 @@ describe('Config Helpers', function () {
       manifest.displayName.should.eql(config.plugins[plugin].displayName);
       manifest.version.should.eql(config.plugins[plugin].version);
       manifest.description.should.eql(config.plugins[plugin].description);
-      manifest.type.should.eql(config.plugins[plugin].type);
     });
   });
 
