@@ -37,7 +37,7 @@ describe('cozyLight', function () {
       var config = configHelpers.getConfig();
       Object.keys(pluginHelpers.loadedPlugins).length
         .should.eql(Object.keys(config.plugins).length,
-        'plugins not loaded.');
+        'plugins not properly loaded.');
 
     });
   });

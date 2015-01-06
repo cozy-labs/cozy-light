@@ -47,7 +47,7 @@ describe('Application Helpers', function () {
           client.get('', function assertResponse (err, res) {
             assert.equal(err, null,
               'An error occurred while accessing test app.');
-            assert.equal(res.statusCode, 200,
+            res.statusCode.should.eql(200,
               'Wrong return code for test app.');
             done();
           });

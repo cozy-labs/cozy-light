@@ -25,7 +25,7 @@ describe('actions', function () {
       actions.installApp(app, function (err) {
         assert.equal(err, null, 'Cannot install app.');
         var config = configHelpers.loadConfigFile();
-        assert.equal('hello', config.apps[app].name);
+        ('hello').should.eql(config.apps[app].name);
         done();
       });
     });
@@ -37,7 +37,7 @@ describe('actions', function () {
       actions.installPlugin(testPlugin, function (err) {
         assert.equal(err, null, 'Cannot install plugin.');
         var config = configHelpers.loadConfigFile();
-        assert.equal('test-plugin', config.plugins[testPlugin].name);
+        ('test-plugin').should.eql(config.apps[testPlugin].name);
         done();
       });
     });
@@ -49,7 +49,7 @@ describe('actions', function () {
       var app = 'cozy-labs/hello';
       actions.disable(app);
       var config = configHelpers.loadConfigFile();
-      assert(config.apps[app].disabled === true);
+      (true).should.eql(config.apps[app].disabled);
       done();
     });
 
@@ -57,7 +57,7 @@ describe('actions', function () {
       var plugin = pathExtra.join(fixturesDir, 'test-plugin');
       actions.disable(plugin);
       var config = configHelpers.loadConfigFile();
-      assert(config.plugins[plugin].disabled === true);
+      (true).should.eql(config.apps[plugin].disabled);
       done();
     });
 
@@ -120,7 +120,7 @@ describe('actions', function () {
           function(error, response){
             assert.equal(error, null,
               'An error occurred while accessing test app.');
-            assert.equal(response.statusCode, 404,
+            response.statusCode.should.eql(404,
               'Wrong return code for test app.');
             done();
           });
