@@ -24,8 +24,15 @@ program
   .command('start')
   .option('-p, --port <port>',
           'port number on which Cozy Light is available')
+  .option('-f, --force',
+          'force cozy light to restart')
   .description('start Cozy Light server')
   .action(actions.start);
+
+program
+  .command('status')
+  .description('Tells if Cozy Light is started')
+  .action(actions.status);
 
 program
   .command('install <app>')
