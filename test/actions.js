@@ -37,7 +37,7 @@ describe('actions', function () {
       actions.installPlugin(testPlugin, function (err) {
         assert.equal(err, null, 'Cannot install plugin.');
         var config = configHelpers.loadConfigFile();
-        ('test-plugin').should.eql(config.apps[testPlugin].name);
+        ('test-plugin').should.eql(config.plugins[testPlugin].name);
         done();
       });
     });
@@ -57,7 +57,7 @@ describe('actions', function () {
       var plugin = pathExtra.join(fixturesDir, 'test-plugin');
       actions.disable(plugin);
       var config = configHelpers.loadConfigFile();
-      (true).should.eql(config.apps[plugin].disabled);
+      (true).should.eql(config.plugins[plugin].disabled);
       done();
     });
 
