@@ -1,4 +1,7 @@
 
+var should = require('should');
+
+
 describe.skip('Plugin Helpers', function () {
   it('start', function(){});
   it('stop', function(){});

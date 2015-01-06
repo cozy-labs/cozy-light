@@ -1,7 +1,7 @@
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var assert = require('assert');
-var configWatcher = require('../lib/config-watcher');
+var should = require('should');
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var cozyHOME = pathExtra.join(workingDir, '.cozy-light' );

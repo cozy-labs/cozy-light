@@ -2,6 +2,7 @@
 var assert = require('assert');
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
+var should = require('should');
 var nodeHelpers = require('../lib/node-helpers');
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');

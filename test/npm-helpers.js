@@ -2,6 +2,7 @@
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var assert = require('assert');
+var should = require('should');
 
 var cozyLight = require('../lib/cozy-light');
 var actions = cozyLight.actions;
