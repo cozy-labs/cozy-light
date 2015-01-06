@@ -28,7 +28,9 @@ describe('Config watcher', function () {
 
   it('on', function(done){
     var watcher = configWatcher(testFile);
-    watcher.on(done);
+    watcher.on(function(){
+      done();
+    });
     fs.writeFileSync(testFile,'some changes');
   });
 
