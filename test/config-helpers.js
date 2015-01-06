@@ -165,19 +165,6 @@ describe('Config Helpers', function () {
     });
   });
 
-  describe.skip('watch/unwatchConfig', function(){
-    it('should add watchers to watcher list on adding', function () {
-      this.watcher = function () {};
-      configHelpers.watchConfig(this.watcher);
-      assert.equal(this.watcher, configWatcher.watchers[0]);
-    });
-
-    it('should remove watchers to watcher list on adding', function () {
-      configHelpers.unwatchConfig(this.watcher);
-      assert(configWatcher.watchers.length === 0);
-    });
-  });
-
   describe('getHost', function () {
     it('returns localhost', function () {
       configHelpers.getMainAppHost().should.eql('localhost',
