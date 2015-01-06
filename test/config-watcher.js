@@ -2,6 +2,7 @@
 var configWatcher = require('../lib/config-watcher');
 var should = require('should');
 var pathExtra = require('path-extra');
+var fs = require('fs-extra');
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var cozyHOME = pathExtra.join(workingDir, '.cozy-light' );
