@@ -1,6 +1,7 @@
 
 var configWatcher = require('../lib/config-watcher');
 var should = require('should');
+var pathExtra = require('path-extra');
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var cozyHOME = pathExtra.join(workingDir, '.cozy-light' );
