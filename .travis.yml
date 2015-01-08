@@ -4,7 +4,8 @@ before_install:
  - npm i mocha -g
  - npm link cozy-light --local
 node_js:
-    - "0.10"
+    - "0.10.34"
+    - "0.10.35"
 env:
     global:
         - NODE_ENV=test
