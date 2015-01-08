@@ -4,7 +4,7 @@ var spawn = require('child_process').spawn;
 require('should');
 
 
-describe.skip('CLI', function () {
+describe('CLI', function () {
     it('displays help', function(done){
         var output = "";
         spawn('cozy-light', ['--help'])
@@ -43,13 +43,13 @@ describe.skip('CLI', function () {
               });
       },1500);
   });
-  it('creates the mutex', function(){});
-  it('can install plugin', function(){});
-  it('can install app', function(){});
-  it('can install distro', function(){});
-  it('displays content properly', function(){});
-  it('can remove app', function(){});
-  it('can remove plugin', function(){});
+  it.skip('creates the mutex', function(){});
+  it.skip('can install plugin', function(){});
+  it.skip('can install app', function(){});
+  it.skip('can install distro', function(){});
+  it.skip('displays content properly', function(){});
+  it.skip('can remove app', function(){});
+  it.skip('can remove plugin', function(){});
   it('can stop properly', function(){
       var cozyProcess = spawn('cozy-light', ['--start'])
           .on('close', function (code) {
@@ -61,5 +61,5 @@ describe.skip('CLI', function () {
               cozyProcess.kill();
           });
       },1500);});
-  it('deletes the mutex', function(){});
+  it.skip('deletes the mutex', function(){});
 });
