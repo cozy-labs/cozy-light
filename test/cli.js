@@ -6,7 +6,7 @@ require('should');
 
 describe('CLI', function () {
     it('displays help', function(done){
-        var output = "";
+        var output = '';
         spawn('cozy-light', ['--help'])
             .on('data', function (d) {
                 output += d;
