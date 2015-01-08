@@ -1,12 +1,11 @@
 #!/usr/bin/env node
+
 var pathExtra = require('path-extra');
 var program = require('commander');
-var printit = require('printit');
 
 var cozyLight = require('../lib/cozy-light');
 var actions = cozyLight.actions;
 
-var logger = printit({ prefix: 'Cozy Light'});
 var pkg = require('../package.json');
 
 
@@ -17,7 +16,7 @@ program
 
 program
   .option('--home <home>',
-  'home directory where Cozy Light runs',
+  'home directory where Cozy Light runs (default: ~/cozy)',
   pathExtra.join(pathExtra.homedir(), 'cozy'));
 
 program
@@ -101,9 +100,9 @@ if (!process.argv.slice(2).length) {
 
 process.on('uncaughtException', function (err) {
   if (err) {
-    logger.warn('An exception is uncaught');
-    logger.raw(err);
-    logger.raw(err.stack);
+    cozyLight.logger.warn('An exception is uncaught');
+    cozyLight.logger.raw(err);
+    cozyLight.logger.raw(err.stack);
     actions.exit();
   }
 });
