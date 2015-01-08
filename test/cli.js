@@ -1,5 +1,5 @@
 
-var request = require('request-json');
+var request = require('request');
 var spawn = require('child_process').spawn;
 require('should');
 
