@@ -17,12 +17,15 @@ before(function(){
   cozyLight.init({home: workingDir});
 });
 
-after(function(){
-  try {
-    fs.removeSync(workingDir);
-  } catch(err) {
-    console.log(err);
-  }
+after(function(done){
+  cozyLight.stop(function(){
+    try {
+      fs.removeSync(workingDir);
+    } catch(err) {
+      console.log(err);
+    }
+    done();
+  });
 });
 
 describe('Application Helpers', function () {
