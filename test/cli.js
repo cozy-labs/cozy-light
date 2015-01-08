@@ -20,7 +20,7 @@ describe('CLI', function () {
   });
 
   var log_output = function(c){
-    console.error((c + '').replace(/(\s+)$/im, ''));
+    console.error((c + '').replace(/(.+)(\s+)?$/im, '$1'));
   };
 
   this.timeout(60000);
