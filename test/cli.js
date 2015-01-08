@@ -123,7 +123,7 @@ describe('CLI', function () {
     var cmd  = [
       'cozy-light',
       'install',
-      'cozy-labs/cozy-dashboard'
+      'cozy-labs/cozy-light-simple-dashboard'
     ].join(' ');
     exec(cmd,function(error, stdout, stderr){
       stdout.should.match(/Enjoy!/);
