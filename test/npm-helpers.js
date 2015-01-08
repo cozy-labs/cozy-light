@@ -23,14 +23,14 @@ describe('NPM Helpers', function () {
     });
 
     after(function(done){
-        cozyLight.stop(function(){
-            try {
-                fs.removeSync(workingDir);
-            } catch(err) {
-                console.log(err);
-            }
-          done();
-        });
+      cozyLight.stop(function(){
+        try {
+          fs.removeSync(workingDir);
+        } catch(err) {
+          console.log(err);
+        }
+        done();
+      });
     });
 
     it('should install a module.', function (done) {
