@@ -133,7 +133,7 @@ describe('CLI', function () {
     })
   });
   it.skip('can install distro', function(){});
-  it('displays content properly', function(){
+  it('displays content properly', function(done){
     var cozyProcess = spawn('cozy-light', ['start'])
       .on('close', function () {
         done();
@@ -150,7 +150,7 @@ describe('CLI', function () {
   });
   it.skip('can remove app', function(){});
   it.skip('can remove plugin', function(){});
-  it('can stop properly', function(){
+  it('can stop properly', function(done){
     var cozyProcess = spawn('cozy-light', ['start'])
       .on('close', function (code) {
         code.should.eql(0);
