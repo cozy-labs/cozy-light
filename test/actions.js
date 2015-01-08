@@ -11,10 +11,24 @@ var configHelpers = cozyLight.configHelpers;
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
-fs.removeSync(workingDir);
-fs.mkdirSync(workingDir);
 
-cozyLight.init({home: workingDir});
+before(function(){
+  fs.removeSync(workingDir);
+  fs.mkdirSync(workingDir);
+  cozyLight.init({home: workingDir});
+});
+
+
+after(function(done){
+  cozyLight.stop(function(){
+    try {
+      fs.removeSync(workingDir);
+    } catch(err) {
+      console.log(err);
+    }
+    done();
+  });
+});
 
 describe('actions', function () {
 
@@ -126,10 +140,6 @@ describe('actions', function () {
           });
       });
     });
-  });
-
-  after(function(done){
-    cozyLight.stop(done);
   });
 
 });
