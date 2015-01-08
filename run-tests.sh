@@ -12,3 +12,4 @@ mocha test/main-app-helper.js
 mocha test/node-helpers.js
 mocha test/npm-helpers.js
 mocha test/plugin-helpers.js
+mocha test/cli.js

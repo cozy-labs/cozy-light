@@ -11,3 +11,4 @@ mocha --no-exit test/main-app-helpers.js || exit /b
 mocha --no-exit test/node-helpers.js || exit /b
 mocha --no-exit test/npm-helpers.js || exit /b
 mocha --no-exit test/plugin-helpers.js || exit /b
+mocha --no-exit test/cli.js || exit /b
