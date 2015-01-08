@@ -41,5 +41,5 @@ describe('cozyLight', function () {
 
     });
   });
-
+  describe.skip('stop', function () {});
 });

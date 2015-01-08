@@ -11,7 +11,6 @@ var npmHelpers = cozyLight.npmHelpers;
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 
-cozyLight.init({home: workingDir});
 
 describe('NPM Helpers', function () {
 
@@ -20,15 +19,17 @@ describe('NPM Helpers', function () {
     before(function(){
       fs.removeSync(workingDir);
       fs.mkdirSync(workingDir);
-      process.chdir(workingDir);
+      cozyLight.init({home: workingDir});
     });
 
     after(function(){
-      try {
-        fs.removeSync(workingDir);
-      } catch(err) {
-        console.log(err);
-      }
+        cozyLight.stop(function(){
+            try {
+                fs.removeSync(workingDir);
+            } catch(err) {
+                console.log(err);
+            }
+        });
     });
 
     it('should install a module.', function (done) {

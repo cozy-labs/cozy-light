@@ -19,19 +19,18 @@ before(function(){
 });
 
 
-after(function(){
-  try {
-    fs.removeSync(workingDir);
-  } catch(err) {
-    console.log(err);
-  }
+after(function(done){
+    cozyLight.stop(function(){
+        try {
+            fs.removeSync(workingDir);
+        } catch(err) {
+            console.log(err);
+        }
+        done();
+    });
 });
 
 describe('Functional tests', function () {
-
-  after(function(done){
-    actions.exit(done);
-  });
 
   describe('Hot app install', function () {
 
