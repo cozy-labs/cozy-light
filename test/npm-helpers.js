@@ -22,13 +22,14 @@ describe('NPM Helpers', function () {
       cozyLight.init({home: workingDir});
     });
 
-    after(function(){
+    after(function(done){
         cozyLight.stop(function(){
             try {
                 fs.removeSync(workingDir);
             } catch(err) {
                 console.log(err);
             }
+          done();
         });
     });
 
