@@ -129,7 +129,7 @@ describe('actions', function () {
   });
 
   after(function(done){
-    actions.stop(done);
+    cozyLight.stop(done);
   });
 
 });
