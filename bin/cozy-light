@@ -69,7 +69,7 @@ program
   .action(actions.enable);
 
 program
-  .command('install-distro [distro]')
+  .command('install-distro <distro>')
   .description(
     'Install given distro. If none is give, it displays the distro list')
   .action(actions.installDistro);
