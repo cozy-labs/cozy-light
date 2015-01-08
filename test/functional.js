@@ -20,14 +20,14 @@ before(function(){
 
 
 after(function(done){
-    cozyLight.stop(function(){
-        try {
-            fs.removeSync(workingDir);
-        } catch(err) {
-            console.log(err);
-        }
-        done();
-    });
+  cozyLight.stop(function(){
+    try {
+      fs.removeSync(workingDir);
+    } catch(err) {
+      console.log(err);
+    }
+    done();
+  });
 });
 
 describe('Functional tests', function () {
