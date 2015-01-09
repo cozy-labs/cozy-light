@@ -53,7 +53,10 @@ describe('CLI', function () {
     },1000);
   });
   it('creates the mutex', function(done){
-    var cozyProcess = spawn('cozy-light', ['start']);
+    var cozyProcess = spawn('cozy-light', ['start'])
+        .on('close',function(){
+            setTimeout(done,1000);
+        });
     cozyProcess.stdout.on('data', log_output);
     cozyProcess.stderr.on('data', log_output);
     setTimeout(function(){
@@ -61,7 +64,6 @@ describe('CLI', function () {
         'mutex');
       fs.existsSync(p).should.eql(true);
       cozyProcess.kill('SIGINT');
-        setTimeout(done,1000);
     },1000);
   });
   it('deletes the mutex', function(done){
