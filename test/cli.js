@@ -67,24 +67,25 @@ describe('CLI', function () {
     },1000);
   });
   it('deletes the mutex', function(done){
-    var cozyProcess = spawn('cozy-light', ['start']);
+    var cozyProcess = spawn('cozy-light', ['start'])
+        .on('close',function(){
+            var p = pathExtra.join(homeDir, 'mutex');
+            fs.existsSync(p).should.eql(false);
+            setTimeout(done,1000);
+        });
     cozyProcess.stdout.on('data', log_output);
     cozyProcess.stderr.on('data', log_output);
     setTimeout(function(){
       var p = pathExtra.join(homeDir, 'mutex');
       fs.existsSync(p).should.eql(true);
       cozyProcess.kill('SIGINT');
-      setTimeout(function(){
-        var p = pathExtra.join(homeDir, 'mutex');
-        fs.existsSync(p).should.eql(false);
-        done();
-      },1000);
     },1000);
   });
   it('does not start twice', function(done){
     var cozyProcess = spawn('cozy-light', ['start'])
       .on('close', function (code) {
         code.should.eql(0);
+            setTimeout(done,1000);
       });
     cozyProcess.stdout.on('data', log_output);
     cozyProcess.stderr.on('data', log_output);
@@ -93,8 +94,6 @@ describe('CLI', function () {
         .on('close', function (code) {
           code.should.eql(8 /* not sure why 8 */ );
           cozyProcess.kill('SIGINT');
-          cozyProcess2.kill('SIGINT');
-              setTimeout(done,1000);
         });
       cozyProcess2.stdout.on('data', log_output);
       cozyProcess2.stderr.on('data', log_output);
