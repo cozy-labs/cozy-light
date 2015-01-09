@@ -77,7 +77,12 @@ program
 program
   .command('*')
   .description('display help')
-  .action(program.outputHelp);
+  .action(function(){
+        program.outputHelp();
+        cozyLight.stop(function(){
+            cozyLight.exit();
+        });
+    });
 
 
 // Init Cozy Light
