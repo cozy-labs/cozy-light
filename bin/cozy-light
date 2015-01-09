@@ -79,9 +79,7 @@ program
   .description('display help')
   .action(function(){
         program.outputHelp();
-        cozyLight.stop(function(){
-            cozyLight.exit();
-        });
+        cozyLight.stop(cozyLight.exit);
     });
 
 

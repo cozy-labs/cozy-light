@@ -29,7 +29,7 @@ describe('CLI', function () {
     var cozyProcess = spawn('cozy-light', ['--help'])
       .on('close', function () {
         output.should.match(/Usage: cozy-light/);
-        done();
+            setTimeout(done,1000);
       });
     cozyProcess.stdout.on('data', log_output);
     cozyProcess.stderr.on('data', log_output);
@@ -48,9 +48,7 @@ describe('CLI', function () {
       request.get('http://localhost:19104/' , function(error, response){
         response.statusCode.should.match(/404/);
         cozyProcess.kill('SIGINT');
-        setTimeout(function(){
-          done();
-        },1000);
+        setTimeout(done,1000);
       });
     },1000);
   });
@@ -63,9 +61,7 @@ describe('CLI', function () {
         'mutex');
       fs.existsSync(p).should.eql(true);
       cozyProcess.kill('SIGINT');
-      setTimeout(function(){
-        done();
-      },1000);
+        setTimeout(done,1000);
     },1000);
   });
   it('deletes the mutex', function(done){
@@ -96,9 +92,7 @@ describe('CLI', function () {
           code.should.eql(8 /* not sure why 8 */ );
           cozyProcess.kill('SIGINT');
           cozyProcess2.kill('SIGINT');
-          setTimeout(function(){
-            done();
-          },1000);
+              setTimeout(done,1000);
         });
       cozyProcess2.stdout.on('data', log_output);
       cozyProcess2.stderr.on('data', log_output);
@@ -136,7 +130,7 @@ describe('CLI', function () {
   it('displays content properly', function(done){
     var cozyProcess = spawn('cozy-light', ['start'])
       .on('close', function () {
-        done();
+            setTimeout(done,1000);
       });
     cozyProcess.stdout.on('data', log_output);
     cozyProcess.stderr.on('data', log_output);
@@ -154,13 +148,13 @@ describe('CLI', function () {
     var cozyProcess = spawn('cozy-light', ['start'])
       .on('close', function (code) {
         code.should.eql(0);
-        done();
       });
     cozyProcess.stdout.on('data', log_output);
     cozyProcess.stderr.on('data', log_output);
     setTimeout(function(){
       request.get('http://localhost:19104/' , function(){
         cozyProcess.kill('SIGINT');
+          setTimeout(done,1000);
       });
     },1000);});
 });
