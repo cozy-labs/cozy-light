@@ -22,59 +22,82 @@ describe('CLI', function () {
   var log_output = function(c){
     console.error((c + '').replace(/(.+)(\s+)?$/im, '$1'));
   };
+  var open_process = function(cmds, then){
+    console.error('+ ' + cmds.join(' '));
+    var bin = cmds.shift();
+    var cozyProcess = spawn(bin, cmds);
+    cozyProcess.stdout.on('data', log_output);
+    cozyProcess.stderr.on('data', log_output);
+    if ( then ){
+      var output = '';
+      var stdout = '';
+      var stderr = '';
+      cozyProcess.stdout.on('data', function (d) {
+        output += d;
+        stdout += d;
+      });
+      cozyProcess.stderr.on('data', function (d) {
+        output += d;
+        stderr += d;
+      });
+      cozyProcess.on('close', function (code) {
+        then(output, stdout, stderr, code);
+      });
+    }
+    return cozyProcess;
+  };
 
   this.timeout(60000);
   it('displays help', function(done){
-    var output = '';
-    var cozyProcess = spawn('cozy-light', ['--help'])
-      .on('close', function () {
-        output.should.match(/Usage: cozy-light/);
-            setTimeout(done,1000);
-      });
-    cozyProcess.stdout.on('data', log_output);
-    cozyProcess.stderr.on('data', log_output);
-    cozyProcess.stdout.on('data', function (d) {
-      output += d;
-    });
-    cozyProcess.stderr.on('data', function (d) {
-      output += d;
+    var cmd = [
+      'cozy-light',
+      '--help'
+    ];
+    open_process(cmd, function(output, stdout, stderr){
+      output.should.match(/Usage: cozy-light/);
+      done();
     });
   });
   it('starts properly', function(done){
-    var cozyProcess = spawn('cozy-light', ['start']);
-    cozyProcess.stdout.on('data', log_output);
-    cozyProcess.stderr.on('data', log_output);
+    var cmd = [
+      'cozy-light',
+      'start'
+    ];
+    var cozyProcess = open_process(cmd);
     setTimeout(function(){
       request.get('http://localhost:19104/' , function(error, response){
         response.statusCode.should.match(/404/);
         cozyProcess.kill('SIGINT');
-        setTimeout(done,1000);
+        done();
       });
     },1000);
   });
   it('creates the mutex', function(done){
-    var cozyProcess = spawn('cozy-light', ['start'])
-        .on('close',function(){
-            setTimeout(done,1000);
-        });
-    cozyProcess.stdout.on('data', log_output);
-    cozyProcess.stderr.on('data', log_output);
+    var cmd = [
+      'cozy-light',
+      'start'
+    ];
+    var cozyProcess = open_process(cmd)
+      .on('close',function(){
+        done();
+      });
     setTimeout(function(){
-      var p = pathExtra.join(homeDir,
-        'mutex');
+      var p = pathExtra.join(homeDir, 'mutex');
       fs.existsSync(p).should.eql(true);
       cozyProcess.kill('SIGINT');
     },1000);
   });
   it('deletes the mutex', function(done){
-    var cozyProcess = spawn('cozy-light', ['start'])
-        .on('close',function(){
-            var p = pathExtra.join(homeDir, 'mutex');
-            fs.existsSync(p).should.eql(false);
-            setTimeout(done,1000);
-        });
-    cozyProcess.stdout.on('data', log_output);
-    cozyProcess.stderr.on('data', log_output);
+    var cmd = [
+      'cozy-light',
+      'start'
+    ];
+    var cozyProcess = open_process(cmd)
+      .on('close',function(){
+        var p = pathExtra.join(homeDir, 'mutex');
+        fs.existsSync(p).should.eql(false);
+        done();
+      });
     setTimeout(function(){
       var p = pathExtra.join(homeDir, 'mutex');
       fs.existsSync(p).should.eql(true);
@@ -82,63 +105,69 @@ describe('CLI', function () {
     },1000);
   });
   it('does not start twice', function(done){
-    var cozyProcess = spawn('cozy-light', ['start'])
+    var cmd = [
+      'cozy-light',
+      'start'
+    ];
+    var cozyProcess = open_process(cmd)
       .on('close', function (code) {
-        code.should.eql(0);
-            setTimeout(done,1000);
-      });
-    cozyProcess.stdout.on('data', log_output);
-    cozyProcess.stderr.on('data', log_output);
+      code.should.eql(0);
+      done();
+    });
     setTimeout(function(){
-      var cozyProcess2 = spawn('cozy-light', ['start'])
-        .on('close', function (code) {
-          code.should.eql(8 /* not sure why 8 */ );
-          cozyProcess.kill('SIGINT');
-        });
-      cozyProcess2.stdout.on('data', log_output);
-      cozyProcess2.stderr.on('data', log_output);
+      var cmd = [
+        'cozy-light',
+        'start'
+      ];
+      open_process(cmd).on('close', function (code) {
+        code.should.eql(8 /* not sure why 8 */ );
+        cozyProcess.kill('SIGINT');
+      });
     },1000);
   });
   it('can install plugin', function(done){
-    var cmd  = [
+    var cmd = [
       'cozy-light',
       'add-plugin',
       'maboiteaspam/cozy-homepage'
-    ].join(' ');
-    exec(cmd,function(error, stdout, stderr){
-      log_output(stdout);
-      log_output(stderr);
+    ];
+    open_process(cmd, function(output, stdout, stderr, code){
       stdout.should.match(/Enjoy!/);
       stderr.should.eql('');
-      assert.equal(error,null,'error must be null.');
+      code.should.eql(0);
       done();
-    })
+    });
   });
   it('can install app', function(done){
-    var cmd  = [
+    var cmd = [
       'cozy-light',
       'install',
       'cozy-labs/cozy-light-simple-dashboard'
-    ].join(' ');
-    exec(cmd,function(error, stdout, stderr){
+    ];
+    open_process(cmd, function(output, stdout, stderr, code){
       stdout.should.match(/Enjoy!/);
-      stderr.should.be.empty();
-      assert.equal(error,null,'error must be null.');
+      stderr.should.eql('');
+      code.should.eql(0);
       done();
-    })
+    });
   });
   it.skip('can install distro', function(){});
   it('displays content properly', function(done){
-    var cozyProcess = spawn('cozy-light', ['start'])
-      .on('close', function () {
-            setTimeout(done,1000);
+    var cmd = [
+      'cozy-light',
+      'start'
+    ];
+    var cozyProcess = open_process(cmd)
+      .on('close', function (code) {
+        code.should.eql(0);
+        done();
       });
-    cozyProcess.stdout.on('data', log_output);
-    cozyProcess.stderr.on('data', log_output);
     setTimeout(function(){
       var url = 'http://localhost:19104/apps/cozy-dashboard';
       request.get(url, function(error, response){
-        response.statusCode.match(/301/);
+        console.error(error)
+        console.error(response)
+        //response.statusCode.should.eql(301);
         cozyProcess.kill('SIGINT');
       });
     },1000);
@@ -146,16 +175,21 @@ describe('CLI', function () {
   it.skip('can remove app', function(){});
   it.skip('can remove plugin', function(){});
   it('can stop properly', function(done){
-    var cozyProcess = spawn('cozy-light', ['start'])
+    var cmd = [
+      'cozy-light',
+      'start'
+    ];
+    var cozyProcess = open_process(cmd)
       .on('close', function (code) {
         code.should.eql(0);
+        done();
       });
-    cozyProcess.stdout.on('data', log_output);
-    cozyProcess.stderr.on('data', log_output);
     setTimeout(function(){
-      request.get('http://localhost:19104/' , function(){
-        cozyProcess.kill('SIGINT');
-          setTimeout(done,1000);
+      request.get('http://localhost:19104/' , function(error, response){
+        console.error(error)
+        console.error(response)
+          cozyProcess.kill('SIGINT');
       });
-    },1000);});
+    },1500);
+  });
 });
