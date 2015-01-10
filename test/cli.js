@@ -142,7 +142,7 @@ describe('CLI', function () {
     var cmd = [
       'cozy-light',
       'install',
-      'cozy-labs/cozy-light-simple-dashboard'
+      'maboiteaspam/cozy-dashboard'
     ];
     open_process(cmd, function(output, stdout, stderr, code){
       stdout.should.match(/Enjoy!/);
