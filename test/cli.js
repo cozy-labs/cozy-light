@@ -163,13 +163,13 @@ describe('CLI', function () {
         done();
       });
     setTimeout(function(){
-      var url = 'http://localhost:19104/apps/cozy-dashboard';
+      var url = 'http://localhost:19104/apps/cozy-dashboard/';
       request.get(url, function(error, response, body){
         console.error(body)
         //response.statusCode.should.eql(301);
         cozyProcess.kill('SIGINT');
       });
-    },1000);
+    },2000);
   });
   it.skip('can remove app', function(){});
   it.skip('can remove plugin', function(){});
@@ -188,6 +188,6 @@ describe('CLI', function () {
         console.error(body)
           cozyProcess.kill('SIGINT');
       });
-    },1500);
+    },2000);
   });
 });
