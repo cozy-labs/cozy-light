@@ -9,9 +9,11 @@ var npmHelpers = cozyLight.npmHelpers;
 var pluginHelpers = cozyLight.pluginHelpers;
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
-fs.removeSync(workingDir);
-fs.mkdirSync(workingDir);
 
+before(function(){
+  fs.removeSync(workingDir);
+  fs.mkdirSync(workingDir);
+});
 describe('cozyLight', function () {
 
   describe('init', function () {
