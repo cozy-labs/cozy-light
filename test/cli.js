@@ -164,9 +164,8 @@ describe('CLI', function () {
       });
     setTimeout(function(){
       var url = 'http://localhost:19104/apps/cozy-dashboard';
-      request.get(url, function(error, response){
-        console.error(error)
-        console.error(response)
+      request.get(url, function(error, response, body){
+        console.error(body)
         //response.statusCode.should.eql(301);
         cozyProcess.kill('SIGINT');
       });
@@ -185,9 +184,8 @@ describe('CLI', function () {
         done();
       });
     setTimeout(function(){
-      request.get('http://localhost:19104/' , function(error, response){
-        console.error(error)
-        console.error(response)
+      request.get('http://localhost:19104/' , function(error, response, body){
+        console.error(body)
           cozyProcess.kill('SIGINT');
       });
     },1500);
