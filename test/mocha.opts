@@ -1,1 +1,1 @@
---require mocha-clean/brief --globals s,cooked --reporter spec
+--globals s,cooked --reporter spec
