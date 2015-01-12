@@ -13,10 +13,6 @@ var homeDir = pathExtra.join(pathExtra.homedir(),
 describe('CLI', function () {
 
   before(function(){
-    var mutexFile = pathExtra.join(homeDir, 'mutex');
-    if( fs.existsSync(mutexFile) ) {
-      fs.unlinkSync(mutexFile);
-    }
   });
 
   var log_output = function(c){
@@ -69,59 +65,6 @@ describe('CLI', function () {
         response.statusCode.should.match(/404/);
         cozyProcess.kill('SIGINT');
         done();
-      });
-    },1000);
-  });
-  it('creates the mutex', function(done){
-    var cmd = [
-      'cozy-light',
-      'start'
-    ];
-    var cozyProcess = open_process(cmd)
-      .on('close',function(){
-        done();
-      });
-    setTimeout(function(){
-      var p = pathExtra.join(homeDir, 'mutex');
-      fs.existsSync(p).should.eql(true);
-      cozyProcess.kill('SIGINT');
-    },1000);
-  });
-  it('deletes the mutex', function(done){
-    var cmd = [
-      'cozy-light',
-      'start'
-    ];
-    var cozyProcess = open_process(cmd)
-      .on('close',function(){
-        var p = pathExtra.join(homeDir, 'mutex');
-        fs.existsSync(p).should.eql(false);
-        done();
-      });
-    setTimeout(function(){
-      var p = pathExtra.join(homeDir, 'mutex');
-      fs.existsSync(p).should.eql(true);
-      cozyProcess.kill('SIGINT');
-    },1000);
-  });
-  it('does not start twice', function(done){
-    var cmd = [
-      'cozy-light',
-      'start'
-    ];
-    var cozyProcess = open_process(cmd)
-      .on('close', function (code) {
-      code.should.eql(0);
-      done();
-    });
-    setTimeout(function(){
-      var cmd = [
-        'cozy-light',
-        'start'
-      ];
-      open_process(cmd).on('close', function (code) {
-        code.should.eql(8 /* not sure why 8 */ );
-        cozyProcess.kill('SIGINT');
       });
     },1000);
   });
