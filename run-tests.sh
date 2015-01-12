@@ -12,4 +12,5 @@ mocha test/main-app-helper.js
 mocha test/node-helpers.js
 mocha test/npm-helpers.js
 mocha test/plugin-helpers.js
+NODE_ENV=need-all-logs
 mocha test/cli.js
