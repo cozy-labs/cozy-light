@@ -117,8 +117,6 @@ describe('CLI', function () {
       });
     },2000);
   });
-  it.skip('can remove app', function(){});
-  it.skip('can remove plugin', function(){});
   it('can stop properly', function(done){
     var cmd = [
       'cozy-light',
@@ -138,5 +136,35 @@ describe('CLI', function () {
           cozyProcess.kill('SIGINT');
       });
     },2000);
+  });
+  it('can remove app', function(done){
+    var cmd = [
+      'cozy-light',
+      'uninstall',
+      'cozy-dashboard',
+      '--home',
+      workingDir
+    ];
+    open_process(cmd, function(output, stdout, stderr, code){
+      output.should.match(/successfully uninstalled/);
+      stderr.should.eql('');
+      code.should.eql(0);
+      done();
+    });
+  });
+  it('can remove plugin', function(done){
+    var cmd = [
+      'cozy-light',
+      'remove-plugin',
+      'cozy-homepage',
+      '--home',
+      workingDir
+    ];
+    open_process(cmd, function(output, stdout, stderr, code){
+      output.should.match(/successfully uninstalled/);
+      stderr.should.eql('');
+      code.should.eql(0);
+      done();
+    });
   });
 });
