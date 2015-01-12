@@ -39,7 +39,7 @@ describe('actions', function () {
       actions.installApp(app, function (err) {
         assert.equal(err, null, 'Cannot install app.');
         var config = configHelpers.loadConfigFile();
-        ('hello').should.eql(config.apps['hello'].name);
+        ('hello').should.eql(config.apps.hello.name);
         done();
       });
     });

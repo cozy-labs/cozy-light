@@ -18,15 +18,15 @@ describe('CLI', function () {
     fs.removeSync(workingDir);
   });
 
-  var log_output = function(c){
+  var logOutput = function(c){
     console.error((c + '').replace(/(.+)(\s+)?$/im, '$1'));
   };
-  var open_process = function(cmds, then){
+  var openProcess = function(cmds, then){
     console.error('+ ' + cmds.join(' '));
     var bin = cmds.shift();
     var cozyProcess = spawn(bin, cmds);
-    cozyProcess.stdout.on('data', log_output);
-    cozyProcess.stderr.on('data', log_output);
+    cozyProcess.stdout.on('data', logOutput);
+    cozyProcess.stderr.on('data', logOutput);
     if ( then ){
       var output = '';
       var stdout = '';
@@ -52,7 +52,7 @@ describe('CLI', function () {
       'cozy-light',
       '--help'
     ];
-    open_process(cmd, function(output, stdout, stderr){
+    openProcess(cmd, function(output){
       output.should.match(/Usage: cozy-light/);
       done();
     });
@@ -64,7 +64,7 @@ describe('CLI', function () {
       '--home',
       workingDir
     ];
-    open_process(cmd, function(output, stdout, stderr){
+    openProcess(cmd, function(output){
       output.should.match(new RegExp(workingDir));
       done();
     });
@@ -77,7 +77,7 @@ describe('CLI', function () {
       '--home',
       workingDir
     ];
-    open_process(cmd, function(output, stdout, stderr, code){
+    openProcess(cmd, function(output, stdout, stderr, code){
       output.should.match(/Enjoy!/);
       stderr.should.eql('');
       code.should.eql(0);
@@ -92,7 +92,7 @@ describe('CLI', function () {
       '--home',
       workingDir
     ];
-    open_process(cmd, function(output, stdout, stderr, code){
+    openProcess(cmd, function(output, stdout, stderr, code){
       output.should.match(/Enjoy!/);
       stderr.should.eql('');
       code.should.eql(0);
@@ -107,7 +107,7 @@ describe('CLI', function () {
       '--home',
       workingDir
     ];
-    var cozyProcess = open_process(cmd)
+    var cozyProcess = openProcess(cmd)
       .on('close', function (code) {
         code.should.eql(0);
         done();
@@ -119,7 +119,7 @@ describe('CLI', function () {
         response.statusCode.should.eql(200);
         cozyProcess.kill('SIGINT');
       });
-    },2000);
+    }, 2000);
   });
   it('can stop properly', function(done){
     var cmd = [
@@ -128,18 +128,18 @@ describe('CLI', function () {
       '--home',
       workingDir
     ];
-    var cozyProcess = open_process(cmd)
+    var cozyProcess = openProcess(cmd)
       .on('close', function (code) {
         code.should.eql(0);
         done();
       });
     setTimeout(function(){
-      request.get('http://localhost:19104/' , function(error, response, body){
+      request.get('http://localhost:19104/', function(error, response, body){
           body.should.match(/Cozy Light: Your Personal Cloud at Home/);
           response.statusCode.should.eql(200);
           cozyProcess.kill('SIGINT');
       });
-    },2000);
+    }, 2000);
   });
   it('can remove app', function(done){
     var cmd = [
@@ -149,7 +149,7 @@ describe('CLI', function () {
       '--home',
       workingDir
     ];
-    open_process(cmd, function(output, stdout, stderr, code){
+    openProcess(cmd, function(output, stdout, stderr, code){
       output.should.match(/successfully uninstalled/);
       stderr.should.eql('');
       code.should.eql(0);
@@ -164,7 +164,7 @@ describe('CLI', function () {
       '--home',
       workingDir
     ];
-    open_process(cmd, function(output, stdout, stderr, code){
+    openProcess(cmd, function(output, stdout, stderr, code){
       output.should.match(/successfully uninstalled/);
       stderr.should.eql('');
       code.should.eql(0);
