@@ -3,16 +3,15 @@ var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 var request = require('request');
 var spawn = require('child_process').spawn;
-var exec = require('child_process').exec;
-var assert = require('assert');
 require('should');
 
-var homeDir = pathExtra.join(pathExtra.homedir(),
-  'cozy');
+var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 
 describe('CLI', function () {
 
   before(function(){
+    fs.removeSync(workingDir);
+    fs.mkdirSync(workingDir);
   });
 
   var log_output = function(c){
@@ -54,25 +53,25 @@ describe('CLI', function () {
       done();
     });
   });
-  it('starts properly', function(done){
+  it('detects cli options', function(done){
     var cmd = [
       'cozy-light',
-      'start'
+      'display-config',
+      '--home',
+      workingDir
     ];
-    var cozyProcess = open_process(cmd);
-    setTimeout(function(){
-      request.get('http://localhost:19104/' , function(error, response){
-        response.statusCode.should.match(/404/);
-        cozyProcess.kill('SIGINT');
-        done();
-      });
-    },1000);
+    open_process(cmd, function(output, stdout, stderr){
+      output.should.match(new RegExp(workingDir));
+      done();
+    });
   });
   it('can install plugin', function(done){
     var cmd = [
       'cozy-light',
       'add-plugin',
-      'maboiteaspam/cozy-homepage'
+      'maboiteaspam/cozy-homepage',
+      '--home',
+      workingDir
     ];
     open_process(cmd, function(output, stdout, stderr, code){
       output.should.match(/Enjoy!/);
@@ -85,7 +84,9 @@ describe('CLI', function () {
     var cmd = [
       'cozy-light',
       'install',
-      'maboiteaspam/cozy-dashboard'
+      'maboiteaspam/cozy-dashboard',
+      '--home',
+      workingDir
     ];
     open_process(cmd, function(output, stdout, stderr, code){
       output.should.match(/Enjoy!/);
@@ -98,7 +99,9 @@ describe('CLI', function () {
   it('displays content properly', function(done){
     var cmd = [
       'cozy-light',
-      'start'
+      'start',
+      '--home',
+      workingDir
     ];
     var cozyProcess = open_process(cmd)
       .on('close', function (code) {
@@ -119,7 +122,9 @@ describe('CLI', function () {
   it('can stop properly', function(done){
     var cmd = [
       'cozy-light',
-      'start'
+      'start',
+      '--home',
+      workingDir
     ];
     var cozyProcess = open_process(cmd)
       .on('close', function (code) {

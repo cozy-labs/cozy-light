@@ -19,6 +19,13 @@ program
   'home directory where Cozy Light runs (default: ~/cozy)',
   pathExtra.join(pathExtra.homedir(), 'cozy'));
 
+
+// Initialize Cozy
+
+program.parse(process.argv);
+cozyLight.init(program);
+
+
 program
   .command('start')
   .option('-p, --port <port>',
@@ -75,16 +82,9 @@ program
         cozyLight.stop(cozyLight.exit);
     });
 
-
-// Init Cozy Light
-
-cozyLight.init(program);
-
-
 // Run CLI
 
 program.parse(process.argv);
-
 
 // If arguments doesn't match any of the one set, it displays help.
 
