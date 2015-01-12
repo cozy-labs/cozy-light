@@ -10,7 +10,11 @@ var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 describe('CLI', function () {
 
   before(function(){
-    fs.removeSync(workingDir);
+    try {
+      fs.removeSync(workingDir);
+    } catch(err) {
+      console.log(err);
+    }
     fs.mkdirSync(workingDir);
   });
 

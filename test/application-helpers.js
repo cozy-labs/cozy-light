@@ -10,10 +10,14 @@ var applicationHelpers = cozyLight.applicationHelpers;
 
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
-fs.removeSync(workingDir);
-fs.mkdirSync(workingDir);
 
 before(function(){
+  try {
+    fs.removeSync(workingDir);
+  } catch(err) {
+    console.log(err);
+  }
+  fs.mkdirSync(workingDir);
   cozyLight.init({home: workingDir});
 });
 

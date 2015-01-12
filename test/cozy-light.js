@@ -11,7 +11,11 @@ var pluginHelpers = cozyLight.pluginHelpers;
 var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 
 before(function(){
-  fs.removeSync(workingDir);
+  try {
+    fs.removeSync(workingDir);
+  } catch(err) {
+    console.log(err);
+  }
   fs.mkdirSync(workingDir);
 });
 describe('cozyLight', function () {

@@ -13,7 +13,11 @@ var workingDir = pathExtra.join( __dirname, '.test-working_dir');
 var fixturesDir = pathExtra.join( __dirname, 'fixtures');
 
 before(function(){
-  fs.removeSync(workingDir);
+  try {
+    fs.removeSync(workingDir);
+  } catch(err) {
+    console.log(err);
+  }
   fs.mkdirSync(workingDir);
   cozyLight.init({home: workingDir});
 });

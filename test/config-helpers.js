@@ -9,7 +9,11 @@ var cozyHOME = pathExtra.join(workingDir, '.cozy-light' );
 var configHelpers = require('../lib/config-helper')();
 
 before(function(){
-  fs.removeSync(workingDir);
+  try {
+    fs.removeSync(workingDir);
+  } catch(err) {
+    console.log(err);
+  }
   fs.mkdirSync(workingDir);
   fs.mkdirSync(cozyHOME);
   configHelpers.setHomePath(cozyHOME);
