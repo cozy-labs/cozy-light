@@ -39,7 +39,7 @@ describe('actions', function () {
       actions.installApp(app, function (err) {
         assert.equal(err, null, 'Cannot install app.');
         var config = configHelpers.loadConfigFile();
-        ('hello').should.eql(config.apps[app].name);
+        ('hello').should.eql(config.apps['hello'].name);
         done();
       });
     });
@@ -51,7 +51,7 @@ describe('actions', function () {
       actions.installPlugin(testPlugin, function (err) {
         assert.equal(err, null, 'Cannot install plugin.');
         var config = configHelpers.loadConfigFile();
-        ('test-plugin').should.eql(config.plugins[testPlugin].name);
+        ('test-plugin').should.eql(config.plugins['test-plugin'].name);
         done();
       });
     });
@@ -60,7 +60,7 @@ describe('actions', function () {
   describe('disable', function () {
 
     it('should mark app as disabled in the config file.', function (done) {
-      var app = 'cozy-labs/hello';
+      var app = 'hello';
       actions.disable(app);
       var config = configHelpers.loadConfigFile();
       (true).should.eql(config.apps[app].disabled);
@@ -68,7 +68,7 @@ describe('actions', function () {
     });
 
     it('should mark plugin as disabled in the config file.', function (done) {
-      var plugin = pathExtra.join(fixturesDir, 'test-plugin');
+      var plugin = 'test-plugin';
       actions.disable(plugin);
       var config = configHelpers.loadConfigFile();
       (true).should.eql(config.plugins[plugin].disabled);
@@ -81,7 +81,7 @@ describe('actions', function () {
 
     it('should remove disabled from the config file (app).',
       function (done) {
-        var app = 'cozy-labs/hello';
+        var app = 'hello';
         actions.enable(app);
         var config = configHelpers.loadConfigFile();
         assert(config.apps[app].disabled === undefined);
@@ -90,7 +90,7 @@ describe('actions', function () {
 
     it('should remove disabled from the config file (plugin).',
       function (done) {
-        var plugin = pathExtra.join(fixturesDir, 'test-plugin');
+        var plugin = 'test-plugin';
         actions.enable(plugin);
         var config = configHelpers.loadConfigFile();
         assert(config.plugins[plugin].disabled === undefined);
@@ -101,7 +101,7 @@ describe('actions', function () {
 
   describe('uninstallApp', function () {
     it('should remove app folder and update configuration. ', function (done) {
-      var app = 'cozy-labs/hello';
+      var app = 'hello';
       actions.uninstallApp(app, function (err) {
         assert.equal(err, null, 'Cannot uninstallApp app.');
         var config = configHelpers.loadConfigFile();
@@ -113,7 +113,7 @@ describe('actions', function () {
 
   describe('removePlugin', function () {
     it('should remove plugin and update configuration. ', function (done) {
-      var testPlugin = pathExtra.join(fixturesDir, 'test-plugin');
+      var testPlugin = 'test-plugin';
       actions.uninstallPlugin(testPlugin, function (err) {
         assert.equal(err, null, 'Cannot uninstall plugin.');
         var config = configHelpers.loadConfigFile();

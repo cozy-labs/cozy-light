@@ -154,49 +154,4 @@ describe('NPM Helpers', function () {
     });
   });
 
-  describe('fetchInstall', function(){
-
-    before(function(){
-      fs.removeSync(workingDir);
-      fs.mkdirSync(workingDir);
-      process.chdir(workingDir);
-    });
-
-    after(function(){
-      try {
-        fs.removeSync(workingDir);
-      } catch(err) {
-        console.log(err);
-      }
-    });
-
-    it('should fetch then install remote module.', function (done) {
-      this.timeout(60000);
-      npmHelpers.fetchInstall('cozy-labs/hello',
-        function (err, manifest, type) {
-          assert.equal(err, null, 'Cannot install module.');
-          assert.equal('url', type);
-          assert.equal('hello', manifest.name);
-          done();
-        });
-    });
-    it('should fetch then install an absolute module path.', function (done) {
-      var testapp = pathExtra.join(fixturesDir, 'test-app');
-      npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
-        assert.equal(err, null, 'Cannot install from ' + testapp + '.');
-        assert.equal('file', type);
-        assert.equal('test-app', manifest.name);
-        done();
-      });
-    });
-    it('should fetch then install a relative module path.', function (done) {
-      var testapp = pathExtra.join(fixturesDir, 'test-app');
-      npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
-        assert.equal(err, null, 'Cannot install from ' + testapp + '.');
-        assert.equal('file', type);
-        assert.equal('test-app', manifest.name);
-        done();
-      });
-    });
-  });
 });

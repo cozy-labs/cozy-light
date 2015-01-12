@@ -80,11 +80,20 @@ describe('Functional tests', function () {
       });
     });
 
-    it('should uninstall.', function (done) {
+    it('should uninstall test-app.', function (done) {
       this.timeout(60000);
-      var testapp2 = pathExtra.join(fixturesDir, 'test-app2');
+      var testapp2 = 'test-app';
       actions.uninstallApp(testapp2, function (err) {
-        assert.equal(err, null, 'Cannot uninstall test-app2.');
+        assert.equal(err, null, 'Cannot uninstall ' + testapp2 + '.');
+        done();
+      });
+    });
+
+    it('should uninstall test-app2.', function (done) {
+      this.timeout(60000);
+      var testapp2 = 'test-app2';
+      actions.uninstallApp(testapp2, function (err) {
+        assert.equal(err, null, 'Cannot uninstall ' + testapp2 + '.');
         done();
       });
     });
@@ -98,8 +107,7 @@ describe('Functional tests', function () {
 
     after(function (done) {
       actions.stop(function(){
-        var testapp = pathExtra.join(fixturesDir, 'test-app');
-        actions.enable(testapp);
+        actions.enable('test-app');
         done();
       });
     });
@@ -108,13 +116,13 @@ describe('Functional tests', function () {
       // Nothing to do test app is still in the cozy-light folder.
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       actions.installApp(testapp, function (err) {
-        assert.equal(err, null, 'Cannot install test-app.');
+        assert.equal(err, null, 'Cannot install ' + testapp + '.');
         done();
       });
     });
 
     it('disable it.', function (done) {
-      var testapp = pathExtra.join(fixturesDir, 'test-app');
+      var testapp = 'test-app';
       actions.disable(testapp);
       done();
     });
