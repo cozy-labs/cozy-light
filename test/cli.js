@@ -165,7 +165,6 @@ describe('CLI', function () {
     setTimeout(function(){
       var url = 'http://localhost:19104/apps/cozy-dashboard/';
       request.get(url, function(error, response, body){
-        console.error(response.statusCode)
         body.should.match(/Cozy Light: Your Personal Cloud at Home/);
         response.statusCode.should.eql(200);
         cozyProcess.kill('SIGINT');
@@ -186,7 +185,6 @@ describe('CLI', function () {
       });
     setTimeout(function(){
       request.get('http://localhost:19104/' , function(error, response, body){
-          console.error(response.statusCode)
           body.should.match(/Cozy Light: Your Personal Cloud at Home/);
           response.statusCode.should.eql(200);
           cozyProcess.kill('SIGINT');
