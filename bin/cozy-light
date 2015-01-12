@@ -27,11 +27,6 @@ program
   .action(actions.start);
 
 program
-  .command('status')
-  .description('Tells if Cozy Light is started')
-  .action(actions.status);
-
-program
   .command('install <app>')
   .description('Add app to current Cozy Light')
   .action(actions.installApp);
