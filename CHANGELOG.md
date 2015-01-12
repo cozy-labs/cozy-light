@@ -1,3 +1,15 @@
+### 0.4.4
+
+* README fixes and improvements.
+* Add Webmail to the app list and to the personal cloud distro.
+* Improve exit logging.
+* Do not display error anymore when an error is raised.
+* Introduction Website.
+
+### 0.4.3
+
+* Fix error management on exit and while loading plugins
+
 ### 0.4.2
 
 * Clean hot reloading code.
