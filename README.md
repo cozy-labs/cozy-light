@@ -240,6 +240,21 @@ Before you push your PR
     npm test
     npm run lint
 
+Tips
+
+To improve speed of repetitive testing we recommend to use rlidwka/sinopia,
+a private/caching npm repository server.
+
+    npm install -g sinopia
+    sinopia &
+    npm set registry http://localhost:4873/
+
+To reset the default parameters
+    
+    npm config set registry https://registry.npmjs.org/
+    killall sinopia
+
+
 # FAQ
 
 *What's the main difference with Cozy?*
