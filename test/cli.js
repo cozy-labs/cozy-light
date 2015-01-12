@@ -132,7 +132,7 @@ describe('CLI', function () {
       'maboiteaspam/cozy-homepage'
     ];
     open_process(cmd, function(output, stdout, stderr, code){
-      stdout.should.match(/Enjoy!/);
+      output.should.match(/Enjoy!/);
       stderr.should.eql('');
       code.should.eql(0);
       done();
@@ -145,7 +145,7 @@ describe('CLI', function () {
       'maboiteaspam/cozy-dashboard'
     ];
     open_process(cmd, function(output, stdout, stderr, code){
-      stdout.should.match(/Enjoy!/);
+      output.should.match(/Enjoy!/);
       stderr.should.eql('');
       code.should.eql(0);
       done();
@@ -165,8 +165,9 @@ describe('CLI', function () {
     setTimeout(function(){
       var url = 'http://localhost:19104/apps/cozy-dashboard/';
       request.get(url, function(error, response, body){
-        console.error(body)
-        //response.statusCode.should.eql(301);
+        console.error(response.statusCode)
+        body.should.match(/Cozy Light: Your Personal Cloud at Home/);
+        response.statusCode.should.eql(200);
         cozyProcess.kill('SIGINT');
       });
     },2000);
@@ -185,7 +186,9 @@ describe('CLI', function () {
       });
     setTimeout(function(){
       request.get('http://localhost:19104/' , function(error, response, body){
-        console.error(body)
+          console.error(response.statusCode)
+          body.should.match(/Cozy Light: Your Personal Cloud at Home/);
+          response.statusCode.should.eql(200);
           cozyProcess.kill('SIGINT');
       });
     },2000);
