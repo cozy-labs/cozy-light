@@ -14,6 +14,10 @@ describe('CLI', function () {
     fs.mkdirSync(workingDir);
   });
 
+  after(function(){
+    fs.removeSync(workingDir);
+  });
+
   var log_output = function(c){
     console.error((c + '').replace(/(.+)(\s+)?$/im, '$1'));
   };
