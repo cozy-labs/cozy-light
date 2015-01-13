@@ -16,8 +16,7 @@ program
 
 program
   .option('--home <home>',
-  'home directory where Cozy Light runs (default: ~/cozy)',
-  pathExtra.join(pathExtra.homedir(), 'cozy'));
+  'home directory where Cozy Light runs (default: ~/.cozy-light)');
 
 
 // Initialize Cozy
