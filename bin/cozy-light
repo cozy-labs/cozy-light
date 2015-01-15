@@ -28,7 +28,7 @@ cozyLight.init(program);
 program
   .command('start')
   .option('-p, --port <port>',
-          'port number on which Cozy Light is available')
+  'port number on which Cozy Light is available')
   .description('start Cozy Light server')
   .action(actions.start);
 
@@ -70,16 +70,16 @@ program
 program
   .command('install-distro [distro]')
   .description(
-    'Install given distro. If none is give, it displays the distro list')
+  'Install given distro. If none is give, it displays the distro list')
   .action(actions.installDistro);
 
 program
   .command('*')
   .description('display help')
   .action(function(){
-        program.outputHelp();
-        cozyLight.stop(cozyLight.exit);
-    });
+    program.outputHelp();
+    cozyLight.stop(cozyLight.exit);
+  });
 
 // Run CLI
 
@@ -105,5 +105,5 @@ process.on('uncaughtException', function(err){
 // Manage termination
 
 process.on('SIGINT', function(){
-    cozyLight.stop(cozyLight.exit);
+  cozyLight.stop(cozyLight.exit);
 });

@@ -172,7 +172,7 @@ describe('Config Helpers', function () {
   describe('getHost', function () {
     it('returns localhost', function () {
       configHelpers.getMainAppHost().should.eql('localhost',
-       'default host location is wrong.');
+        'default host location is wrong.');
     });
   });
 

@@ -139,9 +139,9 @@ describe('CLI', function () {
       });
     setTimeout(function(){
       request.get('http://localhost:19104/', function(error, response, body){
-          body.should.match(/Cozy Light: Your Personal Cloud at Home/);
-          response.statusCode.should.eql(200);
-          cozyProcess.kill('SIGINT');
+        body.should.match(/Cozy Light: Your Personal Cloud at Home/);
+        response.statusCode.should.eql(200);
+        cozyProcess.kill('SIGINT');
       });
     }, 2000);
   });
