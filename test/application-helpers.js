@@ -48,6 +48,7 @@ describe('Application Helpers', function () {
 
       var manifest = require(pathExtra.join(dest, 'package.json'));
       manifest.type = 'classic';
+      configHelpers.addApp('test-app', manifest);
       applicationHelpers.start(manifest,
         function assertAccess () {
           var client = requestJSON.newClient('http://localhost:18001');
@@ -73,6 +74,7 @@ describe('Application Helpers', function () {
         client.get('', function assertResponse(err) {
           assert.notEqual(err, null,
             'Application should not be accessible anymore.');
+          configHelpers.removeApp('test-app');
           done();
         });
       });
