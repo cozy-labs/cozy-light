@@ -5,8 +5,8 @@ var pathExtra = require('path-extra');
 require('should');
 var nodeHelpers = require('../lib/node-helpers');
 
-var workingDir = pathExtra.join( __dirname, '.test-working_dir');
-var fixturesDir = pathExtra.join( __dirname, 'fixtures');
+var workingDir = pathExtra.join(__dirname, '.test-working_dir');
+var fixturesDir = pathExtra.join(__dirname, 'fixtures');
 
 before(function(){
   try {

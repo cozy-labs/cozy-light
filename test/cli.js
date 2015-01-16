@@ -5,7 +5,7 @@ var request = require('request');
 var spawn = require('child_process').spawn;
 require('should');
 
-var workingDir = pathExtra.join( __dirname, '.test-working_dir');
+var workingDir = pathExtra.join(__dirname, '.test-working_dir');
 
 describe('CLI', function () {
 
@@ -23,15 +23,15 @@ describe('CLI', function () {
   });
 
   var logOutput = function(c){
-    console.error((c + '').replace(/(.+)(\s+)?$/im, '$1'));
+    console.error( (c + '').replace(/(.+)(\s+)?$/im, '$1') );
   };
   var openProcess = function(cmds, then){
-    console.error('+ ' + cmds.join(' '));
+    console.error('+ ' + cmds.join(' ') );
     var bin = cmds.shift();
     var cozyProcess = spawn(bin, cmds);
     cozyProcess.stdout.on('data', logOutput);
     cozyProcess.stderr.on('data', logOutput);
-    if ( then ){
+    if (then){
       var output = '';
       var stdout = '';
       var stderr = '';
@@ -69,7 +69,7 @@ describe('CLI', function () {
       workingDir
     ];
     openProcess(cmd, function(output){
-      output.should.match(new RegExp(workingDir));
+      output.should.match(new RegExp(workingDir) );
       done();
     });
   });

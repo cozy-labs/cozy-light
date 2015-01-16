@@ -9,8 +9,8 @@ var cozyLight = require('../lib/cozy-light');
 var actions = cozyLight.actions;
 var configHelpers = cozyLight.configHelpers;
 
-var workingDir = pathExtra.join( __dirname, '.test-working_dir');
-var fixturesDir = pathExtra.join( __dirname, 'fixtures');
+var workingDir = pathExtra.join(__dirname, '.test-working_dir');
+var fixturesDir = pathExtra.join(__dirname, 'fixtures');
 
 before(function(){
   try {
@@ -63,7 +63,7 @@ describe('Functional tests', function () {
 
     it('change configuration file.', function (done) {
       actions.once('restarted', done);
-      touch.sync( configHelpers.getConfigPath() );
+      touch.sync(configHelpers.getConfigPath() );
     });
 
     it('fake app should be started.', function (done) {

@@ -3,8 +3,8 @@ var pathExtra = require('path-extra');
 var assert = require('assert');
 require('should');
 
-var workingDir = pathExtra.join( __dirname, '.test-working_dir');
-var cozyHOME = pathExtra.join(workingDir, '.cozy-light' );
+var workingDir = pathExtra.join(__dirname, '.test-working_dir');
+var cozyHOME = pathExtra.join(workingDir, '.cozy-light');
 
 var configHelpers = require('../lib/config-helper')();
 
@@ -41,7 +41,7 @@ describe('Config Helpers', function () {
   describe('createConfigFile', function () {
     it('should create an empty config file', function () {
       configHelpers.createConfigFile();
-      fs.existsSync(pathExtra.join(cozyHOME, 'config.json')).should.eql(true,
+      fs.existsSync(pathExtra.join(cozyHOME, 'config.json') ).should.eql(true,
         'configuration file not created');
     });
   });

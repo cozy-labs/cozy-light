@@ -8,8 +8,8 @@ var cozyLight = require('../lib/cozy-light');
 var configHelpers = cozyLight.configHelpers;
 var npmHelpers = cozyLight.npmHelpers;
 
-var fixturesDir = pathExtra.join( __dirname, 'fixtures');
-var workingDir = pathExtra.join( __dirname, '.test-working_dir');
+var fixturesDir = pathExtra.join(__dirname, 'fixtures');
+var workingDir = pathExtra.join(__dirname, '.test-working_dir');
 
 
 describe('NPM Helpers', function () {
