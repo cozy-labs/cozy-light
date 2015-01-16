@@ -15,20 +15,14 @@ program
   .version(pkg.version);
 
 program
-  .option('--home <home>',
-  'home directory where Cozy Light runs (default: ~/.cozy-light)');
-
+  .option('-h, --home <home>',
+          'home directory where Cozy Light runs (default: ~/.cozy-light)');
 
 // Initialize Cozy
 
-program.parse(process.argv);
-cozyLight.init(program);
-
-
 program
   .command('start')
-  .option('-p, --port <port>',
-  'port number on which Cozy Light is available')
+  .option('-p, --port <port>', 'port number on which Cozy Light will listen')
   .description('start Cozy Light server')
   .action(actions.start);
 
@@ -58,19 +52,19 @@ program
   .action(actions.displayConfig);
 
 program
-  .command('disable <apporplugin>')
-  .description('Disable given app or plugin')
-  .action(actions.disable);
-
-program
   .command('enable <apporplugin>')
   .description('Enable given disabled app or plugin')
   .action(actions.enable);
 
 program
+  .command('disable <apporplugin>')
+  .description('Disable given app or plugin')
+  .action(actions.disable);
+  
+program
   .command('install-distro [distro]')
   .description(
-  'Install given distro. If none is give, it displays the distro list')
+    'Install given distro. If none is give, it displays the distro list')
   .action(actions.installDistro);
 
 program
@@ -83,6 +77,7 @@ program
 
 // Run CLI
 
+cozyLight.init(program);
 program.parse(process.argv);
 
 // If arguments doesn't match any of the one set, it displays help.

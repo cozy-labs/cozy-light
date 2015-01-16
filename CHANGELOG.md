@@ -1,3 +1,7 @@
+### 0.4.5
+
+* Split main files in many files
+
 ### 0.4.4
 
 * README fixes and improvements.
