@@ -186,6 +186,7 @@ You can extend capability of the platform by adding plugins:
 
 * cozy-labs/cozy-light-simple-dashboard: minimalist dashboard for the platform.
 * maboiteaspam/cozy-homepage: redirect root url to Cozy Dashboard app.
+* maboiteaspam/cozy-opener: adds open command, it starts&open Cozy-light for you.
 * cozy-labs/cozy-light-auth: add auth capabilities to Cozy Light.
 * cozy-labs/cozy-light-basic-auth: add basic auth capabilities to Cozy Light.
 * cozy-labs/cozy-light-html5-apps: to manage HTML5 apps like classic apps.
