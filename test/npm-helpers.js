@@ -42,8 +42,8 @@ describe('NPM Helpers', function () {
       var destPath = configHelpers.modulePath('hello');
       npmHelpers.install('cozy-labs/hello', function (err) {
         assert.equal(err, null, 'Cannot install module.');
-        assert(fs.existsSync(destPath),
-          'Module is not installed in the cozy-light folder.');
+        fs.existsSync(destPath).should.eql(true,
+          'Module is not linked in the cozy-light folder.');
         done();
       });
     });
@@ -52,7 +52,7 @@ describe('NPM Helpers', function () {
       var destPath = configHelpers.modulePath('test-app');
       npmHelpers.link(testapp, function (err) {
         assert.equal(err, null, 'Cannot link module.');
-        assert(fs.existsSync(destPath),
+        fs.existsSync(destPath).should.eql(true,
           'Module is not linked in the cozy-light folder.');
         done();
       });
@@ -82,11 +82,11 @@ describe('NPM Helpers', function () {
       process.chdir(workingDir);
       npmHelpers.install(srcModule, function (installErr) {
         assert.equal(installErr, null, 'Cannot install module.');
-        assert(fs.existsSync(destPath),
+        fs.existsSync(destPath).should.eql(true,
           'Module is not linked in the cozy-light folder.');
         npmHelpers.uninstall('hello', function (uninstallErr) {
           assert.equal(uninstallErr, null, 'Cannot uninstall module.');
-          assert(!fs.existsSync(destPath),
+          fs.existsSync(destPath).should.eql(false,
             'Module is not removed from the cozy-light folder. ' + destPath);
           done();
         });
@@ -99,12 +99,12 @@ describe('NPM Helpers', function () {
         'Module is not removed from the cozy-light folder.');
       npmHelpers.link(testapp, function (installErr) {
         assert.equal(installErr, null, 'Cannot install module.');
-        assert(fs.existsSync(destPath),
+        fs.existsSync(destPath).should.eql(true,
           'Module is not linked in the cozy-light folder.');
         process.chdir(workingDir);
         npmHelpers.uninstall('test-app', function (uninstallErr) {
           assert.equal(uninstallErr, null, 'Cannot uninstall module.');
-          assert(!fs.existsSync(destPath),
+          fs.existsSync(destPath).should.eql(false,
             'Module is not removed from the cozy-light folder.');
           done();
         });
@@ -128,13 +128,27 @@ describe('NPM Helpers', function () {
       }
     });
 
+    it('should fetch manifest from npm registry', function (done) {
+      this.timeout(60000);
+      npmHelpers.fetchManifest('cozy-hello',
+        function (err, manifest, type) {
+          assert.equal(err, null, 'Cannot fetch manifest.');
+          if (!err) {
+            type.should.eql('url');
+            manifest.name.should.eql('cozy-hello');
+          }
+          done();
+        });
+    });
     it('should fetch manifest from a remote module', function (done) {
       this.timeout(60000);
       npmHelpers.fetchManifest('cozy-labs/hello',
         function (err, manifest, type) {
           assert.equal(err, null, 'Cannot fetch manifest.');
-          assert.equal('url', type);
-          assert.equal('hello', manifest.name);
+          if (!err) {
+            type.should.eql('url');
+            manifest.name.should.eql('hello');
+          }
           done();
         });
     });
@@ -142,8 +156,10 @@ describe('NPM Helpers', function () {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
         assert.equal(err, null, 'Cannot fetch from ' + testapp + '.');
-        assert.equal('file', type);
-        assert.equal('test-app', manifest.name);
+        if (!err) {
+          type.should.eql('file');
+          manifest.name.should.eql('test-app');
+        }
         done();
       });
     });
@@ -151,8 +167,8 @@ describe('NPM Helpers', function () {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
         assert.equal(err, null, 'Cannot fetch from ' + testapp + '.');
-        assert.equal('file', type);
-        assert.equal('test-app', manifest.name);
+        type.should.eql('file');
+        manifest.name.should.eql('test-app');
         done();
       });
     });
