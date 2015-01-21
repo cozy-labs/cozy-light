@@ -8,8 +8,8 @@ var cozyLight = require('../lib/cozy-light');
 var configHelpers = cozyLight.configHelpers;
 var applicationHelpers = cozyLight.applicationHelpers;
 
-var workingDir = pathExtra.join( __dirname, '.test-working_dir');
-var fixturesDir = pathExtra.join( __dirname, 'fixtures');
+var workingDir = pathExtra.join(__dirname, '.test-working_dir');
+var fixturesDir = pathExtra.join(__dirname, 'fixtures');
 
 before(function(){
   try {
@@ -46,8 +46,9 @@ describe('Application Helpers', function () {
       var destExpress = pathExtra.join(dest, 'node_modules', 'express');
       fs.copySync(sourceExpress, destExpress);
 
-      var manifest = require(pathExtra.join(dest, 'package.json'));
+      var manifest = require(pathExtra.join(dest, 'package.json') );
       manifest.type = 'classic';
+      configHelpers.addApp('test-app', manifest);
       applicationHelpers.start(manifest,
         function assertAccess () {
           var client = requestJSON.newClient('http://localhost:18001');
@@ -65,7 +66,7 @@ describe('Application Helpers', function () {
   describe('stop', function () {
     it('should stop running server for given application', function (done) {
       var appHome = configHelpers.modulePath('test-app');
-      var manifest = require(pathExtra.join(appHome, 'package.json'));
+      var manifest = require(pathExtra.join(appHome, 'package.json') );
       manifest.type = 'classic';
 
       applicationHelpers.stop(manifest, function assertStop () {
@@ -73,6 +74,7 @@ describe('Application Helpers', function () {
         client.get('', function assertResponse(err) {
           assert.notEqual(err, null,
             'Application should not be accessible anymore.');
+          configHelpers.removeApp('test-app');
           done();
         });
       });

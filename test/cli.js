@@ -5,7 +5,7 @@ var request = require('request');
 var spawn = require('child_process').spawn;
 require('should');
 
-var workingDir = pathExtra.join( __dirname, '.test-working_dir');
+var workingDir = pathExtra.join(__dirname, '.test-working_dir');
 
 describe('CLI', function () {
 
@@ -27,7 +27,6 @@ describe('CLI', function () {
   };
 
   var openProcess = function (cmds, callback) {
-
     console.error('+ ' + cmds.join(' '));
     var bin = cmds.shift();
     var cozyProcess = spawn(bin, cmds);
@@ -74,7 +73,6 @@ describe('CLI', function () {
       '--home',
       workingDir
     ];
-
     openProcess(cmd, function (output) {
       output.should.match(new RegExp(workingDir));
       done();

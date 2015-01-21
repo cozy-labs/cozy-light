@@ -4,9 +4,9 @@ require('should');
 var pathExtra = require('path-extra');
 var fs = require('fs-extra');
 
-var workingDir = pathExtra.join( __dirname, '.test-working_dir');
-var cozyHOME = pathExtra.join(workingDir, '.cozy-light' );
-var testFile = pathExtra.join(workingDir, 'testfile' );
+var workingDir = pathExtra.join(__dirname, '.test-working_dir');
+var cozyHOME = pathExtra.join(workingDir, '.cozy-light');
+var testFile = pathExtra.join(workingDir, 'testfile');
 
 before(function(){
   try {

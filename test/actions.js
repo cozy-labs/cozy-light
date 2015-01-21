@@ -9,8 +9,8 @@ var cozyLight = require('../lib/cozy-light');
 var actions = cozyLight.actions;
 var configHelpers = cozyLight.configHelpers;
 
-var workingDir = pathExtra.join( __dirname, '.test-working_dir');
-var fixturesDir = pathExtra.join( __dirname, 'fixtures');
+var workingDir = pathExtra.join(__dirname, '.test-working_dir');
+var fixturesDir = pathExtra.join(__dirname, 'fixtures');
 
 before(function(){
   try {

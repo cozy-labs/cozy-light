@@ -8,7 +8,7 @@ var configHelpers = cozyLight.configHelpers;
 var npmHelpers = cozyLight.npmHelpers;
 var pluginHelpers = cozyLight.pluginHelpers;
 
-var workingDir = pathExtra.join( __dirname, '.test-working_dir');
+var workingDir = pathExtra.join(__dirname, '.test-working_dir');
 
 before(function(){
   try {
@@ -25,12 +25,12 @@ describe('cozyLight', function () {
       var initialWd = process.cwd();
       cozyLight.init({home: workingDir});
 
-      pathExtra.resolve(configHelpers.getHomePath())
+      pathExtra.resolve(configHelpers.getHomePath() )
         .should.eql(pathExtra.resolve(workingDir),
         'Home directory not configured.');
 
-      pathExtra.resolve(configHelpers.getHomePath())
-        .should.eql(pathExtra.resolve(process.cwd()),
+      pathExtra.resolve(configHelpers.getHomePath() )
+        .should.eql(pathExtra.resolve(process.cwd() ),
         'Working directory not changed.');
 
       pathExtra.resolve(initialWd)
