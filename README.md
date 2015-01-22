@@ -7,7 +7,11 @@ Personal Server Made Easy.
 
 **Tests status**: ![Travis Badge](https://travis-ci.org/cozy-labs/cozy-light.svg)
 
-Cozy Light allows you to deal, without effort, with many self-hosting use cases like turning your server into a file storage, hosting your static website or managing dockerized web apps. You can try it on your desktop or directly set it up on your own server. It performs well on cheap hardwares like the Raspberry Pi or small Digital Ocean VPS. 
+Cozy Light allows you to deal, without effort, with many self-hosting use cases
+like turning your server into a file storage, hosting your static website or
+running HTML5 apps. You can try it on your desktop or directly set it up on
+your own server. It performs well on cheap hardwares like the Raspberry Pi or
+small Digital Ocean VPS. 
 
 
 # Use cases and distributions
@@ -15,9 +19,8 @@ Cozy Light allows you to deal, without effort, with many self-hosting use cases 
 Because of its very flexible architecture Cozy Light can satisfy many usages
 related to self-hosting. Here are some examples:
 
-* Static blog deployer 
 * Personal cloud (calendars, files, contacts and tasks) 
-* Simple Docker container manager
+* Static blog deployer 
 * Video game console
 
 For each use case a distribution is available. A distribution is a set 
@@ -55,27 +58,47 @@ cozy-light add-githook mygithubuser/mywebsite mysecret
 cozy-light start --port 80 
 ```
 
+# Benefits
+
+* No need to learn a lot about system administration, everything can be done
+  with very few command lines.
+* You install only the modules you need.
+* It's extensible, you can build your own app to satisfy your specific needs.
+* Or simply write a plugin to give more features to the platform.
+* No more headaches with relying on too many services, all your apps are
+  located in the same place.
+* No targeted ads because your apps store data where noone profiles you.
+
+
 # Screencasts
 
 * [Screencast d'introduction (French)](https://vimeo.com/110419102) (Vimeo Link)
 * [Introduction Screencast](https://vimeo.com/108332389) (Vimeo Link)
 
-# Benefits
-
-* No need to learn a lot about system administration, everything can be done
-  with very few command lines.
-* Can run on cheap hardwares like the Raspberry Pi.
-* You install only the modules you need.
-* No targeted ads because your apps store data where noone profiles you.
-* No more headaches with relying on too many services, all your apps are
-  located in the same place.
-* It's extensible, you can build your own app to satisfy your specific needs.
-* Or simply write a plugin to give more features to the platform.
-
 # Install 
 
 Install Node.js (>= 0.10), Git and essential build tools then install
 cozy-light from the NPM package manager:
+
+### Node for Rapsberry Pi
+
+```bash
+# Not secured (unknown vendor) but easy
+wget http://node-arm.herokuapp.com/node_0.10.34.deb
+sudo dpkg -i node_latest_armhf.deb
+```
+
+# More secured way (offical vendor)
+```bash
+sudo su -
+cd /opt
+wget http://nodejs.org/dist/v0.10.26/node-v0.10.26-linux-arm-pi.tar.gz
+tar xvzf node-v0.10.26-linux-arm-pi.tar.gz
+ln -s node-v0.10.26-linux-arm-pi node
+chmod a+rw /opt/node/lib/node_modules
+chmod a+rw /opt/node/bin
+echo 'PATH=$PATH:/opt/node/bin' > /etc/profile.d/node.sh
+```
 
 ### Ubuntu
 
@@ -87,10 +110,10 @@ cozy-light from the NPM package manager:
 
     su -
     yum install make automake gcc gcc-c++ kernel-devel git nodejs
-    #yum install glibc-devel.i686# for 64bits arch
+    # yum install glibc-devel.i686 # for 64bits arch
     yum remove node-gyp # see https://github.com/TooTallNate/node-gyp/issues/363
     exit
-    #npm install mocha -g # if you intend to hack the platform
+    # npm install mocha -g # if you intend to hack the platform
     npm install node-gyp -g # required by pouchdb / leveldown
     npm install cozy-light -g
 
@@ -218,12 +241,10 @@ SSL and require HTTPS protocol to be browsed.
       "cert": "/etc/cozy/server.crt"
     },
 
-# Contributions
+# Contribution
 
-Feel free to contribute in any way to this platform. The code is contained in
-a single file. So, currently, it's super easy to understand and to propose new
-capabilities. Make us proposal on what you want to do in the issue page then
-send us your PR!
+Make us proposal on what you want to do in the issue page then send us your
+PR. You can write your own application or plugin.
 
 # Developer guide
 
