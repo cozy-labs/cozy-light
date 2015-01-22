@@ -29,7 +29,7 @@ html(lang="en")
                     Cozy Light allows you to deal,
                     without effort, with many self-hosting use cases like
                     turning your server into a file storage, hosting
-                    your static website or managing dockerized web apps.
+                    your static website or your HTML5 video game console.
                     You can try it on your desktop or directly set it up on
                     your own server. It performs well on cheap
                     hardwares like the Raspberry Pi or small Digital Ocean VPS.
@@ -37,8 +37,8 @@ html(lang="en")
                 div.txtcenter.mt6
                     a(href="https://github.com/cozy-labs/cozy-light")
                         span.mega-octicon.octicon-mark-github
-                div.txtcenter.mt6
-                    a(href="http://188.226.214.117:19104/") demo
+                //-div.txtcenter.mt6
+                    //-a(href="http://188.226.214.117:19104/") demo
 
         .content.docs
 
@@ -135,35 +135,6 @@ html(lang="en")
             div.code.mt6
                 span.
                     cozy-light install-distro website
-            h4.
-                Docker PaaS
-
-            div.txtcenter
-                svg(width="600", height="200")
-                    circle(cx="30px", cy="170px", r="30", fill="#666")
-                    text(x="11px", y="175px", fill="white") user
-
-                    circle(cx="30px", cy="100px", r="30", fill="#666")
-                    text(x="13px", y="105px", fill="white") you
-
-                    rect(x="150px", y="140px", width="60", height="60", fill="#34a6ff")
-                    text(x="159px", y="172px", fill="white", style="font-size: 12px") domain
-                    rect(x="270px", y="140px", width="60", height="60", fill="#34a6ff")
-                    text(x="280px", y="172px", fill="white", style="font-size :12px") docker
-
-                    rect(x="400px", y="70px", width="60", height="60", fill="#34a6ff")
-                    text(x="470px", y="105px", fill="#222") dashboard
-                    rect(x="400px", y="140px", width="60", height="60", fill="#3fc53f")
-                    text(x="470px", y="175px", fill="#222") your container
-
-                    path(d="M 60, 100 L 400 100", style="fill:none; stroke:#222")
-                    path(d="M 60, 170 L 150, 170", style="fill:none; stroke:#222")
-                    path(d="M 210, 170 L 270, 170", style="fill:none; stroke:#222")
-                    path(d="M 330, 170 L 400, 170", style="fill:none; stroke:#222")
-
-            div.code.mt6
-                span.
-                    cozy-light install-distro docker
 
             h4.
                 Video Games
@@ -191,41 +162,6 @@ html(lang="en")
             div.code.mt6
                 span.
                     cozy-light install-distro video-games
-
-            h4.
-                PouchDB PaaS
-
-            div.txtcenter
-                svg(width="600", height="250")
-                    circle(cx="30px", cy="220px", r="30", fill="#666")
-                    text(x="11px", y="225px", fill="white") user
-
-                    circle(cx="30px", cy="80px", r="30", fill="#666")
-                    text(x="15px", y="85px", fill="white") you
-
-                    rect(x="220px", y="190px", width="60", height="60", fill="#34a6ff")
-                    text(x="233px", y="222px", fill="white", style="font-size: 12px") html5
-
-                    rect(x="220px", y="110px", width="60", height="60", fill="#34a6ff")
-                    text(x="229px", y="142px", fill="white", style="font-size: 12px") githook
-
-                    rect(x="400px", y="50px", width="60", height="60", fill="#34a6ff")
-                    text(x="470px", y="85px", fill="#222") dashboard
-                    rect(x="400px", y="120px", width="60", height="60", fill="#34a6ff")
-                    text(x="470px", y="155px", fill="#222") PouchDB API
-                    rect(x="400px", y="190px", width="60", height="60", fill="#3fc53f")
-                    text(x="470px", y="225px", fill="#222") your app
-
-                    path(d="M 60, 80 L 400 80", style="fill:none; stroke:#222")
-                    path(d="M 60, 80 L 220 140", style="fill:none; stroke:#222")
-                    path(d="M 280, 140 L 400 220", style="fill:none; stroke:#222")
-                    path(d="M 60, 220 L 220, 220", style="fill:none; stroke:#222")
-                    path(d="M 280, 220 L 400, 220", style="fill:none; stroke:#222")
-                    path(d="M 430, 190 L 430, 180", style="fill:none; stroke:#222")
-
-            div.code.mt6
-                span.
-                    cozy-light install-distro pouchdb
 
             h3.mt3.
                 Run
