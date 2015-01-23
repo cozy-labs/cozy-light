@@ -80,7 +80,7 @@ cozy-light start --port 80
 Install Node.js (>= 0.10), Git and essential build tools then install
 cozy-light from the NPM package manager:
 
-### Node for Rapsberry Pi
+### Install Node for Rapsberry Pi
 
 ```bash
 # Not secured (unknown vendor) but easy
@@ -88,7 +88,8 @@ wget http://node-arm.herokuapp.com/node_0.10.34.deb
 sudo dpkg -i node_latest_armhf.deb
 ```
 
-# More secured way (offical vendor)
+#### More secured way (offical vendor)
+
 ```bash
 sudo su -
 cd /opt
