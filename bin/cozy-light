@@ -10,21 +10,6 @@ var actions = cozyLight.actions;
 var pkg = require('../package.json');
 
 
-/**
- * Helpers to init cozyLight data before running given action
- */
-var buildAction = function (action) {
-  return function() {
-    program = null;
-    for (arg in arguments) {
-      if (arguments[arg].commands !== undefined) program = arguments[arg];
-    }
-    cozyLight.init(program);
-    action.apply(action, arguments);
-  }
-};
-
-
 // Configure CLI
 
 program
@@ -38,56 +23,56 @@ program
   .option('-h, --home <home>',
           'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('start Cozy Light server')
-  .action(buildAction(actions.start));
+  .action(cozyLight.buildAction(actions.start));
 
 program
   .command('install <app>')
   .option('-h, --home <home>',
           'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Add app to current Cozy Light')
-  .action(buildAction(actions.installApp));
+  .action(cozyLight.buildAction(actions.installApp));
 
 program
   .command('uninstall <app>')
   .option('-h, --home <home>',
           'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Remove app from current Cozy Light')
-  .action(buildAction(actions.uninstallApp));
+  .action(cozyLight.buildAction(actions.uninstallApp));
 
 program
   .command('add-plugin <plugin>')
   .option('-h, --home <home>',
           'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Add plugin to current Cozy Light')
-  .action(buildAction(actions.installPlugin));
+  .action(cozyLight.buildAction(actions.installPlugin));
 
 program
   .command('remove-plugin <plugin>')
   .option('-h, --home <home>',
           'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Remove plugin from current Cozy Light')
-  .action(buildAction(actions.uninstallPlugin));
+  .action(cozyLight.buildAction(actions.uninstallPlugin));
 
 program
   .command('display-config')
   .option('-h, --home <home>',
           'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Display current config of Cozy Light')
-  .action(buildAction(actions.displayConfig));
+  .action(cozyLight.buildAction(actions.displayConfig));
 
 program
   .command('enable <apporplugin>')
   .option('-h, --home <home>',
           'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Enable given disabled app or plugin')
-  .action(buildAction(actions.enable));
+  .action(cozyLight.buildAction(actions.enable));
 
 program
   .command('disable <apporplugin>')
   .option('-h, --home <home>',
           'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Disable given app or plugin')
-  .action(buildAction(actions.disable));
+  .action(cozyLight.buildAction(actions.disable));
   
 program
   .command('install-distro [distro]')
@@ -95,7 +80,7 @@ program
           'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description(
     'Install given distro. If none is give, it displays the distro list')
-  .action(buildAction(actions.installDistro));
+  .action(cozyLight.buildAction(actions.installDistro));
 
 program
   .command('*')
