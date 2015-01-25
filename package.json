@@ -58,8 +58,8 @@
     "touch": "0.0.3"
   },
   "scripts": {
-    "test": "sh run-tests.sh",
-    "appveyor": "run-tests.bat",
+    "test": "sh scripts/run-tests.sh",
+    "appveyor": "scripts/run-tests.bat",
     "lint": "eslint lib/* test/*.js",
     "start": "bin/cozy-light start"
   },
