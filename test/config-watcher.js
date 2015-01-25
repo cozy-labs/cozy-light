@@ -31,7 +31,8 @@ after(function(){
 describe('Config watcher', function () {
 
   it('on', function(done){
-    var watcher = configWatcher(testFile);
+    var watcher = configWatcher;
+    watcher.init(testFile);
     watcher.on(function(){
       watcher.release();
       done();
@@ -40,7 +41,8 @@ describe('Config watcher', function () {
   });
 
   it('one', function(done){
-    var watcher = configWatcher(testFile);
+    var watcher = configWatcher;
+    watcher.init(testFile);
     var cnt = 0;
     watcher.one(function(){
       cnt++;
@@ -55,7 +57,8 @@ describe('Config watcher', function () {
   });
 
   it('off', function(done){
-    var watcher = configWatcher(testFile);
+    var watcher = configWatcher;
+    watcher.init(testFile);
     var cnt = 0;
     var h = function(){
       cnt++;

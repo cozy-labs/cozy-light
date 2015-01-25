@@ -12,6 +12,7 @@ var configHelpers = cozyLight.configHelpers;
 var workingDir = pathExtra.join(__dirname, '.test-working_dir');
 var fixturesDir = pathExtra.join(__dirname, 'fixtures');
 
+
 before(function(){
   try {
     fs.removeSync(workingDir);
@@ -46,28 +47,31 @@ describe('Functional tests', function () {
     it('install fake app manually.', function (done) {
       this.timeout(60000);
       var testapp = pathExtra.join(fixturesDir, 'test-app');
-      actions.once('restarted', done);
+      // actions.once('restarted', done);
       actions.installApp(testapp, function (err) {
         assert.equal(err, null, 'Cannot install test-app.');
+        done();
       });
     });
 
     it('install test-app2 manually.', function (done) {
       this.timeout(60000);
       var testapp2 = pathExtra.join(fixturesDir, 'test-app2');
-      actions.once('restarted', done);
+      // actions.once('restarted', done);
       actions.installApp(testapp2, function (err) {
         assert.equal(err, null, 'Cannot install test-app2.');
+        done();
       });
     });
 
     it('change configuration file.', function (done) {
-      actions.once('restarted', done);
-      touch.sync(configHelpers.getConfigPath() );
+      touch.sync(configHelpers.getConfigPath());
+      done();
+      this.timeout(60000);
     });
 
     it('fake app should be started.', function (done) {
-      var client = requestJSON.newClient('http://localhost:18002');
+      var client = requestJSON.newClient('http://localhost:18001');
       client.get('', function assertResponse (err, res) {
         assert.equal(err, null, 'An error occurred while accessing test-app2.');
         res.statusCode.should.eql(200, 'Wrong return code for test-app2.');
@@ -76,7 +80,7 @@ describe('Functional tests', function () {
     });
 
     it('test-app2 should be started.', function (done) {
-      var client = requestJSON.newClient('http://localhost:18001');
+      var client = requestJSON.newClient('http://localhost:18002');
       client.get('', function assertResponse (err, res) {
         assert.equal(err, null, 'An error occurred while accessing test-app.');
         res.statusCode.should.eql(200, 'Wrong return code for test-app.');
@@ -151,11 +155,6 @@ describe('Functional tests', function () {
     it('starts the main server.', function (done) {
       var opt = {port: 8090};
       actions.start(opt, done);
-    });
-
-    it('install fake app manually.', function (done) {
-      // Nothing to do test app is still in the cozy-light folder.
-      done();
     });
 
     it('wait 1s.', function (done) {

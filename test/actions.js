@@ -51,6 +51,7 @@ describe('actions', function () {
 
   describe('addPlugin', function () {
     it('should add plugin folder and update configuration. ', function (done) {
+      this.timeout(6000);
       var testPlugin = pathExtra.join(fixturesDir, 'test-plugin');
       actions.installPlugin(testPlugin, function (err) {
         assert.equal(err, null, 'Cannot install plugin.');

@@ -47,6 +47,7 @@ describe('NPM Helpers', function () {
         done();
       });
     });
+
     it('should link a module.', function (done) {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       var destPath = configHelpers.modulePath('test-app');
@@ -92,6 +93,7 @@ describe('NPM Helpers', function () {
         });
       });
     });
+
     it('should remove a local module.', function (done) {
       var destPath = configHelpers.modulePath('test-app');
       var testapp = pathExtra.join(fixturesDir, 'test-app');
@@ -130,16 +132,17 @@ describe('NPM Helpers', function () {
 
     it('should fetch manifest from npm registry', function (done) {
       this.timeout(60000);
-      npmHelpers.fetchManifest('cozy-hello',
+      npmHelpers.fetchManifest('cozy-labs/hello',
         function (err, manifest, type) {
           assert.equal(err, null, 'Cannot fetch manifest.');
           if (!err) {
             type.should.eql('url');
-            manifest.name.should.eql('cozy-hello');
+            manifest.name.should.eql('hello');
           }
           done();
         });
     });
+
     it('should fetch manifest from a remote module', function (done) {
       this.timeout(60000);
       npmHelpers.fetchManifest('cozy-labs/hello',
@@ -152,6 +155,7 @@ describe('NPM Helpers', function () {
           done();
         });
     });
+
     it('should fetch manifest from an absolute module path.', function (done) {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       npmHelpers.fetchManifest(testapp, function (err, manifest, type) {

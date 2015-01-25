@@ -6,7 +6,7 @@ require('should');
 var workingDir = pathExtra.join(__dirname, '.test-working_dir');
 var cozyHOME = pathExtra.join(workingDir, '.cozy-light');
 
-var configHelpers = require('../lib/config-helper')();
+var configHelpers = require('../lib/config');
 
 before(function(){
   try {

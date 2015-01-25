@@ -37,7 +37,7 @@ describe('cozyLight', function () {
         .should.eql(pathExtra.resolve(npmHelpers.initialWd),
         'NpmHelpers not configured.');
 
-      cozyLight.status
+      cozyLight.getStatus()
         .should.eql('stopped', 'Initial status is wrong');
 
       var config = configHelpers.getConfig();

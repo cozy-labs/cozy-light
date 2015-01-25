@@ -3,7 +3,7 @@ var assert = require('assert');
 var fs = require('fs-extra');
 var pathExtra = require('path-extra');
 require('should');
-var nodeHelpers = require('../lib/node-helpers');
+var nodeHelpers = require('../lib/helpers/node');
 
 var workingDir = pathExtra.join(__dirname, '.test-working_dir');
 var fixturesDir = pathExtra.join(__dirname, 'fixtures');
