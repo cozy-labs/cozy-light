@@ -39,7 +39,7 @@ echo 'PATH=$PATH:/opt/node/bin' > /etc/profile.d/node.sh
     yum remove node-gyp # see https://github.com/TooTallNate/node-gyp/issues/363
     exit
     # npm install mocha -g # if you intend to hack the platform
-    npm install node-gyp -g # required by pouchdb / leveldown
+    npm install node-gyp -g # needs re install to work properly
     npm install cozy-light -g
 
 # Run
