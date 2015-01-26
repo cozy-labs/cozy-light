@@ -144,6 +144,7 @@ field):
     command=cozy-light start
     redirect_stderr=true
     user=youruser
+    environment=HOME="/home/youruser",USER="youruser"
 
 Finally refresh Supervisor configuration and enjoy your Cozy Light:
 
