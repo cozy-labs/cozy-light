@@ -80,8 +80,8 @@ cozy-light start --port 80
 Install Node.js (>= 0.10), Git and essential build tools then install
 cozy-light from the NPM package manager:
 
-Find out more about 
-- OS specifics installation instructions
+Find more about 
+- OS specifics installation instructions (rPi, ubuntu, fedora)
 - service installation
 
 [here](documentation/install.md)
@@ -109,9 +109,7 @@ install and run them separately:
 
     cozy-light uninstall cozy-labs/calendar
 
-Find more applications here 
-
-[modules.md](documentation/modules.md#available-applications)
+Find more applications [here](documentation/modules.md#available-applications)
     
 # Plugins
 
@@ -125,9 +123,7 @@ You can extend capability of the platform by adding plugins:
 
     cozy-light remove-plugin cozy-labs/cozy-light-docker
 
-Find more plugins here 
-
-[modules.md](documentation/modules.md#available-plugins)
+Find more plugins here [here](documentation/modules.md#available-plugins)
 
 # Configuration
 
@@ -156,9 +152,7 @@ SSL and require HTTPS protocol to be browsed.
 Make us proposal on what you want to do in the issue page then send us your
 PR. You can write your own application or plugin. 
 
-You can read more about developer guide here 
-
-[dev-guide.md](documentation/dev-guide.md)
+You can read more about developer guide [here](documentation/dev-guide.md)
 
 
 
