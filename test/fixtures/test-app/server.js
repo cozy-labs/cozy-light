@@ -8,15 +8,13 @@ var application = function(options, callback){
   options.root = options.root || __dirname;
   options.port = options.port || process.env.PORT;
 
-  if (options.db !== null) {
-    var app = express();
-    app.get('/', function(req, res, next) {
-      res.status(200).send({ok: true});
-    });
-    var server = app.listen(options.port, function (err) {
-      if (callback) callback(err, app, server);
-    });
-  }
+  var app = express();
+  app.get('/', function(req, res, next) {
+    res.status(200).send({ok: true});
+  });
+  var server = app.listen(options.port, function (err) {
+    if (callback) callback(err, app, server);
+  });
 };
 module.exports = {
   start: application
