@@ -20,6 +20,10 @@
 * frankrousseau/wordpress: Wordpress blog engine.
 * frankrousseau/ghost: Ghost blog engine.
 
+*Utilities*
+
+* cozy-sinopia: a sinopia instance to faster install from npm.
+
 ## Available plugins
 
 * cozy-labs/cozy-light-simple-dashboard: minimalist dashboard for the platform.
