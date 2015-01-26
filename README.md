@@ -84,7 +84,7 @@ Find out more about
 - OS specifics installation instructions
 - service installation
 
-Please jump here #install
+[here](documentation/install.md)
 
 # Platform applications
 
@@ -108,6 +108,10 @@ install and run them separately:
 ## Uninstall application
 
     cozy-light uninstall cozy-labs/calendar
+
+Find more applications here 
+
+[modules.md](documentation/modules.md#available-applications)
     
 # Plugins
 
@@ -120,6 +124,10 @@ You can extend capability of the platform by adding plugins:
 ## Remove plugin
 
     cozy-light remove-plugin cozy-labs/cozy-light-docker
+
+Find more plugins here 
+
+[modules.md](documentation/modules.md#available-plugins)
 
 # Configuration
 
@@ -146,8 +154,12 @@ SSL and require HTTPS protocol to be browsed.
 # Contribution
 
 Make us proposal on what you want to do in the issue page then send us your
-PR. You can write your own application or plugin. You can read more about
-developer guide here #dev-guide.md
+PR. You can write your own application or plugin. 
+
+You can read more about developer guide here 
+
+[dev-guide.md](documentation/dev-guide.md)
+
 
 
 # FAQ
