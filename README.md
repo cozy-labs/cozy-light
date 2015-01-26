@@ -80,11 +80,7 @@ cozy-light start --port 80
 Install Node.js (>= 0.10), Git and essential build tools then install
 cozy-light from the NPM package manager:
 
-Find more about 
-- OS specifics installation instructions (rPi, ubuntu, fedora)
-- service installation
-
-[here](documentation/install.md)
+Find more about OS specifics installation instructions (rPi, ubuntu, fedora), service installation [here](documentation/install.md)
 
 # Platform applications
 
@@ -123,7 +119,7 @@ You can extend capability of the platform by adding plugins:
 
     cozy-light remove-plugin cozy-labs/cozy-light-docker
 
-Find more plugins here [here](documentation/modules.md#available-plugins)
+Find more plugins [here](documentation/modules.md#available-plugins)
 
 # Configuration
 
