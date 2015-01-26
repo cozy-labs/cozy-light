@@ -29,57 +29,41 @@ program
 
 program
   .command('install <app>')
-  .option('-h, --home <home>',
-          'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Add app to current Cozy Light')
   .action(actions.installApp);
 
 program
   .command('uninstall <app>')
-  .option('-h, --home <home>',
-          'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Remove app from current Cozy Light')
   .action(actions.uninstallApp);
 
 program
   .command('add-plugin <plugin>')
-  .option('-h, --home <home>',
-          'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Add plugin to current Cozy Light')
   .action(actions.installPlugin);
 
 program
   .command('remove-plugin <plugin>')
-  .option('-h, --home <home>',
-          'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Remove plugin from current Cozy Light')
   .action(actions.uninstallPlugin);
 
 program
   .command('display-config')
-  .option('-h, --home <home>',
-          'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Display current config of Cozy Light')
   .action(actions.displayConfig);
 
 program
   .command('enable <apporplugin>')
-  .option('-h, --home <home>',
-          'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Enable given disabled app or plugin')
   .action(actions.enable);
 
 program
   .command('disable <apporplugin>')
-  .option('-h, --home <home>',
-          'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Disable given app or plugin')
   .action(actions.disable);
   
 program
   .command('install-distro [distro]')
-  .option('-h, --home <home>',
-          'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description(
     'Install given distro. If none is give, it displays the distro list')
   .action(actions.installDistro);
