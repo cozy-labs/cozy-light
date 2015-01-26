@@ -15,6 +15,11 @@ var pkg = require('../package.json');
 program
   .version(pkg.version);
 
+program
+  .option('-p, --port <port>', 'port number on which Cozy Light will listen')
+  .option('-h, --home <home>',
+  'home directory where Cozy Light runs (default: ~/.cozy-light)')
+
 // Initialize cozy cli actions
 
 program
