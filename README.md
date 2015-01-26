@@ -80,75 +80,11 @@ cozy-light start --port 80
 Install Node.js (>= 0.10), Git and essential build tools then install
 cozy-light from the NPM package manager:
 
-### Install Node for Rapsberry Pi
+Find out more about 
+- OS specifics installation instructions
+- service installation
 
-```bash
-# Not secured (unknown vendor) but easy
-wget http://node-arm.herokuapp.com/node_0.10.34.deb
-sudo dpkg -i node_latest_armhf.deb
-```
-
-#### More secured way (offical vendor)
-
-```bash
-sudo su -
-cd /opt
-wget http://nodejs.org/dist/v0.10.26/node-v0.10.26-linux-arm-pi.tar.gz
-tar xvzf node-v0.10.26-linux-arm-pi.tar.gz
-ln -s node-v0.10.26-linux-arm-pi node
-chmod a+rw /opt/node/lib/node_modules
-chmod a+rw /opt/node/bin
-echo 'PATH=$PATH:/opt/node/bin' > /etc/profile.d/node.sh
-```
-
-### Ubuntu
-
-    sudo apt-get install build-essential
-    sudo apt-get install git npm nodejs-legacy
-    sudo npm install cozy-light -g
-
-### Fedora
-
-    su -
-    yum install make automake gcc gcc-c++ kernel-devel git nodejs
-    # yum install glibc-devel.i686 # for 64bits arch
-    yum remove node-gyp # see https://github.com/TooTallNate/node-gyp/issues/363
-    exit
-    # npm install mocha -g # if you intend to hack the platform
-    npm install node-gyp -g # required by pouchdb / leveldown
-    npm install cozy-light -g
-
-# Run
-
-    cozy-light start
-
-Then, with your browser, connect to: `http://localhost:19104/`
-
-### Daemonize
-
-To run Cozy Light in the background at each startup, it requires you to daemonize
-it with a system tool. To achieve that, the simplest way is to use a platform
-agnostic daemonizer tool. We recommend [supervisor](http://supervisord.org/).
-
-Install it that way:
-
-    sudo apt-get install supervisor
-
-Then create a new configuration file `/etc/supervisor/conf.d/cozy-light.conf`
-with the following content (don't forget to put the right user in the user
-field):
-
-    [program:cozy-light]
-    autorestart=true
-    autostart=true
-    command=cozy-light start
-    redirect_stderr=true
-    user=youruser
-
-Finally refresh Supervisor configuration and enjoy your Cozy Light:
-
-    supervisorctl update
-
+Please jump here #install
 
 # Platform applications
 
@@ -173,27 +109,6 @@ install and run them separately:
 
     cozy-light uninstall cozy-labs/calendar
     
-## Available applications
-
-* cozy-labs/tasky: simple and efficient task manager;
-* cozy-labs/calendar: alarm and events manager;
-* cozy-labs/files: file storage;
-* cozy-labs/webmails: webmail;
-* cozy-labs/contacts: contact book;
-* maboiteaspam/ma-clef-usb: another file storage.
-
-*HTML5 apps (require html5-apps plugin)*
-
-* frankrousseau/coffee-snake: snake game;
-* frankrousseau/CrappyBird: Flappy bird clone.
-
-*Docker apps (require docker plugin)*
-
-* frankrousseau/couchdb: a couchdb database, can be useful for your
-  PouchDB-based apps;
-* frankrousseau/wordpress: Wordpress blog engine.
-* frankrousseau/ghost: Ghost blog engine.
-
 # Plugins
 
 ## Add plugin
@@ -205,20 +120,6 @@ You can extend capability of the platform by adding plugins:
 ## Remove plugin
 
     cozy-light remove-plugin cozy-labs/cozy-light-docker
-
-## Available plugins
-
-* cozy-labs/cozy-light-simple-dashboard: minimalist dashboard for the platform.
-* maboiteaspam/cozy-homepage: redirect root url to Cozy Dashboard app.
-* maboiteaspam/cozy-opener: adds open command, it starts&opens Cozy-light for you.
-* cozy-labs/cozy-light-auth: add auth capabilities to Cozy Light.
-* cozy-labs/cozy-light-basic-auth: add basic auth capabilities to Cozy Light.
-* cozy-labs/cozy-light-html5-apps: to manage HTML5 apps like classic apps.
-* cozy-labs/cozy-light-docker: experimental plugin to manage docker containers
-  like classic apps.
-* cozy-labs/cozy-light-domains: link a domain name to a static app.
-* cozy-labs/cozy-light-githooks: reinstall an app when a commit occurs on the
-  Github repository.
 
 # Configuration
 
@@ -245,37 +146,8 @@ SSL and require HTTPS protocol to be browsed.
 # Contribution
 
 Make us proposal on what you want to do in the issue page then send us your
-PR. You can write your own application or plugin.
-
-# Developer guide
-
-Checkout and install the project
-
-    git checkout https://github.com/cozy-labs/cozy-light.git
-    cd cozy-light
-    git remote add upstream https://github.com/cozy-labs/cozy-light
-    npm install
-    npm install eslint -g
-    npm install mocha -g
-
-Before you push your PR
-
-    npm test
-    npm run lint
-
-Tips
-
-To improve speed of repetitive testing we recommend to use rlidwka/sinopia,
-a private/caching npm repository server.
-
-    npm install -g sinopia
-    sinopia &
-    npm set registry http://localhost:4873/
-
-To reset the default parameters
-    
-    npm config set registry https://registry.npmjs.org/
-    killall sinopia
+PR. You can write your own application or plugin. You can read more about
+developer guide here #dev-guide.md
 
 
 # FAQ
