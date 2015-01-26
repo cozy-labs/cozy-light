@@ -24,9 +24,6 @@ program
 
 program
   .command('start')
-  .option('-p, --port <port>', 'port number on which Cozy Light will listen')
-  .option('-h, --home <home>',
-          'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('start Cozy Light server')
   .action(actions.start);
 
