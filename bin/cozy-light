@@ -16,14 +16,20 @@ program
   .version(pkg.version);
 
 program
-  .option('-p, --port <port>', 'port number on which Cozy Light will listen')
   .option('-h, --home <home>',
-  'home directory where Cozy Light runs (default: ~/.cozy-light)')
+  'home directory where Cozy Light runs (default: ~/.cozy-light)');
+
+// trigger parse of home option.
+program.parse(process.argv);
+
+// Init cozy light, let plugins add their own options / actions
+cozyLight.init(program);
 
 // Initialize cozy cli actions
 
 program
   .command('start')
+  .option('-p, --port <port>', 'port number on which Cozy Light will listen')
   .description('start Cozy Light server')
   .action(actions.start);
 
@@ -67,10 +73,6 @@ program
   .description(
     'Install given distro. If none is give, it displays the distro list')
   .action(actions.installDistro);
-
-
-// Init cozy light, let plugins add their own options / actions
-cozyLight.init(program);
 
 
 // Provides user help
