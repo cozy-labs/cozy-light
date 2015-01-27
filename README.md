@@ -144,6 +144,7 @@ field):
     command=cozy-light start
     redirect_stderr=true
     user=youruser
+    environment=HOME="/home/youruser",USER="youruser"
 
 Finally refresh Supervisor configuration and enjoy your Cozy Light:
 
@@ -217,7 +218,7 @@ You can extend capability of the platform by adding plugins:
 * cozy-labs/cozy-light-docker: experimental plugin to manage docker containers
   like classic apps.
 * cozy-labs/cozy-light-domains: link a domain name to a static app.
-* cozy-labs/cozy-light-githook: reinstall an app when a commit occurs on the
+* cozy-labs/cozy-light-githooks: reinstall an app when a commit occurs on the
   Github repository.
 
 # Configuration
