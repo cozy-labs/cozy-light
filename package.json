@@ -29,9 +29,11 @@
     "url": "https://github.com/cozy-labs/cozy-light/issues"
   },
   "contributors": [
-    "maboiteaspam",
+    "Benjamin Bouvier",
+    "Frank Rousseau",
     "goofy-bz",
-    "Frank Rousseau"
+    "maboiteaspam",
+    "Nicolas Delebecque"
   ],
   "engines": {
     "node": "*"
