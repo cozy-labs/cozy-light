@@ -1,5 +1,5 @@
 
-var configWatcher = require('../lib/config-watcher');
+var configWatcher = require('../lib/helpers/config-watcher');
 require('should');
 var pathExtra = require('path-extra');
 var fs = require('fs-extra');

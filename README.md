@@ -144,6 +144,7 @@ field):
     command=cozy-light start
     redirect_stderr=true
     user=youruser
+    environment=HOME="/home/youruser",USER="youruser"
 
 Finally refresh Supervisor configuration and enjoy your Cozy Light:
 
@@ -178,7 +179,7 @@ install and run them separately:
 * cozy-labs/tasky: simple and efficient task manager;
 * cozy-labs/calendar: alarm and events manager;
 * cozy-labs/files: file storage;
-* cozy-labs/webmails: webmail;
+* cozy-labs/emails: webmail;
 * cozy-labs/contacts: contact book;
 * maboiteaspam/ma-clef-usb: another file storage.
 
@@ -217,7 +218,7 @@ You can extend capability of the platform by adding plugins:
 * cozy-labs/cozy-light-docker: experimental plugin to manage docker containers
   like classic apps.
 * cozy-labs/cozy-light-domains: link a domain name to a static app.
-* cozy-labs/cozy-light-githook: reinstall an app when a commit occurs on the
+* cozy-labs/cozy-light-githooks: reinstall an app when a commit occurs on the
   Github repository.
 
 # Configuration

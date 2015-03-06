@@ -167,6 +167,7 @@ describe('NPM Helpers', function () {
         done();
       });
     });
+
     it('should fetch manifest from a relative module path.', function (done) {
       var testapp = pathExtra.join(fixturesDir, 'test-app');
       npmHelpers.fetchManifest(testapp, function (err, manifest, type) {
