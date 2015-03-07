@@ -1,7 +1,7 @@
 {
   "name": "cozy-light",
   "description": "Personal Server Made Easy",
-  "version": "0.4.5",
+  "version": "0.4.7",
   "author": "Cozy Cloud <contact@cozycloud.cc> (http://cozycloud.cc)",
   "licenses": [
     {
@@ -29,9 +29,11 @@
     "url": "https://github.com/cozy-labs/cozy-light/issues"
   },
   "contributors": [
-    "maboiteaspam",
+    "Benjamin Bouvier",
+    "Frank Rousseau",
     "goofy-bz",
-    "Frank Rousseau"
+    "maboiteaspam",
+    "Nicolas Delebecque"
   ],
   "engines": {
     "node": "*"
