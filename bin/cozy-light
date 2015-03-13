@@ -92,6 +92,7 @@ program
 
 // Run CLI
 
+cozyLight.initiate(program);
 program.parse(process.argv);
 
 // If arguments doesn't match any of the one set, it displays help.
