@@ -11,7 +11,7 @@ Cozy Light allows you to deal, without effort, with many self-hosting use cases
 like turning your server into a file storage, hosting your static website or
 running HTML5 apps. You can try it on your desktop or directly set it up on
 your own server. It performs well on cheap hardwares like the Raspberry Pi or
-small Digital Ocean VPS. 
+small Digital Ocean VPS.
 
 
 # Use cases and distributions
@@ -19,11 +19,11 @@ small Digital Ocean VPS.
 Because of its very flexible architecture Cozy Light can satisfy many usages
 related to self-hosting. Here are some examples:
 
-* Personal cloud (calendars, files, contacts and tasks) 
-* Static blog deployer 
+* Personal cloud (calendars, files, contacts and tasks)
+* Static blog deployer
 * Video game console
 
-For each use case a distribution is available. A distribution is a set 
+For each use case a distribution is available. A distribution is a set
 of plugins and apps that works well together to satisfy a use case.
 
 As an example, once Cozy Light is [installed](#install), run the following
@@ -55,7 +55,7 @@ cozy-light link-domain mywebsite.com mygithubuser/mywebsite
 cozy-light add-githook mygithubuser/mywebsite mysecret
 
 # Run the platform and access to your website on the 80 port
-cozy-light start --port 80 
+cozy-light start --port 80
 ```
 
 # Benefits
@@ -75,7 +75,7 @@ cozy-light start --port 80
 * [Screencast d'introduction (French)](https://vimeo.com/110419102) (Vimeo Link)
 * [Introduction Screencast](https://vimeo.com/108332389) (Vimeo Link)
 
-# Install 
+# Install
 
 Install Node.js (>= 0.10), Git and essential build tools then install
 cozy-light from the NPM package manager:
@@ -99,6 +99,13 @@ ln -s node-v0.10.26-linux-arm-pi node
 chmod a+rw /opt/node/lib/node_modules
 chmod a+rw /opt/node/bin
 echo 'PATH=$PATH:/opt/node/bin' > /etc/profile.d/node.sh
+```
+
+On Rapsberry Pi, it is recommended to clean npm cache before launching
+cozy-light installation.
+
+```bash
+npm cache clean
 ```
 
 ### Ubuntu
@@ -155,7 +162,7 @@ Finally refresh Supervisor configuration and enjoy your Cozy Light:
 
 By default the platform handles only apps based on Node.js and PouchDB.
 But through plugins you can install apps made only of
-static HTML or containers available on the Docker registry. 
+static HTML or containers available on the Docker registry.
 
 ## Install default applications
 
@@ -168,12 +175,12 @@ For your information, most of the apps are runnable without Cozy Light. You can
 install and run them separately:
 
     npm install cozy-calendar -g
-    cozy-calendar 
+    cozy-calendar
 
 ## Uninstall application
 
     cozy-light uninstall cozy-labs/calendar
-    
+
 ## Available applications
 
 * cozy-labs/tasky: simple and efficient task manager;
@@ -225,7 +232,7 @@ You can extend capability of the platform by adding plugins:
 
 The configuration file is located at `~/.cozy-light/config.json` path. App and
 plugin configuration is set through the command line. Other settings must be
-filled directly in the configuration file. 
+filled directly in the configuration file.
 
 *NB: The configuration file follows the JSON format.*
 
@@ -274,10 +281,13 @@ a private/caching npm repository server.
     npm set registry http://localhost:4873/
 
 To reset the default parameters
-    
+
     npm config set registry https://registry.npmjs.org/
     killall sinopia
 
+To install an application from a github repository from a specific branch, use the following command
+
+    cozy-light install github-user/github-repo@branch
 
 # FAQ
 
@@ -295,7 +305,7 @@ management.
 
 It could be done easily by reusing the Sync app from Cozy. It requires some
 extra work to be integrated. Once again, if many many people ask for it, we'll
-probably include it. 
+probably include it.
 
 *How do I manage multi-user?*
 
@@ -308,7 +318,7 @@ users.
 
 We are Coffescript fanboys but many people complain that our language choice
 prevent them to contribute. We think that collaborative work matters the
-most. So we decided to write Cozy Light in JavaScript. 
+most. So we decided to write Cozy Light in JavaScript.
 
 *How do I write my own application?*
 
