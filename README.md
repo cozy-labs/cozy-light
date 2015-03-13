@@ -79,12 +79,6 @@ cozy-light start --port 80
 
 Install Node.js (>= 0.10), Git and essential build tools then install
 cozy-light from the NPM package manager:
-On Rapsberry Pi, it is recommended to clean npm cache before launching
-cozy-light installation.
-
-```bash
-npm cache clean
-```
 
 ### Install Node for Rapsberry Pi
 
@@ -105,6 +99,13 @@ ln -s node-v0.10.26-linux-arm-pi node
 chmod a+rw /opt/node/lib/node_modules
 chmod a+rw /opt/node/bin
 echo 'PATH=$PATH:/opt/node/bin' > /etc/profile.d/node.sh
+```
+
+On Rapsberry Pi, it is recommended to clean npm cache before launching
+cozy-light installation.
+
+```bash
+npm cache clean
 ```
 
 ### Ubuntu
