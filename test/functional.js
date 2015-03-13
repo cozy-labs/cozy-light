@@ -182,6 +182,7 @@ describe('Functional tests', function () {
     it('restart cozy-light.', function (done) {
       this.timeout(5000);
       actions.restart({}, done);
+      done();
     });
 
     it('fake app should be started.', function (done) {
