@@ -73,7 +73,7 @@ program
           'home directory where Cozy Light runs (default: ~/.cozy-light)')
   .description('Disable given app or plugin')
   .action(cozyLight.buildAction(actions.disable));
-  
+
 program
   .command('install-distro [distro]')
   .option('-h, --home <home>',
