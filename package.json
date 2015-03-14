@@ -46,6 +46,7 @@
     "express": "4.8.2",
     "fs-extra": "0.10.0",
     "http-proxy": "1.8.1",
+    "minimist": "1.1.1",
     "morgan": "1.2.2",
     "npm": "2.1.8",
     "path-extra": "0.2.1",
@@ -55,8 +56,8 @@
     "symbolsjs": "1.0.0"
   },
   "devDependencies": {
-    "request": "^2.47.0",
-    "should": "^4.4.1",
+    "request": "2.47.0",
+    "should": "4.4.1",
     "touch": "0.0.3"
   },
   "scripts": {
