@@ -83,7 +83,7 @@ describe('CLI', function () {
     var cmd = [
       './bin/cozy-light',
       'add-plugin',
-      'maboiteaspam/cozy-homepage',
+      'cozy-labs/cozy-light-html5-apps',
       '--home',
       workingDir
     ];
@@ -100,7 +100,7 @@ describe('CLI', function () {
     var cmd = [
       './bin/cozy-light',
       'install',
-      'maboiteaspam/cozy-dashboard',
+      'cozy-labs/contacts',
       '--home',
       workingDir
     ];
@@ -120,7 +120,7 @@ describe('CLI', function () {
       './bin/cozy-light',
       'start',
       '--port',
-      '19105',
+      '19106',
       '--home',
       workingDir
     ];
@@ -130,9 +130,9 @@ describe('CLI', function () {
         done();
       });
     setTimeout(function () {
-      var url = 'http://localhost:19105/apps/cozy-dashboard/';
+      var url = 'http://localhost:19106/apps/cozy-contacts/';
       request.get(url, function(error, response, body){
-        body.should.match(/Cozy Light: Your Personal Cloud at Home/);
+        (body.indexOf('Contacts') >= 0).should.be.ok
         response.statusCode.should.eql(200);
         cozyProcess.kill('SIGINT');
       });
@@ -155,8 +155,7 @@ describe('CLI', function () {
 
     setTimeout(function () {
       request.get('http://localhost:19104/', function(err, res, body){
-        res.statusCode.should.eql(200);
-        body.should.match(/Cozy Light: Your Personal Cloud at Home/);
+        res.statusCode.should.eql(404); // home plugin is not installed.
         cozyProcess.kill('SIGINT');
       });
     }, 2000);
@@ -166,7 +165,7 @@ describe('CLI', function () {
     var cmd = [
       './bin/cozy-light',
       'uninstall',
-      'cozy-dashboard',
+      'cozy-contacts',
       '--home',
       workingDir
     ];
@@ -183,7 +182,7 @@ describe('CLI', function () {
     var cmd = [
       './bin/cozy-light',
       'remove-plugin',
-      'cozy-homepage',
+      'cozy-light-html5-apps',
       '--home',
       workingDir
     ];

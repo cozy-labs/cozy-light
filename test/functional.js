@@ -71,7 +71,7 @@ describe('Functional tests', function () {
     });
 
     it('fake app should be started.', function (done) {
-      var client = requestJSON.newClient('http://localhost:18001');
+      var client = requestJSON.newClient('http://localhost:19204');
       client.get('', function assertResponse (err, res) {
         assert.equal(err, null, 'An error occurred while accessing test-app2.');
         res.statusCode.should.eql(200, 'Wrong return code for test-app2.');
@@ -80,7 +80,7 @@ describe('Functional tests', function () {
     });
 
     it('test-app2 should be started.', function (done) {
-      var client = requestJSON.newClient('http://localhost:18002');
+      var client = requestJSON.newClient('http://localhost:19205');
       client.get('', function assertResponse (err, res) {
         assert.equal(err, null, 'An error occurred while accessing test-app.');
         res.statusCode.should.eql(200, 'Wrong return code for test-app.');
@@ -141,7 +141,7 @@ describe('Functional tests', function () {
     });
 
     it('disabled app should not be started.', function (done) {
-      var client = requestJSON.newClient('http://localhost:18001');
+      var client = requestJSON.newClient('http://localhost:19204');
       client.get('', function assertResponse (err) {
         assert(err !== null);
         done();
@@ -162,7 +162,7 @@ describe('Functional tests', function () {
     });
 
     it('ensure initial source code.', function (done) {
-      var client = requestJSON.newClient('http://localhost:18001');
+      var client = requestJSON.newClient('http://localhost:19204');
       client.get('', function assertResponse (err, res, body) {
         assert.equal(err, null, 'An error occurred while accessing test app.');
         body.ok.should.eql(true, 'Wrong reloaded response body for test app.');
@@ -186,7 +186,7 @@ describe('Functional tests', function () {
     });
 
     it('fake app should be started.', function (done) {
-      var client = requestJSON.newClient('http://localhost:18001');
+      var client = requestJSON.newClient('http://localhost:19204');
       client.get('', function assertResponse (err, res, body) {
         var appHome = configHelpers.modulePath('test-app');
         var serverFile = appHome + '/server.js';
