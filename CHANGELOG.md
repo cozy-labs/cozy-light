@@ -1,6 +1,20 @@
+### 0.4.8
+
+* Attempt to fix arguments parsing.
+* Allow to use given branch for app installation.
+* Apps port is now relative to cozy light running port.
+
+### 0.4.7
+
+* Attempt to fix arguments parsing.
+
 ### 0.4.5
 
-* Split main files in many files
+* Fix install-distro command.
+
+### 0.4.5
+
+* Split main files in many files (big refactoring).
 
 ### 0.4.4
 
