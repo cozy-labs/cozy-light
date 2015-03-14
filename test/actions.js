@@ -47,6 +47,17 @@ describe('actions', function () {
         done();
       });
     });
+
+    it('should add app folders of specified branch and update configuration.', function (done) {
+      this.timeout(60000);
+      var app = 'cozy-labs/hello@dev';
+      actions.installApp(app, function(err) {
+        assert.equal(err, null, 'Cannot install app based on specified branch.');
+        var config = configHelpers.loadConfigFile();
+        ('hello').should.eql(config.apps.hello.name);
+        done();
+      });
+    });
   });
 
   describe('addPlugin', function () {
