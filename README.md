@@ -5,7 +5,7 @@
 
 Personal Server Made Easy.
 
-**Tests status**: ![Travis Badge](https://travis-ci.org/cozy-labs/cozy-light.svg)
+**Tests status**: [![Travis Badge](https://travis-ci.org/cozy-labs/cozy-light.svg)](https://travis-ci.org/cozy-labs/cozy-light)
 
 Cozy Light allows you to deal, without effort, with many self-hosting use cases
 like turning your server into a file storage, hosting your static website or
