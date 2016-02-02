@@ -84,7 +84,7 @@ cozy-light from the NPM package manager:
 
 ```bash
 # Not secured (unknown vendor) but easy
-wget http://node-arm.herokuapp.com/node_0.10.34.deb
+wget http://node-arm.herokuapp.com/node_latest_armhf.deb
 sudo dpkg -i node_latest_armhf.deb
 ```
 
