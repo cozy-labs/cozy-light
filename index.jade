@@ -1,9 +1,10 @@
-doctype 5
+doctype html
 html(lang="en")
     head
-        include knacss.css
-        include octicons.css 
-        include style.css 
+        style
+          include knacss.css
+          include octicons.css 
+          include style.css 
         link(rel="shortcut icon", href="favicon.png")
         title="Cozy Light, Personal Server Made Easy"
         meta(name="description", content="")
@@ -251,7 +252,7 @@ html(lang="en")
                 p.mb2
                     em Example:
                 span.
-                    cozy-labs install cozy-labs/files
+                    cozy-light install cozy-labs/files
 
             h3.mt3.
                 Plugins
@@ -390,7 +391,7 @@ html(lang="en")
 
             div.pa3
 
-        script
+        script.
 
             var elem = document.getElementById('logo');
             var params = { width: 130, height: 130 };
